@@ -246,20 +246,30 @@
                     <label class="form-label" for="f_nama">Nama Kegiatan <span style="color:var(--danger)">*</span></label>
                     <input type="text" name="nama_kegiatan" id="f_nama" class="form-input" placeholder="cth: Sosialisasi Anti Narkoba — SMAN 1" required>
                 </div>
-                <div class="form-group">
-                    <label class="form-label" for="f_lokasi">Lokasi</label>
-                    <div class="flex gap-1.5">
-                        <select name="lokasi_id" id="f_lokasi" class="form-input">
-                            <option value="">— Pilih Lokasi —</option>
-                            @foreach($lokasiList ?? [] as $lok)
-                                <option value="{{ $lok->id }}">{{ $lok->nama_lokasi }}</option>
-                            @endforeach
-                        </select>
-                        <button type="button" class="btn btn-secondary btn-sm flex-shrink-0" id="btnAddLokasiInline" title="Tambah Lokasi Baru">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
+                <div class="form-group" style="position: relative;">
+                    <label class="form-label" for="f_lokasi_search">Lokasi</label>
+                    <div class="kg-combobox-wrap" id="lokasiComboboxWrap">
+                        <div class="kg-combobox-input-wrap">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="kg-combobox-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
                             </svg>
-                        </button>
+                            <input type="text" id="f_lokasi_search" class="form-input kg-combobox-input" placeholder="Cari nama lokasi..." autocomplete="off">
+                        </div>
+
+
+                        {{-- Hidden inputs: ID lokasi terdaftar atau nama lokasi baru --}}
+                        <input type="hidden" name="lokasi_id" id="f_lokasi_id">
+                        <input type="hidden" name="nama_lokasi_baru" id="f_nama_lokasi_baru">
+
+                        {{-- Dropdown Hasil Filter Instan --}}
+                        <div class="kg-combobox-menu hidden" id="lokasiComboboxMenu">
+                            <div class="kg-combobox-list" id="lokasiComboboxList"></div>
+                        </div>
+                    </div>
+                    {{-- Hint tambah lokasi baru (muncul di bawah kolom jika tidak ada hasil) --}}
+                    <div id="lokasiAddHint" class="kg-add-hint hidden">
+                        Lokasi tidak ditemukan, tambahkan lokasi?&nbsp;<button type="button" class="kg-add-link" id="lokasiAddBtn">tambah</button>
                     </div>
                 </div>
                 <div class="form-group">
@@ -522,7 +532,143 @@
     border: 1.5px solid rgba(239,68,68,0.2);
 }
 .kg-btn-danger:hover { background: var(--danger); color: #fff; }
+
+/* ── Instant Search-First Combobox Lokasi ──────────────────── */
+.kg-combobox-wrap {
+    position: relative;
+    width: 100%;
+}
+.kg-combobox-input-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.kg-combobox-icon {
+    position: absolute;
+    left: 0.65rem;
+    width: 14px;
+    height: 14px;
+    color: var(--text-muted);
+    pointer-events: none;
+}
+.kg-combobox-input {
+    width: 100%;
+    padding-left: 2rem !important;
+}
+.kg-combobox-menu {
+    position: absolute;
+    top: calc(100% + 2px);
+    left: 0;
+    right: 0;
+    z-index: 250;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-sm);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    max-height: 200px;
+    overflow-y: auto;
+    animation: kgComboFade 0.08s ease-out;
+}
+@keyframes kgComboFade {
+    from { opacity: 0; transform: translateY(-2px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.kg-combobox-menu.hidden {
+    display: none !important;
+}
+.kg-combobox-list {
+    padding: 0.25rem 0;
+    display: flex;
+    flex-direction: column;
+}
+.kg-combobox-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.45rem 0.75rem;
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: background 0.08s ease;
+    border-radius: 0;
+}
+.kg-combobox-item:hover, .kg-combobox-item.active {
+    background: var(--bg-alt);
+    color: var(--text-primary);
+}
+.kg-combobox-item.selected {
+    background: var(--primary-light);
+    color: var(--primary);
+    font-weight: 600;
+}
+/* Hint tambah lokasi di bawah input */
+.kg-add-hint {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-top: 0.3rem;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+}
+.kg-add-hint.hidden {
+    display: none !important;
+}
+.kg-add-hint .kg-add-link {
+    color: var(--primary);
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 0.75rem;
+    font-family: inherit;
+    transition: opacity 0.1s;
+}
+.kg-add-hint .kg-add-link:hover {
+    opacity: 0.75;
+}
+/* ── Toast Notification ─────────────────────────────────── */
+#kgToastContainer {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    pointer-events: none;
+}
+.kg-toast {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.65rem 1rem;
+    border-radius: var(--r-md);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: #fff;
+    min-width: 220px;
+    max-width: 320px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    pointer-events: auto;
+    animation: kgToastIn 0.2s cubic-bezier(0.34,1.26,0.64,1) forwards;
+    transition: opacity 0.25s, transform 0.25s;
+}
+.kg-toast.out {
+    opacity: 0;
+    transform: translateX(8px);
+}
+.kg-toast.success { background: #10b981; }
+.kg-toast.info    { background: var(--primary); }
+@keyframes kgToastIn {
+    from { opacity: 0; transform: translateX(8px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
 </style>
+<div id="kgToastContainer"></div>
 
 {{-- ── Scripts ──────────────────────────────────────────────── --}}
 <script>
@@ -659,6 +805,294 @@
         // Show/hide empty state
         document.getElementById('kgNoResult').classList.toggle('hidden', visible > 0);
         document.getElementById('totalCount').textContent = visible + ' kegiatan ditemukan';
+    };
+
+    // ── Instant Search-First Combobox Lokasi (0ms Delay) ─────
+    let masterLokasi = @json($lokasiList ?? []);
+    let activeComboIndex = -1;
+
+    const comboWrap     = document.getElementById('lokasiComboboxWrap');
+    const comboInput    = document.getElementById('f_lokasi_search');
+    const comboClearBtn = document.getElementById('f_lokasi_clear');
+    const comboMenu     = document.getElementById('lokasiComboboxMenu');
+    const comboList     = document.getElementById('lokasiComboboxList');
+    const comboIdInput  = document.getElementById('f_lokasi_id');
+    const comboBaruInput= document.getElementById('f_nama_lokasi_baru');
+
+    // ── Toast helper ─────────────────────────────────────────
+    function showToast(message, type = 'success', duration = 3000) {
+        const container = document.getElementById('kgToastContainer');
+        if (!container) return;
+        const toast = document.createElement('div');
+        toast.className = `kg-toast ${type}`;
+        const icon = type === 'success'
+            ? `<svg xmlns="http://www.w3.org/2000/svg" style="width:15px;height:15px;flex-shrink:0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>`
+            : `<svg xmlns="http://www.w3.org/2000/svg" style="width:15px;height:15px;flex-shrink:0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`;
+        toast.innerHTML = `${icon}<span>${message}</span>`;
+        container.appendChild(toast);
+        setTimeout(() => {
+            toast.classList.add('out');
+            setTimeout(() => toast.remove(), 280);
+        }, duration);
+    }
+
+    const addHint   = document.getElementById('lokasiAddHint');
+    const addBtn    = document.getElementById('lokasiAddBtn');
+    let   pendingNewName = '';
+    let   addHintTimer   = null;  // debounce timer untuk hint
+
+    function hideAddHint() {
+        if (addHintTimer) {
+            clearTimeout(addHintTimer);
+            addHintTimer = null;
+        }
+        if (addHint) addHint.classList.add('hidden');
+        pendingNewName = '';
+    }
+
+    // Muncul setelah 3 detik jika ada input dan tidak ditemukan di database
+    function scheduleAddHint(name) {
+        if (addHintTimer) clearTimeout(addHintTimer);
+        const trimmed = (name || '').trim();
+        // JIKA TIDAK ADA INPUT: WAJIB HIDE
+        if (!trimmed) {
+            hideAddHint();
+            return;
+        }
+        pendingNewName = trimmed;
+        addHintTimer = setTimeout(() => {
+            const currentVal = comboInput ? comboInput.value.trim() : '';
+            // Hanya munculkan jika kolom saat ini BENAR-BENAR ada teks input dan tidak ada yang cocok
+            if (currentVal && pendingNewName && addHint) {
+                const matchFound = masterLokasi.some(l => l.nama_lokasi.toLowerCase() === currentVal.toLowerCase());
+                if (!matchFound) {
+                    addHint.classList.remove('hidden');
+                } else {
+                    hideAddHint();
+                }
+            } else {
+                hideAddHint();
+            }
+        }, 3000);
+    }
+
+    function renderLokasiDropdown(query) {
+        if (!comboList) return;
+        const q = query.trim().toLowerCase();
+        comboList.innerHTML = '';
+        activeComboIndex = -1;
+
+        // Jika input kosong: tutup dropdown & sembunyikan hint
+        if (!q) {
+            comboMenu?.classList.add('hidden');
+            hideAddHint();
+            return;
+        }
+
+        // Filter instan 0ms (in-memory)
+        const startsWith = masterLokasi.filter(l => l.nama_lokasi.toLowerCase().startsWith(q));
+        const contains   = masterLokasi.filter(l => !l.nama_lokasi.toLowerCase().startsWith(q) && l.nama_lokasi.toLowerCase().includes(q));
+        const matches    = [...startsWith, ...contains];
+
+        if (matches.length > 0) {
+            // Ada hasil: tampilkan dropdown, sembunyikan hint
+            hideAddHint();
+            matches.forEach(lok => {
+                const item = document.createElement('div');
+                item.className = 'kg-combobox-item';
+                if (comboIdInput && comboIdInput.value == lok.id) {
+                    item.classList.add('selected');
+                }
+
+                // Highlight huruf yang cocok
+                let highlighted = escapeHtml(lok.nama_lokasi);
+                const regex = new RegExp(`(${escapeRegExp(q)})`, 'gi');
+                highlighted = highlighted.replace(regex, '<span style="font-weight:600;color:var(--primary);">$1</span>');
+
+                item.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 flex-shrink-0" style="color:var(--text-muted)" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                    <span class="flex-1 truncate">${highlighted}</span>
+                `;
+                item.addEventListener('click', () => selectExistingLokasi(lok));
+                comboList.appendChild(item);
+            });
+            comboMenu?.classList.remove('hidden');
+        } else {
+            // Tidak ada hasil: tutup dropdown, jadwalkan hint setelah 3 detik diam
+            comboMenu?.classList.add('hidden');
+            const exactMatch = masterLokasi.some(l => l.nama_lokasi.toLowerCase() === q);
+            if (!exactMatch) {
+                scheduleAddHint(query.trim());
+            } else {
+                hideAddHint();
+            }
+        }
+    }
+
+    function selectExistingLokasi(lok) {
+        if (!comboInput) return;
+        comboInput.value = lok.nama_lokasi;
+        if (comboIdInput)   comboIdInput.value   = lok.id;
+        if (comboBaruInput) comboBaruInput.value = '';
+        comboMenu?.classList.add('hidden');
+        hideAddHint();
+    }
+
+    function selectNewLokasi(name) {
+        if (!name) return;
+        if (!comboInput) return;
+        comboInput.value = name;
+        if (comboIdInput)   comboIdInput.value   = '';
+        if (comboBaruInput) comboBaruInput.value = name;
+        comboMenu?.classList.add('hidden');
+        hideAddHint();
+
+        // Tambahkan ke memori lokal supaya langsung searchable
+        if (!masterLokasi.some(l => l.nama_lokasi.toLowerCase() === name.toLowerCase())) {
+            masterLokasi.push({ id: 'new_' + Date.now(), nama_lokasi: name });
+        }
+
+        // Toast konfirmasi
+        showToast(`Lokasi "${name}" akan didaftarkan saat disimpan`);
+    }
+
+    function clearLokasiSelection() {
+        if (!comboInput) return;
+        comboInput.value = '';
+        if (comboIdInput)   comboIdInput.value   = '';
+        if (comboBaruInput) comboBaruInput.value = '';
+        comboMenu?.classList.add('hidden');
+        hideAddHint();
+        comboInput.focus();
+    }
+
+    // Tombol "tambah" di hint
+    if (addBtn) {
+        addBtn.addEventListener('click', function() {
+            if (pendingNewName) selectNewLokasi(pendingNewName);
+        });
+    }
+
+    if (comboInput) {
+        // Input: 0ms delay, real-time filter
+        comboInput.addEventListener('input', function() {
+            const val = this.value;
+            // Selalu sembunyikan hint & batalkan timer saat user sedang mengetik
+            hideAddHint();
+
+            // Reset ID saat user mengetik ulang (sebelum pilih dari dropdown)
+            if (comboIdInput && val !== comboInput._lastSelected) {
+                comboIdInput.value = '';
+                if (comboBaruInput) comboBaruInput.value = '';
+            }
+
+            // Jika input kosong: tutup dropdown & pastikan hint tersembunyi
+            if (!val.trim()) {
+                comboMenu?.classList.add('hidden');
+                return;
+            }
+
+            renderLokasiDropdown(val);
+        });
+
+        // Fokus: hanya buka dropdown jika sudah ada teks
+        comboInput.addEventListener('focus', function() {
+            if (this.value.trim()) {
+                renderLokasiDropdown(this.value);
+            }
+        });
+
+        // Keyboard navigation
+        comboInput.addEventListener('keydown', function(e) {
+            if (!comboList) return;
+            const items = comboList.querySelectorAll('.kg-combobox-item');
+
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                if (items.length) {
+                    activeComboIndex = (activeComboIndex + 1) % items.length;
+                    updateActiveComboItem(items);
+                }
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                if (items.length) {
+                    activeComboIndex = (activeComboIndex - 1 + items.length) % items.length;
+                    updateActiveComboItem(items);
+                }
+            } else if (e.key === 'Enter') {
+                if (activeComboIndex >= 0 && activeComboIndex < items.length) {
+                    e.preventDefault();
+                    items[activeComboIndex].click();
+                }
+            } else if (e.key === 'Escape') {
+                comboMenu?.classList.add('hidden');
+                hideAddHint();
+            }
+        });
+
+        // Tutup dropdown saat klik di luar
+        document.addEventListener('click', function(e) {
+            const hintEl = document.getElementById('lokasiAddHint');
+            if (comboWrap && !comboWrap.contains(e.target) && !(hintEl && hintEl.contains(e.target))) {
+                comboMenu?.classList.add('hidden');
+            }
+        });
+
+        // Sinkronisasi otomatis saat form disubmit: jika user mengetik lokasi baru tanpa klik "tambah"
+        const kgForm = document.getElementById('kegiatanForm');
+        if (kgForm) {
+            kgForm.addEventListener('submit', function() {
+                if (comboInput && !comboIdInput?.value && comboInput.value.trim()) {
+                    if (comboBaruInput) comboBaruInput.value = comboInput.value.trim();
+                }
+            });
+        }
+    }
+
+    function updateActiveComboItem(items) {
+        items.forEach((item, idx) => {
+            item.classList.toggle('active', idx === activeComboIndex);
+            if (idx === activeComboIndex) {
+                item.scrollIntoView({ block: 'nearest' });
+            }
+        });
+    }
+
+    function escapeHtml(str) {
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
+
+    function escapeRegExp(str) {
+        return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
+    // Helper Global untuk Reset & Set Nilai dari Modal
+    window.resetLokasiCombobox = function() {
+        if (!comboInput) return;
+        comboInput.value = '';
+        if (comboIdInput)   comboIdInput.value   = '';
+        if (comboBaruInput) comboBaruInput.value = '';
+        comboMenu?.classList.add('hidden');
+        hideAddHint();
+    };
+
+    window.setLokasiComboboxValue = function(id, name) {
+        if (!comboInput) return;
+        if (name) {
+            comboInput.value = name;
+            comboInput._lastSelected = name;
+            if (comboIdInput)   comboIdInput.value   = id ?? '';
+            if (comboBaruInput) comboBaruInput.value = '';
+            comboMenu?.classList.add('hidden');
+            hideAddHint();
+        } else {
+            window.resetLokasiCombobox();
+        }
     };
 })();
 </script>

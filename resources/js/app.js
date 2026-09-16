@@ -101,6 +101,7 @@ function initKegiatanModal() {
         if (titleEl) titleEl.textContent = 'Tambah Kegiatan';
         // Reset action ke store route
         if (form) form.action = form.dataset.storeUrl ?? form.action;
+        window.resetLokasiCombobox?.();
         overlay?.classList.add('active');
     }));
 
@@ -115,7 +116,9 @@ function initKegiatanModal() {
         document.getElementById('kegiatanFormMethod').value = 'PUT';
         document.getElementById('kegiatanFormId').value = id;
         document.getElementById('f_nama').value    = result.nama_kegiatan ?? '';
-        document.getElementById('f_lokasi').value  = result.lokasi_id ?? '';
+        if (typeof window.setLokasiComboboxValue === 'function') {
+            window.setLokasiComboboxValue(result.lokasi_id, result.lokasi?.nama_lokasi ?? '');
+        }
         document.getElementById('f_tanggal').value = result.tanggal ?? '';
         document.getElementById('f_durasi').value  = result.durasi_menit ?? 30;
         document.getElementById('f_catatan').value = result.catatan ?? '';

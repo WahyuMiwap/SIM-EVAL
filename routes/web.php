@@ -32,12 +32,7 @@ Route::prefix('operator')->name('operator.')->group(function () {
     Route::get('/dashboard', fn() => view('operator.dashboard'))->name('dashboard');
 
     // Profil
-    Route::get('/profil', fn() => view('operator.kegiatan.index', [
-        'kegiatan'     => makePaginator([]),
-        'stats'        => ['total'=>0,'aktif'=>0,'totalPeserta'=>0,'avgNGain'=>'—'],
-        'lokasiList'   => [],
-        'bankSoalList' => [],
-    ]))->name('profile');
+    Route::get('/profil', fn() => view('operator.profil.index'))->name('profile');
 
     // ── Kegiatan ──────────────────────────────────────────
     Route::prefix('kegiatan')->name('kegiatan.')->group(function () {
