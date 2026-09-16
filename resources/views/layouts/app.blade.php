@@ -70,10 +70,6 @@
     style="background: rgba(17,24,39,0.4);"
     onclick="document.getElementById('sidebar').classList.remove('open'); this.classList.add('hidden');"></div>
 
-{{-- Global Search Backdrop (dim background content only) --}}
-<div id="globalSearchBackdrop" class="fixed inset-0 hidden"
-    style="z-index: 39; background: rgba(15, 23, 42, 0.2); backdrop-filter: blur(1px);"></div>
-
 <script>
     // ── Sidebar Mini State Persistence ──────────────────────────
     // Restore state instantly (before paint) to avoid layout flash

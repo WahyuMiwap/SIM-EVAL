@@ -20,17 +20,7 @@
             aria-label="Cari fitur atau data"
         />
 
-        {{-- Clear Button --}}
-        <button type="button" id="globalSearchClearBtn" class="search-clear-btn hidden" aria-label="Bersihkan pencarian">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
-            </svg>
-        </button>
 
-        {{-- Keyboard Shortcut Badge --}}
-        <div class="search-shortcut-badge" id="globalSearchShortcutBadge" title="Tekan Ctrl+K untuk mencari">
-            <kbd>Ctrl</kbd>+<kbd>K</kbd>
-        </div>
     </div>
 
     {{-- Dropdown Results Panel --}}
@@ -40,19 +30,14 @@
             {{-- Dynamically populated --}}
         </div>
 
-        {{-- Footer Info / Shortcuts --}}
+        {{-- Footer: result count only --}}
         <div class="search-dropdown-footer">
-            <div class="search-footer-shortcuts">
-                <span><kbd>↑</kbd><kbd>↓</kbd> Navigasi</span>
-                <span><kbd>↵</kbd> Buka</span>
-                <span><kbd>ESC</kbd> Tutup</span>
-            </div>
-            <div class="search-footer-count" id="searchResultCount">
-                Semua data & fitur
-            </div>
+            <div class="search-footer-count" id="searchResultCount">Semua data &amp; fitur</div>
         </div>
     </div>
 </div>
+
+
 
 <style>
 /* ── Topbar Layout Integration ──────────────────────────────────── */
@@ -389,7 +374,7 @@ mark.search-highlight {
 </style>
 
 <script>
-(function() {
+document.addEventListener('DOMContentLoaded', function () {
     // ── DATA REGISTRY: Semua fitur, navigasi, data & aksi SIM-EVAL ──
     const searchData = [
         // 🧭 Fitur & Halaman Navigasi
@@ -693,9 +678,6 @@ mark.search-highlight {
     const input     = document.getElementById('globalSearchInput');
     const dropdown  = document.getElementById('globalSearchDropdown');
     const list      = document.getElementById('searchResultsList');
-    const clearBtn  = document.getElementById('globalSearchClearBtn');
-    const badge     = document.getElementById('globalSearchShortcutBadge');
-    const backdrop  = document.getElementById('globalSearchBackdrop');
     const countEl   = document.getElementById('searchResultCount');
 
     let currentMatches = [];
@@ -860,14 +842,11 @@ mark.search-highlight {
     // ── Open / Close Dropdown ────────────────────────────────────────
     function openSearch() {
         dropdown.classList.remove('hidden');
-        backdrop.classList.remove('hidden');
         performSearch(input.value);
     }
 
     function closeSearch() {
         dropdown.classList.add('hidden');
-        backdrop.classList.add('hidden');
-        input.blur();
     }
 
     // ── Event Listeners ──────────────────────────────────────────────
@@ -876,27 +855,9 @@ mark.search-highlight {
     });
 
     input.addEventListener('input', () => {
-        const val = input.value;
-        if (val.length > 0) {
-            clearBtn.classList.remove('hidden');
-            if (badge) badge.classList.add('hidden');
-        } else {
-            clearBtn.classList.add('hidden');
-            if (badge) badge.classList.remove('hidden');
-        }
-        performSearch(val);
+        performSearch(input.value);
     });
 
-    clearBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        input.value = '';
-        clearBtn.classList.add('hidden');
-        if (badge) badge.classList.remove('hidden');
-        input.focus();
-        performSearch('');
-    });
-
-    backdrop.addEventListener('click', closeSearch);
 
     document.addEventListener('click', (e) => {
         if (!wrapper.contains(e.target) && !dropdown.classList.contains('hidden')) {
@@ -937,31 +898,12 @@ mark.search-highlight {
         }
     });
 
-    // ── Global Keyboard Shortcut (Ctrl+K / Cmd+K / Slash '/') ───────
+    // ESC to close
     document.addEventListener('keydown', (e) => {
-        // Ctrl+K or Cmd+K
-        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        if (e.key === 'Escape' && !dropdown.classList.contains('hidden')) {
             e.preventDefault();
-            input.focus();
-            openSearch();
-            return;
-        }
-
-        // Pressing '/' to search when not typing in an input/textarea
-        if (e.key === '/' && document.activeElement !== input) {
-            const tagName = (document.activeElement.tagName || '').toLowerCase();
-            const isContentEditable = document.activeElement.isContentEditable;
-            if (tagName !== 'input' && tagName !== 'textarea' && tagName !== 'select' && !isContentEditable) {
-                e.preventDefault();
-                input.focus();
-                openSearch();
-            }
+            closeSearch();
         }
     });
-
-    // Detect OS for shortcut badge text
-    if (navigator.platform && navigator.platform.toUpperCase().indexOf('MAC') >= 0) {
-        if (badge) badge.innerHTML = '<kbd>⌘</kbd>+<kbd>K</kbd>';
-    }
-})();
+});
 </script>
