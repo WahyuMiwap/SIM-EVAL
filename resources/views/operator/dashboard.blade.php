@@ -19,10 +19,10 @@
     {{-- Filter Presets (Satu-satunya Kontrol Rentang Waktu) --}}
     <div class="dash-filter-group">
         <div class="dash-filter-presets">
-            <button id="fBulan" onclick="setFilterPreset('bulan_ini')" class="dash-preset-btn active">
+            <button id="fBulan" class="dash-preset-btn active" type="button">
                 Bulan ini
             </button>
-            <button id="fTahun" onclick="setFilterPreset('tahun_ini')" class="dash-preset-btn">
+            <button id="fTahun" class="dash-preset-btn" type="button">
                 Tahun ini
             </button>
         </div>
@@ -107,36 +107,7 @@
     </div>
 </div>
 
-{{-- ─── Row 2: Diagram Evaluasi Utama (Full Width 100%) ─────────────── --}}
-<div class="dash-card mb-5">
-    {{-- Card Header: Hanya Judul & Dropdown Bentuk Diagram --}}
-    <div class="flex items-center justify-between gap-3 mb-4 pb-3 border-b border-gray-100 dark:border-gray-800">
-        <div>
-            <h3 class="dash-card-title flex items-center gap-2">
-                <span>Tren Evaluasi Sosialisasi</span>
-                <span class="dash-chip">
-                    N-Gain & Skor
-                </span>
-            </h3>
-            <p class="dash-card-sub">Analisis skor pemahaman Pre-Test & Post-Test per sesi evaluasi</p>
-        </div>
-
-        {{-- Dropdown Pilih Bentuk Diagram (Hanya Garis atau Batang) --}}
-        <div class="relative">
-            <select id="chartTypeSelect" onchange="switchChartType(this.value)" class="dash-custom-select font-medium">
-                <option value="line" selected>📈 Diagram Garis</option>
-                <option value="bar">📊 Diagram Batang</option>
-            </select>
-        </div>
-    </div>
-
-    {{-- Container Canvas Chart.js (Full Width, Sangat Lapang & Jelas) --}}
-    <div class="dash-canvas-container" style="position: relative; height: 330px; width: 100%;">
-        <canvas id="evalCanvas"></canvas>
-    </div>
-</div>
-
-{{-- ─── Row 3: Kalender Agenda & Riwayat Kegiatan Lengkap ─────── --}}
+{{-- ─── Row 2: Kalender Agenda & Riwayat Kegiatan Lengkap ─────── --}}
 <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 mb-5">
     {{-- Kalender Agenda (7 cols) --}}
     <div class="lg:col-span-7 dash-card">
@@ -160,11 +131,8 @@
             <div class="flex items-center justify-between mb-3 pb-2 border-b border-gray-100 dark:border-gray-800">
                 <div>
                     <h4 class="dash-card-title text-sm">Kegiatan Terbaru</h4>
-                    <p class="dash-card-sub">Riwayat pelaksanaan terkini</p>
+                    <p class="dash-card-sub">Riwayat pelaksanaan 5 kegiatan terkini</p>
                 </div>
-                <a href="{{ route('operator.kegiatan.index') }}" class="text-xs hover:underline" style="color: var(--primary);">
-                    Semua →
-                </a>
             </div>
 
             <div class="divide-y divide-gray-100 dark:divide-gray-800 text-xs">
@@ -237,6 +205,26 @@
                             <span><span class="font-semibold text-gray-700 dark:text-gray-300">50</span> Peserta</span>
                             <span class="text-gray-300 dark:text-gray-600">·</span>
                             <span class="px-1.5 py-0.2 rounded bg-gray-100 dark:bg-gray-800 text-[10px] text-gray-500 font-medium">Digital</span>
+                        </div>
+                    </div>
+                    <div class="text-right flex flex-col items-end gap-0.5">
+                        <span class="badge badge-blue text-[10px] font-sans">Mendatang</span>
+                        <p class="text-[11px] text-gray-400 font-sans flex items-center gap-1 mt-0.5">
+                            <span>Gain:</span>
+                            <span class="text-gray-400 font-medium">—</span>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="py-2.5 flex items-center justify-between">
+                    <div>
+                        <p class="font-semibold text-gray-800 dark:text-gray-200 font-sans">Lapas Kelas I Surabaya</p>
+                        <div class="flex items-center gap-1.5 mt-0.5 text-[11px] text-gray-400 font-sans">
+                            <span class="text-gray-500 dark:text-gray-400 font-medium">28 Sep</span>
+                            <span class="text-gray-300 dark:text-gray-600">·</span>
+                            <span><span class="font-semibold text-gray-700 dark:text-gray-300">120</span> Peserta</span>
+                            <span class="text-gray-300 dark:text-gray-600">·</span>
+                            <span class="px-1.5 py-0.2 rounded bg-gray-100 dark:bg-gray-800 text-[10px] text-gray-500 font-medium">Kertas</span>
                         </div>
                     </div>
                     <div class="text-right flex flex-col items-end gap-0.5">
@@ -461,253 +449,31 @@
 }
 </style>
 
-{{-- ─── Script Chart.js Terbundel Lokal (100% Reliable & Smooth) ── --}}
+{{-- ─── Script Kalender & Filter Presets ────────────────────────── --}}
 <script>
 (function() {
-    // ── Dataset SIM-EVAL P2M BNN ────────────────────────────────
-    const EVAL_DATA = {
-        bulan_ini: {
-            categories: ['10 Sep', '11 Sep', '12 Sep', '13 Sep', '14 Sep', '15 Sep'],
-            // Kurva gelombang halus persis foto referensi (2.6k -> 2.25k -> 3.75k -> 2.9k -> 3.45k)
-            lineScores: [2600, 3100, 2250, 3750, 2900, 3450],
-            barPre:     [2400, 2800, 2100, 3200, 2600, 3000],
-            barPost:    [3000, 3600, 2700, 4200, 3400, 3900],
-            preAvg:     [45, 50, 48, 55, 52, 58],
-            postAvg:    [82, 88, 80, 92, 85, 94],
-            gainVal:    [0.67, 0.76, 0.61, 0.82, 0.69, 0.85],
-        },
-        tahun_ini: {
-            categories: ['Jan', 'Mar', 'Mei', 'Jul', 'Sep', 'Nov'],
-            lineScores: [2100, 2500, 2900, 3300, 3600, 3900],
-            barPre:     [1900, 2200, 2600, 2900, 3200, 3500],
-            barPost:    [2400, 2900, 3400, 3800, 4100, 4400],
-            preAvg:     [40, 42, 44, 46, 48, 52],
-            postAvg:    [78, 81, 84, 87, 89, 93],
-            gainVal:    [0.63, 0.67, 0.71, 0.76, 0.78, 0.85],
-        }
-    };
-
-    let currentPeriod = 'bulan_ini';
-    let currentType   = 'line'; // DEFAULT SAAT BUKA WEB: DIAGRAM GARIS
-    let chartInstance = null;
-
-    function isDarkMode() {
-        return document.documentElement.classList.contains('dark');
-    }
-
-    // ── Helper Warna Sesuai Design Tokens SIM-EVAL ──────────────
-    function getThemeColors() {
-        const isDark = isDarkMode();
-        return {
-            accent:       '#4361EE',       // Indigo/Blue BNN
-            accentLight:  'rgba(67, 97, 238, 0.32)',
-            accentFaded:  'rgba(67, 97, 238, 0.00)',
-            secondaryBar: isDark ? 'rgba(67, 97, 238, 0.35)' : '#C7D2FE',
-            text:         isDark ? '#94A3B8' : '#64748B',
-            grid:         isDark ? 'rgba(51, 65, 85, 0.45)' : 'rgba(228, 230, 239, 0.7)',
-            cardBg:       isDark ? '#1E293B' : '#FFFFFF',
-            border:       isDark ? '#334155' : '#E4E6EF'
-        };
-    }
-
-    // ── Render / Update Grafik Chart.js ─────────────────────────
-    function initOrUpdateChart() {
-        const canvas = document.getElementById('evalCanvas');
-        if (!canvas) return;
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return;
-
-        const d = EVAL_DATA[currentPeriod];
-        const colors = getThemeColors();
-
-        // Buat gradasi biru halus vertikal persis gambar referensi
-        const gradient = ctx.createLinearGradient(0, 0, 0, 300);
-        gradient.addColorStop(0, colors.accentLight);
-        gradient.addColorStop(0.85, 'rgba(67, 97, 238, 0.04)');
-        gradient.addColorStop(1, colors.accentFaded);
-
-        // Siapkan Konfigurasi Dataset
-        let datasets = [];
-        if (currentType === 'line') {
-            datasets = [{
-                label: 'Skor Efektivitas',
-                data: d.lineScores,
-                borderColor: colors.accent,
-                borderWidth: 2.75,
-                backgroundColor: gradient,
-                fill: true,
-                tension: 0.42, // Smooth Spline Curve persis foto
-                cubicInterpolationMode: 'monotone',
-                pointRadius: 0,
-                pointHoverRadius: 6,
-                pointHoverBackgroundColor: colors.accent,
-                pointHoverBorderColor: '#fff',
-                pointHoverBorderWidth: 2,
-            }];
-        } else {
-            datasets = [
-                {
-                    label: 'Pre-Test',
-                    data: d.barPre,
-                    backgroundColor: colors.secondaryBar,
-                    borderColor: 'transparent',
-                    borderRadius: 6,
-                    borderSkipped: false,
-                    barPercentage: 0.5,
-                    categoryPercentage: 0.6,
-                },
-                {
-                    label: 'Post-Test',
-                    data: d.barPost,
-                    backgroundColor: colors.accent,
-                    borderColor: 'transparent',
-                    borderRadius: 6,
-                    borderSkipped: false,
-                    barPercentage: 0.5,
-                    categoryPercentage: 0.6,
-                }
-            ];
-        }
-
-        // Opsi Chart.js dengan Desain Minimalist Modern Flat & Animasi Smooth Cubic-Bezier
-        const chartConfig = {
-            type: currentType === 'line' ? 'line' : 'bar',
-            data: {
-                labels: d.categories,
-                datasets: datasets
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                // Animasi Smooth Cubic-Bezier (Tidak Ada Bounce!)
-                animation: {
-                    duration: 750,
-                    easing: 'easeInOutCubic',
-                },
-                transitions: {
-                    active: {
-                        animation: {
-                            duration: 350,
-                            easing: 'easeInOutCubic',
-                        }
-                    }
-                },
-                interaction: {
-                    mode: 'index',
-                    intersect: false,
-                },
-                plugins: {
-                    legend: {
-                        display: currentType === 'bar',
-                        position: 'top',
-                        align: 'end',
-                        labels: {
-                            color: colors.text,
-                            font: { family: 'Inter', size: 11, weight: 500 },
-                            usePointStyle: true,
-                            pointStyle: 'circle',
-                            boxWidth: 8,
-                            padding: 15
-                        }
-                    },
-                    tooltip: {
-                        enabled: true,
-                        backgroundColor: colors.cardBg,
-                        titleColor: isDarkMode() ? '#F8FAFC' : '#111827',
-                        bodyColor: colors.text,
-                        borderColor: colors.border,
-                        borderWidth: 1,
-                        padding: 10,
-                        cornerRadius: 10,
-                        titleFont: { family: 'Plus Jakarta Sans', size: 12, weight: 700 },
-                        bodyFont: { family: 'Inter', size: 11, weight: 500 },
-                        boxPadding: 4,
-                        callbacks: {
-                            label: function(context) {
-                                const idx = context.dataIndex;
-                                if (currentType === 'line') {
-                                    const pre  = d.preAvg ? d.preAvg[idx] : 45;
-                                    const post = d.postAvg ? d.postAvg[idx] : 85;
-                                    const gain = d.gainVal ? d.gainVal[idx] : 0.74;
-                                    return [
-                                        ` Skor: ${context.parsed.y.toLocaleString('id-ID')}`,
-                                        ` Pre-Test: ${pre} | Post-Test: ${post}`,
-                                        ` N-Gain: ${gain} (Tinggi)`
-                                    ];
-                                }
-                                return ` ${context.dataset.label}: ${context.parsed.y.toLocaleString('id-ID')} poin`;
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    x: {
-                        grid: { display: false },
-                        ticks: {
-                            color: colors.text,
-                            font: { family: 'Inter', size: 11, weight: 500 }
-                        },
-                        border: { display: false }
-                    },
-                    y: {
-                        min: 1000,
-                        max: 4200,
-                        ticks: {
-                            stepSize: 1000,
-                            color: colors.text,
-                            font: { family: 'Inter', size: 11, weight: 500 },
-                            callback: function(val) {
-                                return val.toLocaleString('id-ID');
-                            }
-                        },
-                        grid: {
-                            color: colors.grid,
-                            drawBorder: false,
-                        },
-                        border: { display: false }
-                    }
-                }
-            }
-        };
-
-        // Jika chart sudah ada, destroy lalu buat dengan animasi cubic-bezier mulus
-        if (chartInstance) {
-            chartInstance.destroy();
-        }
-        chartInstance = new Chart(ctx, chartConfig);
-    }
-
-    // ── Dropdown Switcher Bentuk Diagram (Garis / Batang) ─────────
-    window.switchChartType = function(type) {
-        currentType = type;
-        const selectEl = document.getElementById('chartTypeSelect');
-        if (selectEl && selectEl.value !== type) {
-            selectEl.value = type;
-        }
-        initOrUpdateChart();
-    };
-
     // ── Filter Global Presets (Bulan ini / Tahun ini) ─────────────
-    window.setFilterPreset = function(preset) {
+    function setFilterPreset(preset) {
         const fBulan = document.getElementById('fBulan');
         const fTahun = document.getElementById('fTahun');
+        const filterDesc = document.getElementById('filterDesc');
+        const sKegiatan = document.getElementById('sKegiatan');
+        const sPeserta = document.getElementById('sPeserta');
+
         if (preset === 'bulan_ini') {
             fBulan?.classList.add('active');
             fTahun?.classList.remove('active');
-            document.getElementById('filterDesc').textContent = 'September 2026';
-            document.getElementById('sKegiatan').textContent  = '14';
-            document.getElementById('sPeserta').textContent   = '1.248';
-            currentPeriod = 'bulan_ini';
+            if (filterDesc) filterDesc.textContent = 'September 2026';
+            if (sKegiatan) sKegiatan.textContent  = '14';
+            if (sPeserta) sPeserta.textContent   = '1.248';
         } else {
             fTahun?.classList.add('active');
             fBulan?.classList.remove('active');
-            document.getElementById('filterDesc').textContent = 'Tahun 2026';
-            document.getElementById('sKegiatan').textContent  = '48';
-            document.getElementById('sPeserta').textContent   = '4.850';
-            currentPeriod = 'tahun_ini';
+            if (filterDesc) filterDesc.textContent = 'Tahun 2026';
+            if (sKegiatan) sKegiatan.textContent  = '48';
+            if (sPeserta) sPeserta.textContent   = '4.850';
         }
-        initOrUpdateChart();
-    };
+    }
 
     // ── FullCalendar ─────────────────────────────────────────────
     function initCalendar() {
@@ -740,30 +506,15 @@
 
     // ── Bootstrapping Saat DOM Siap ──────────────────────────────
     document.addEventListener('DOMContentLoaded', function() {
-        // Cek ketersediaan Chart.js (dari bundle Vite atau global)
-        if (typeof Chart !== 'undefined') {
-            initOrUpdateChart();
-        } else {
-            const checkTimer = setInterval(() => {
-                if (typeof Chart !== 'undefined') {
-                    clearInterval(checkTimer);
-                    initOrUpdateChart();
-                }
-            }, 50);
-        }
-
         initCalendar();
-    });
 
-    // Sinkronkan tema grafik saat tombol toggle dark mode ditekan
-    const themeBtn = document.getElementById('themeToggleBtn');
-    if (themeBtn) {
-        themeBtn.addEventListener('click', () => {
-            setTimeout(() => {
-                initOrUpdateChart();
-            }, 60);
+        document.getElementById('fBulan')?.addEventListener('click', function() {
+            setFilterPreset('bulan_ini');
         });
-    }
+        document.getElementById('fTahun')?.addEventListener('click', function() {
+            setFilterPreset('tahun_ini');
+        });
+    });
 })();
 </script>
 @endsection

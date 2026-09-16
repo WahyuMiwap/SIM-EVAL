@@ -239,6 +239,20 @@ resources/views/
 
 ---
 
+## Perubahan Halaman Dashboard (`operator/dashboard.blade.php`)
+
+1. **Hapus Tren Evaluasi Sosialisasi**:
+   - Menghapus card diagram evaluasi sosialisasi (Chart.js canvas dan pemilih diagram garis/batang).
+   - Menghapus script Chart.js yang tidak lagi digunakan (~240 baris kode), sehingga halaman memuat jauh lebih ringan dan bebas error.
+2. **Card Kegiatan Terbaru**:
+   - Menghapus tombol/tautan `"Semua →"` pada header card kegiatan terbaru.
+   - Menampilkan tepat 5 kegiatan terbaru secara terstruktur (SMAN 1 Surabaya, Kec. Tegalsari, Kel. Jambangan, Aula PDAM Sby, dan Lapas Kelas I Surabaya).
+3. **Penyederhanaan Skrip**:
+   - Mengganti inline `onclick="setFilterPreset(...)"` dengan `addEventListener`.
+   - Mempertahankan FullCalendar dan interaktivitas filter metrik global secara modular.
+
+---
+
 ## Hal yang Masih Bisa Diperbaiki (Future)
 
 | Item | Keterangan |
@@ -246,3 +260,4 @@ resources/views/
 | Style `kg-*` di `kegiatan/index.blade.php` | ~500 baris CSS halaman dalam `<style>` inline. Bisa dipindah ke `app.css`. |
 | Campuran Tailwind utility + custom class | `class="flex items-center"` bercampur dengan `.bs-icon-box`. Tidak salah, tapi kurang konsisten. |
 | Mock data di `routes/web.php` | Filter server-side sudah berfungsi, tapi perlu diganti controller nyata saat integrasi database. |
+
