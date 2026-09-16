@@ -109,7 +109,7 @@
             <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color: var(--text-muted);">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
-            <span class="text-xs" style="color: var(--text-muted);">Kode: <span class="font-mono font-bold" style="color: var(--text-secondary);">{{ $session->kode_join }}</span></span>
+            <span class="text-xs" style="color: var(--text-muted);">Kode: <span class="font-bold tracking-wide" style="color: var(--text-secondary);">{{ $session->kode_join }}</span></span>
         </div>
     </div>
 

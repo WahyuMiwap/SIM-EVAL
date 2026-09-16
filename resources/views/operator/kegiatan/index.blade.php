@@ -128,7 +128,7 @@
                        class="font-semibold hover:underline" style="color:var(--text-primary); font-size:0.875rem;">
                         {{ $k->nama_kegiatan }}
                     </a>
-                    <p class="font-mono text-xs mt-0.5" style="color:var(--text-muted);">{{ $k->kode_join ?? '—' }}</p>
+                    <p class="font-semibold text-xs mt-0.5 tracking-wider" style="color:var(--text-muted);">{{ $k->kode_join ?? '—' }}</p>
                 </td>
                 {{-- Lokasi --}}
                 <td style="color:var(--text-secondary); font-size:0.8125rem;">{{ $k->lokasi->nama_lokasi ?? '—' }}</td>

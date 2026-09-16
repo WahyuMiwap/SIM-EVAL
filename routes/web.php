@@ -138,6 +138,119 @@ Route::prefix('operator')->name('operator.')->group(function () {
     // ── Bank Soal ─────────────────────────────────────────
     Route::prefix('bank-soal')->name('bank-soal.')->group(function () {
 
+        $mockQuestions = [
+            (object)[
+                'id' => 1,
+                'pertanyaan' => 'Apa yang dimaksud dengan Narkoba menurut Undang-Undang Republik Indonesia?',
+                'opsi' => [
+                    'A' => 'Zat atau obat alami/sintetis yang menyebabkan penurunan kesadaran, hilangnya rasa nyeri, dan ketergantungan',
+                    'B' => 'Minuman berenergi yang aman dikonsumsi setiap hari tanpa resep dokter',
+                    'C' => 'Suplemen makanan untuk meningkatkan stamina tubuh saat berolahraga',
+                    'D' => 'Obat penenang yang dapat dibeli bebas di warung kelontong'
+                ],
+                'kunci' => 'A'
+            ],
+            (object)[
+                'id' => 2,
+                'pertanyaan' => 'Undang-Undang Republik Indonesia yang mengatur secara komprehensif tentang Narkotika adalah...',
+                'opsi' => [
+                    'A' => 'UU No. 35 Tahun 2009',
+                    'B' => 'UU No. 22 Tahun 1997',
+                    'C' => 'UU No. 5 Tahun 1997',
+                    'D' => 'UU No. 36 Tahun 2009'
+                ],
+                'kunci' => 'A'
+            ],
+            (object)[
+                'id' => 3,
+                'pertanyaan' => 'Dampak negatif penyalahgunaan narkotika terhadap kesehatan mental dan psikologis seseorang meliputi...',
+                'opsi' => [
+                    'A' => 'Meningkatkan rasa percaya diri secara stabil dan permanen',
+                    'B' => 'Halusinasi, gangguan kecemasan berat, depresi, dan hilangnya kendali emosi',
+                    'C' => 'Meningkatkan konsentrasi belajar dan daya ingat jangka panjang',
+                    'D' => 'Membuat pola tidur dan metabolisme tubuh menjadi lebih teratur'
+                ],
+                'kunci' => 'B'
+            ],
+            (object)[
+                'id' => 4,
+                'pertanyaan' => 'Program P4GN yang dicanangkan oleh BNN merupakan singkatan dari...',
+                'opsi' => [
+                    'A' => 'Pencegahan dan Pemberantasan Penyalahgunaan dan Peredaran Gelap Narkotika',
+                    'B' => 'Pengawasan dan Pengendalian Penggunaan Narkoba Generasi Nasional',
+                    'C' => 'Penyuluhan dan Pembinaan Pemuda Gerakan Nasional Anti Narkoba',
+                    'D' => 'Pusat Pelayanan Pengaduan Narkoba dan Rehabilitasi Mandiri'
+                ],
+                'kunci' => 'A'
+            ],
+            (object)[
+                'id' => 5,
+                'pertanyaan' => 'Jika Anda menemukan indikasi penyalahgunaan narkoba pada anggota keluarga atau teman sebaya, tindakan awal yang paling tepat adalah...',
+                'opsi' => [
+                    'A' => 'Mengasingkannya dari lingkungan pergaulan agar tidak menulari orang lain',
+                    'B' => 'Melaporkan ke Institusi Penerima Wajib Lapor (IPWL) atau BNN untuk mendapatkan layanan rehabilitasi',
+                    'C' => 'Menghakiminya bersama masyarakat sekitar secara terbuka',
+                    'D' => 'Mendiamkan masalah tersebut karena dianggap urusan pribadi masing-masing'
+                ],
+                'kunci' => 'B'
+            ],
+            (object)[
+                'id' => 6,
+                'pertanyaan' => 'Bagian tubuh yang paling rentan mengalami kerusakan permanen akibat konsumsi zat narkotika stimulan adalah...',
+                'opsi' => [
+                    'A' => 'Sistem saraf pusat dan jaringan otak',
+                    'B' => 'Kuku dan rambut',
+                    'C' => 'Jaringan kulit luar',
+                    'D' => 'Tulang dan persendian kaki'
+                ],
+                'kunci' => 'A'
+            ],
+            (object)[
+                'id' => 7,
+                'pertanyaan' => 'Apakah seorang penyalahguna narkoba yang dengan sukarela melapor ke BNN / IPWL untuk rehabilitasi akan dijatuhi hukuman pidana penjara?',
+                'opsi' => [
+                    'A' => 'Ya, tetap langsung dipenjara minimal 4 tahun',
+                    'B' => 'Tidak dipidana, melainkan mendapatkan hak rehabilitasi medis dan sosial sesuai UU No. 35 Tahun 2009',
+                    'C' => 'Ya, tetapi hukumannya dipotong setengah',
+                    'D' => 'Tergantung persetujuan dari pihak kepolisian setempat'
+                ],
+                'kunci' => 'B'
+            ],
+            (object)[
+                'id' => 8,
+                'pertanyaan' => 'Berikut yang merupakan salah satu faktor pencegahan protektif utama dalam membentengi remaja dari bahaya narkoba adalah...',
+                'opsi' => [
+                    'A' => 'Komunikasi keluarga yang terbuka, harmonis, serta keterlibatan aktif dalam kegiatan positif',
+                    'B' => 'Memberikan kebebasan pergaulan tanpa batas waktu di luar rumah',
+                    'C' => 'Mengikuti tren pergaulan tanpa menyaring pengaruh buruk kelompok teman',
+                    'D' => 'Mencoba zat baru untuk membuktikan keberanian di hadapan teman'
+                ],
+                'kunci' => 'A'
+            ],
+            (object)[
+                'id' => 9,
+                'pertanyaan' => 'Zat adiktif yang terkandung dalam rokok dan tembakau yang dapat menyebabkan ketergantungan fisik dan psikologis adalah...',
+                'opsi' => [
+                    'A' => 'Nikotin',
+                    'B' => 'Kafein',
+                    'C' => 'Glukosa',
+                    'D' => 'Kalsium'
+                ],
+                'kunci' => 'A'
+            ],
+            (object)[
+                'id' => 10,
+                'pertanyaan' => 'Peran aktif masyarakat dalam mendukung program P4GN di lingkungan tempat tinggal dapat diwujudkan melalui...',
+                'opsi' => [
+                    'A' => 'Membentuk Relawan/Penggiat Anti Narkoba dan menciptakan lingkungan Desa/Kelurahan Bersinar (Bersih Narkoba)',
+                    'B' => 'Menolak kehadiran petugas sosialisasi BNN di wilayah pemukiman',
+                    'C' => 'Menyembunyikan informasi jika ada pengedar narkoba di lingkungannya',
+                    'D' => 'Memasang tarif retribusi bagi setiap kegiatan penyuluhan narkoba'
+                ],
+                'kunci' => 'A'
+            ]
+        ];
+
         $mockSoal = [
             (object)['id' => 1, 'nama_paket' => 'Pre-Test Anti Narkoba Umum',   'tipe' => 'pretest',  'durasi' => 30, 'acak_urutan' => true,  'soal_count' => 10, 'kegiatan_count' => 5,  'created_at' => '2026-08-01'],
             (object)['id' => 2, 'nama_paket' => 'Post-Test Anti Narkoba Umum',  'tipe' => 'posttest', 'durasi' => 30, 'acak_urutan' => true,  'soal_count' => 10, 'kegiatan_count' => 5,  'created_at' => '2026-08-01'],
@@ -145,21 +258,58 @@ Route::prefix('operator')->name('operator.')->group(function () {
             (object)['id' => 4, 'nama_paket' => 'Pre-Test Lapas — Khusus',      'tipe' => 'pretest',  'durasi' => 25, 'acak_urutan' => false, 'soal_count' => 12, 'kegiatan_count' => 1,  'created_at' => '2026-09-01'],
         ];
 
-        $mockPretest = array_filter($mockSoal, fn($s) => $s->tipe === 'pretest');
+        $findPaket = function($id) use ($mockSoal) {
+            foreach ($mockSoal as $item) {
+                if ($item->id == $id) return $item;
+            }
+            return $mockSoal[0];
+        };
 
-        Route::get('/', function () use ($mockSoal, $mockPretest) {
+        // Index
+        Route::get('/', function () use ($mockSoal) {
             return view('operator.bank-soal.index', [
-                'bankSoal'    => makePaginator($mockSoal),
-                'pretestList' => array_values($mockPretest),
+                'bankSoal' => makePaginator($mockSoal),
             ]);
         })->name('index');
 
-        Route::post('/',          fn() => back())->name('store');
-        Route::get('/{id}',       fn($id) => back())->name('detail');
-        Route::get('/{id}/edit',  fn($id) => response()->json(['id' => $id, 'nama_paket' => 'Demo Soal', 'tipe' => 'pretest', 'durasi' => 30, 'acak_urutan' => false]))->name('edit');
-        Route::get('/{id}/soal',  fn($id) => response()->json(['soal' => []]))->name('soal');
-        Route::put('/{id}',       fn($id) => back())->name('update');
-        Route::delete('/{id}',    fn($id) => response()->json(['success' => true]))->name('destroy');
+        // Create (harus sebelum /{id})
+        Route::get('/create', function () {
+            return view('operator.bank-soal.create');
+        })->name('create');
+
+        // Store
+        Route::post('/', function () {
+            return redirect()->route('operator.bank-soal.index')->with('success', 'Paket soal baru berhasil ditambahkan!');
+        })->name('store');
+
+        // Detail
+        Route::get('/{id}', function ($id) use ($findPaket, $mockQuestions) {
+            $paket = $findPaket($id);
+            $count = min($paket->soal_count ?? 10, count($mockQuestions));
+            $soalList = array_slice($mockQuestions, 0, $count);
+            return view('operator.bank-soal.detail', compact('paket', 'soalList'));
+        })->name('detail');
+
+        // Edit
+        Route::get('/{id}/edit', function ($id) use ($findPaket, $mockQuestions) {
+            $paket = $findPaket($id);
+            $count = min($paket->soal_count ?? 10, count($mockQuestions));
+            $soalList = array_slice($mockQuestions, 0, $count);
+            return view('operator.bank-soal.edit', compact('paket', 'soalList'));
+        })->name('edit');
+
+        // Update
+        Route::put('/{id}', function ($id) {
+            return redirect()->route('operator.bank-soal.detail', $id)->with('success', 'Paket soal berhasil diperbarui!');
+        })->name('update');
+
+        // AJAX Soal List
+        Route::get('/{id}/soal', function ($id) use ($mockQuestions) {
+            return response()->json(['soal' => $mockQuestions]);
+        })->name('soal');
+
+        // Delete
+        Route::delete('/{id}', fn($id) => response()->json(['success' => true]))->name('destroy');
     });
 });
 

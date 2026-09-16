@@ -62,7 +62,7 @@
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"/>
                     </svg>
-                    <span>NIP: <span class="pf-mono" id="pfDisplayNip">199203142015041001</span></span>
+                    <span>NIP: <span class="font-medium" id="pfDisplayNip">199203142015041001</span></span>
                 </div>
                 <div class="pf-quick-item">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -122,7 +122,7 @@
                     {{-- NIP --}}
                     <div class="form-group">
                         <label class="form-label" for="pf_nip">NIP (Nomor Induk Pegawai)</label>
-                        <input type="text" id="pf_nip" name="nip" class="form-input pf-mono"
+                        <input type="text" id="pf_nip" name="nip" class="form-input"
                             value="199203142015041001" placeholder="18 digit angka NIP"
                             inputmode="numeric" maxlength="20">
                         <p class="pf-field-hint">Identitas kedinasan BNN</p>
@@ -267,7 +267,7 @@
 <style>
 .pf-hidden { display: none !important; }
 .pf-sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border-width: 0; }
-.pf-mono { font-family: var(--font-mono) !important; letter-spacing: 0.02em; }
+.pf-mono { font-family: var(--font-sans) !important; font-variant-numeric: tabular-nums; }
 
 /* Page Header */
 .pf-page-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1.75rem; gap: 1rem; flex-wrap: wrap; }

@@ -198,10 +198,14 @@ function initLokasiModal() {
 // ─────────────────────────────────────────────────────────────────────────────
 function initBankSoalModal() {
     const overlay   = document.getElementById('soalModalOverlay');
+    ReauthModal.init();
+    if (!overlay) return;
+
     const openBtn   = document.getElementById('btnTambahSoal');
     const closeBtns = [document.getElementById('soalModalClose'), document.getElementById('soalModalCancelBtn')];
 
-    openBtn?.addEventListener('click', () => {
+    openBtn?.addEventListener('click', (e) => {
+        e.preventDefault();
         document.getElementById('soalForm')?.reset();
         document.getElementById('soalFormMethod').value = 'POST';
         document.getElementById('soalModalTitle').textContent = 'Tambah Paket Soal';
@@ -211,8 +215,6 @@ function initBankSoalModal() {
 
     closeBtns.forEach(btn => btn?.addEventListener('click', () => overlay?.classList.remove('active')));
     overlay?.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('active'); });
-
-    ReauthModal.init();
 
     window.editSoal = async (id) => {
         const result = await ApiHelper.get(`/operator/bank-soal/${id}/edit`);

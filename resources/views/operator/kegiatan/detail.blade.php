@@ -34,7 +34,7 @@
         <div class="detail-grid">
             <div>
                 <p class="text-xs text-slate-600 uppercase tracking-wider mb-1">Kode Join</p>
-                <p class="text-xl font-bold font-mono text-blue-400 tracking-widest">{{ $kegiatan->kode_join }}</p>
+                <p class="text-xl font-extrabold font-display text-blue-400 tracking-widest">{{ $kegiatan->kode_join }}</p>
             </div>
             <div>
                 <p class="text-xs text-slate-600 uppercase tracking-wider mb-1">Mode</p>
@@ -91,7 +91,7 @@
             </div>
         </div>
         <p class="text-xs text-slate-500 mb-1.5">Kode Join</p>
-        <p class="text-3xl font-bold font-mono tracking-[0.2em] text-blue-400">{{ $kegiatan->kode_join }}</p>
+        <p class="text-3xl font-extrabold font-display tracking-[0.2em] text-blue-400">{{ $kegiatan->kode_join }}</p>
         <p class="text-xs text-slate-600 mt-2">Atau scan QR di atas</p>
         <button class="btn btn-secondary btn-sm mt-3 w-full" id="btnCopyKode" data-kode="{{ $kegiatan->kode_join }}">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
