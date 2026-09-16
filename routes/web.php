@@ -86,13 +86,41 @@ Route::prefix('operator')->name('operator.')->group(function () {
         ];
 
         Route::get('/', function () use ($mockKegiatan, $mockLokasi, $mockSoalList) {
+            $search   = strtolower(trim(request('search', '')));
+            $mode     = request('mode', '');
+            $period   = request('period', 'all');
+            $dateFrom = request('date_from', '');
+            $dateTo   = request('date_to', '');
+
+            $filtered = collect($mockKegiatan)->filter(function ($k) use ($search, $mode, $period, $dateFrom, $dateTo) {
+                // Filter pencarian nama
+                if ($search && !str_contains(strtolower($k->nama_kegiatan), $search)) return false;
+                // Filter mode
+                if ($mode && ($k->mode ?? '') !== $mode) return false;
+                // Filter periode
+                if ($period !== 'all' && !empty($k->tanggal)) {
+                    $d = \Carbon\Carbon::parse($k->tanggal);
+                    if ($period === 'custom') {
+                        if ($dateFrom && $d->lt(\Carbon\Carbon::parse($dateFrom)->startOfDay())) return false;
+                        if ($dateTo   && $d->gt(\Carbon\Carbon::parse($dateTo)->endOfDay()))   return false;
+                    } else {
+                        $days   = (int) $period;
+                        $cutoff = now()->subDays($days)->startOfDay();
+                        if ($d->lt($cutoff) || $d->gt(now()->endOfDay())) return false;
+                    }
+                }
+                return true;
+            })->values()->all();
+
             return view('operator.kegiatan.index', [
-                'kegiatan'     => makePaginator($mockKegiatan),
+                'kegiatan'     => makePaginator($filtered),
                 'stats'        => ['total' => 3, 'aktif' => 1, 'totalPeserta' => 77, 'avgNGain' => '0.62'],
                 'lokasiList'   => $mockLokasi,
                 'bankSoalList' => $mockSoalList,
+                'filters'      => compact('search', 'mode', 'period', 'dateFrom', 'dateTo'),
             ]);
         })->name('index');
+
 
         Route::post('/', fn() => back()->with('success', 'Kegiatan berhasil ditambahkan.'))->name('store');
 

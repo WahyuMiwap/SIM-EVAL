@@ -4,6 +4,20 @@
 @section('page-title', 'Daftar Kegiatan')
 @section('page-subtitle', 'Kelola seluruh kegiatan sosialisasi P2M')
 
+@php
+    $filters  = $filters  ?? ['search' => '', 'mode' => '', 'period' => 'all', 'dateFrom' => '', 'dateTo' => ''];
+    $fSearch  = $filters['search']   ?? '';
+    $fMode    = $filters['mode']     ?? '';
+    $fPeriod  = $filters['period']   ?? 'all';
+    $fFrom    = $filters['dateFrom'] ?? '';
+    $fTo      = $filters['dateTo']   ?? '';
+    $periodLabels = [
+        'all'  => 'Semua Waktu', '1d' => '1 Hari Terakhir', '7d' => '7 Hari Terakhir',
+        '30d'  => '30 Hari Terakhir', '90d' => '3 Bulan Terakhir',
+        '180d' => '6 Bulan Terakhir', '365d' => '1 Tahun Terakhir', 'custom' => 'Rentang Kustom',
+    ];
+@endphp
+
 @section('content')
 
 {{-- ── Table Card ────────────────────────────────────────────── --}}
@@ -30,31 +44,29 @@
             <svg xmlns="http://www.w3.org/2000/svg" class="kg-search-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
             </svg>
-            <input id="kgSearch" type="text" class="kg-search-input" placeholder="Cari nama kegiatan..." oninput="filterTable()">
+            <input id="kgSearch" type="text" class="kg-search-input"
+                   placeholder="Cari nama kegiatan..."
+                   value="{{ $fSearch }}">
         </div>
 
         {{-- Period Dropdown --}}
         <div class="kg-dropdown-wrap" id="periodDropdownWrap">
-            <button class="kg-dropdown-trigger" id="periodTrigger" onclick="togglePeriodDropdown()">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <button class="kg-dropdown-trigger {{ $fPeriod !== 'all' ? 'open' : '' }}" id="periodTrigger">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                 </svg>
-                <span id="periodLabel">Semua Waktu</span>
+                <span id="periodLabel">{{ $periodLabels[$fPeriod] ?? 'Semua Waktu' }}</span>
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 kg-caret" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                 </svg>
             </button>
 
-            {{-- Dropdown Panel --}}
-            <div class="kg-dropdown-panel" id="periodPanel">
+            <div class="kg-dropdown-panel {{ $fPeriod !== 'all' ? 'open' : '' }}" id="periodPanel">
                 <div class="kg-dropdown-list">
-                    <button class="kg-dropdown-item active" onclick="setPeriod('all',    'Semua Waktu')">Semua Waktu</button>
-                    <button class="kg-dropdown-item"        onclick="setPeriod('1d',     '1 Hari Terakhir')">1 Hari Terakhir</button>
-                    <button class="kg-dropdown-item"        onclick="setPeriod('7d',     '7 Hari Terakhir')">7 Hari Terakhir</button>
-                    <button class="kg-dropdown-item"        onclick="setPeriod('30d',    '30 Hari Terakhir')">30 Hari Terakhir</button>
-                    <button class="kg-dropdown-item"        onclick="setPeriod('90d',    '3 Bulan Terakhir')">3 Bulan Terakhir</button>
-                    <button class="kg-dropdown-item"        onclick="setPeriod('180d',   '6 Bulan Terakhir')">6 Bulan Terakhir</button>
-                    <button class="kg-dropdown-item"        onclick="setPeriod('365d',   '1 Tahun Terakhir')">1 Tahun Terakhir</button>
+                    @foreach(['all' => 'Semua Waktu', '1d' => '1 Hari Terakhir', '7d' => '7 Hari Terakhir', '30d' => '30 Hari Terakhir', '90d' => '3 Bulan Terakhir', '180d' => '6 Bulan Terakhir', '365d' => '1 Tahun Terakhir'] as $val => $label)
+                    <button class="kg-dropdown-item {{ $fPeriod === $val ? 'active' : '' }}"
+                            data-period="{{ $val }}" data-label="{{ $label }}">{{ $label }}</button>
+                    @endforeach
                     <div class="kg-dropdown-divider"></div>
                     {{-- Custom Date Range --}}
                     <div class="kg-custom-range">
@@ -62,12 +74,12 @@
                         <div class="kg-date-inputs">
                             <div class="kg-date-field">
                                 <label>Dari</label>
-                                <input type="date" id="dateFrom" class="kg-date-input" onchange="setPeriod('custom','')">
+                                <input type="date" id="dateFrom" class="kg-date-input" value="{{ $fFrom }}">
                             </div>
                             <div class="kg-date-sep">–</div>
                             <div class="kg-date-field">
                                 <label>Sampai</label>
-                                <input type="date" id="dateTo" class="kg-date-input" onchange="setPeriod('custom','')">
+                                <input type="date" id="dateTo" class="kg-date-input" value="{{ $fTo }}">
                             </div>
                         </div>
                     </div>
@@ -77,15 +89,15 @@
 
         {{-- Mode Filter --}}
         <div class="kg-pill-group">
-            <button class="kg-pill active" onclick="setMode(this,'')">Semua</button>
-            <button class="kg-pill" onclick="setMode(this,'digital')">Digital</button>
-            <button class="kg-pill" onclick="setMode(this,'kertas')">Kertas</button>
+            <button class="kg-pill {{ $fMode === '' ? 'active' : '' }}" data-mode="">Semua</button>
+            <button class="kg-pill {{ $fMode === 'digital' ? 'active' : '' }}" data-mode="digital">Digital</button>
+            <button class="kg-pill {{ $fMode === 'kertas' ? 'active' : '' }}" data-mode="kertas">Kertas</button>
         </div>
 
-        {{-- Active filter chip (shows when period is set) --}}
-        <div class="kg-active-chip hidden" id="activeChip">
-            <span id="activeChipText"></span>
-            <button onclick="clearPeriod()" class="kg-chip-clear">
+        {{-- Active filter chip --}}
+        <div class="kg-active-chip {{ $fPeriod === 'all' ? 'hidden' : '' }}" id="activeChip">
+            <span id="activeChipText">{{ $periodLabels[$fPeriod] ?? '' }}</span>
+            <button id="btnClearPeriod" class="kg-chip-clear">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
                 </svg>
@@ -672,154 +684,153 @@
 
 {{-- ── Scripts ──────────────────────────────────────────────── --}}
 <script>
-(function() {
-    let currentPeriod = 'all';
-    let currentMode   = '';
-    let panelOpen     = false;
+(function () {
+    // ── URL-based filter navigation ─────────────────────────────
+    // Reads current URL params and navigates with new values applied.
+    function navigate(overrides) {
+        const params = new URLSearchParams(window.location.search);
+        params.delete('page'); // reset pagination on filter change
+        Object.entries(overrides).forEach(([k, v]) => {
+            if (v === '' || v === null || v === undefined) {
+                params.delete(k);
+            } else {
+                params.set(k, v);
+            }
+        });
+        window.location.href = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
+    }
 
-    // ── Dropdown open/close ──────────────────────────────────
-    window.togglePeriodDropdown = function() {
-        panelOpen = !panelOpen;
-        document.getElementById('periodPanel').classList.toggle('open', panelOpen);
-        document.getElementById('periodTrigger').classList.toggle('open', panelOpen);
-    };
+    // ── Search: debounce 400ms then navigate ─────────────────────
+    const searchInput = document.getElementById('kgSearch');
+    if (searchInput) {
+        let searchTimer;
+        searchInput.addEventListener('input', function () {
+            clearTimeout(searchTimer);
+            searchTimer = setTimeout(() => navigate({ search: this.value.trim() }), 400);
+        });
+    }
 
-    // Close when clicking outside
-    document.addEventListener('click', function(e) {
+    // ── Period dropdown open/close ────────────────────────────────
+    let panelOpen = false;
+    const periodTrigger = document.getElementById('periodTrigger');
+    const periodPanel   = document.getElementById('periodPanel');
+
+    if (periodTrigger) {
+        periodTrigger.addEventListener('click', function () {
+            panelOpen = !panelOpen;
+            periodPanel.classList.toggle('open', panelOpen);
+            periodTrigger.classList.toggle('open', panelOpen);
+        });
+    }
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function (e) {
         const wrap = document.getElementById('periodDropdownWrap');
-        if (!wrap.contains(e.target) && panelOpen) {
+        if (wrap && !wrap.contains(e.target) && panelOpen) {
             panelOpen = false;
-            document.getElementById('periodPanel').classList.remove('open');
-            document.getElementById('periodTrigger').classList.remove('open');
+            periodPanel?.classList.remove('open');
+            periodTrigger?.classList.remove('open');
         }
     });
 
-    // ── Period selection ─────────────────────────────────────
-    window.setPeriod = function(period, label) {
-        currentPeriod = period;
-
-        // Update all item active states (skip custom range)
-        document.querySelectorAll('.kg-dropdown-item').forEach(btn => btn.classList.remove('active'));
-        const clicked = event && event.target && event.target.classList.contains('kg-dropdown-item')
-            ? event.target : null;
-        if (clicked) clicked.classList.add('active');
-
-        // Update label & chip
-        const chip = document.getElementById('activeChip');
-        const chipText = document.getElementById('activeChipText');
-        document.getElementById('periodLabel').textContent = label || 'Rentang Kustom';
-
-        if (period === 'all') {
-            chip.classList.add('hidden');
-        } else {
-            chip.classList.remove('hidden');
-            chipText.textContent = label || buildCustomLabel();
-        }
-
-        // Close panel (except custom — keep open so user can pick dates)
-        if (period !== 'custom') {
-            panelOpen = false;
-            document.getElementById('periodPanel').classList.remove('open');
-            document.getElementById('periodTrigger').classList.remove('open');
-        }
-
-        filterTable();
-    };
-
-    function buildCustomLabel() {
-        const from = document.getElementById('dateFrom').value;
-        const to   = document.getElementById('dateTo').value;
-        if (from && to)   return `${formatDate(from)} – ${formatDate(to)}`;
-        if (from)         return `Dari ${formatDate(from)}`;
-        if (to)           return `Sampai ${formatDate(to)}`;
-        return 'Rentang Kustom';
-    }
-
-    function formatDate(str) {
-        if (!str) return '';
-        const d = new Date(str);
-        return d.toLocaleDateString('id-ID', { day:'2-digit', month:'short', year:'numeric' });
-    }
-
-    window.clearPeriod = function() {
-        currentPeriod = 'all';
-        document.getElementById('periodLabel').textContent = 'Semua Waktu';
-        document.getElementById('activeChip').classList.add('hidden');
-        document.getElementById('dateFrom').value = '';
-        document.getElementById('dateTo').value = '';
-        document.querySelectorAll('.kg-dropdown-item').forEach(btn => btn.classList.remove('active'));
-        document.querySelector('.kg-dropdown-item').classList.add('active'); // first = "Semua Waktu"
-        filterTable();
-    };
-
-    // ── Mode pill ────────────────────────────────────────────
-    window.setMode = function(btn, mode) {
-        document.querySelectorAll('.kg-pill').forEach(p => p.classList.remove('active'));
-        btn.classList.add('active');
-        currentMode = mode;
-        filterTable();
-    };
-
-    // ── Search ───────────────────────────────────────────────
-    window.filterTable = function() {
-        const search = (document.getElementById('kgSearch').value || '').toLowerCase().trim();
-        const rows   = document.querySelectorAll('#kgTbody tr');
-        const today  = new Date(); today.setHours(23,59,59,999);
-        let visible  = 0;
-
-        rows.forEach(row => {
-            const tanggal = row.dataset.tanggal;  // YYYY-MM-DD
-            const mode    = row.dataset.mode;
-            const nama    = row.dataset.nama;
-
-            // Search match
-            const matchSearch = !search || nama.includes(search);
-
-            // Mode match
-            const matchMode = !currentMode || mode === currentMode;
-
-            // Period match
-            let matchPeriod = true;
-            if (currentPeriod !== 'all' && tanggal) {
-                const d = new Date(tanggal);
-                if (currentPeriod === 'custom') {
-                    const from = document.getElementById('dateFrom').value;
-                    const to   = document.getElementById('dateTo').value;
-                    if (from) matchPeriod = matchPeriod && d >= new Date(from);
-                    if (to)   matchPeriod = matchPeriod && d <= new Date(to + 'T23:59:59');
-                } else {
-                    const days = parseInt(currentPeriod);
-                    const cutoff = new Date(today);
-                    cutoff.setDate(cutoff.getDate() - days);
-                    matchPeriod = d >= cutoff && d <= today;
-                }
-            } else if (currentPeriod !== 'all' && !tanggal) {
-                matchPeriod = false;
+    // ── Period items ──────────────────────────────────────────────
+    document.querySelectorAll('.kg-dropdown-item[data-period]').forEach(btn => {
+        btn.addEventListener('click', function () {
+            const period = this.dataset.period;
+            if (period !== 'custom') {
+                navigate({ period });
             }
-
-            const show = matchSearch && matchMode && matchPeriod;
-            row.style.display = show ? '' : 'none';
-            if (show) visible++;
+            // For 'custom', wait for date inputs
         });
+    });
 
-        // Show/hide empty state
-        document.getElementById('kgNoResult').classList.toggle('hidden', visible > 0);
-        document.getElementById('totalCount').textContent = visible + ' kegiatan ditemukan';
+    // Custom date range inputs
+    const dateFrom = document.getElementById('dateFrom');
+    const dateTo   = document.getElementById('dateTo');
+    if (dateFrom) {
+        dateFrom.addEventListener('change', () => {
+            navigate({ period: 'custom', date_from: dateFrom.value, date_to: dateTo?.value || '' });
+        });
+    }
+    if (dateTo) {
+        dateTo.addEventListener('change', () => {
+            navigate({ period: 'custom', date_from: dateFrom?.value || '', date_to: dateTo.value });
+        });
+    }
+
+    // ── Mode pills ────────────────────────────────────────────────
+    document.querySelectorAll('.kg-pill[data-mode]').forEach(btn => {
+        btn.addEventListener('click', function () {
+            navigate({ mode: this.dataset.mode });
+        });
+    });
+
+    // ── Clear period chip ─────────────────────────────────────────
+    const btnClearPeriod = document.getElementById('btnClearPeriod');
+    if (btnClearPeriod) {
+        btnClearPeriod.addEventListener('click', () => {
+            navigate({ period: null, date_from: null, date_to: null });
+        });
+    }
+
+    // ── Modal: Tambah / Edit Kegiatan ─────────────────────────────
+    const overlay    = document.getElementById('kegiatanModalOverlay');
+    const closeBtn   = document.getElementById('kegiatanModalClose');
+    const cancelBtn  = document.getElementById('kegiatanModalCancelBtn');
+    const modalTitle = document.getElementById('kegiatanModalTitle');
+    const form       = document.getElementById('kegiatanForm');
+    const methodInp  = document.getElementById('kegiatanFormMethod');
+    const idInp      = document.getElementById('kegiatanFormId');
+
+    function openModal() { overlay?.classList.add('active'); }
+    function closeModal() {
+        overlay?.classList.remove('active');
+        form?.reset();
+        if (methodInp)  methodInp.value  = 'POST';
+        if (idInp)      idInp.value      = '';
+        if (modalTitle) modalTitle.textContent = 'Tambah Kegiatan';
+        if (form)       form.action = document.getElementById('kegiatanModalBox')?.dataset.storeUrl || '';
+        window.resetLokasiCombobox?.();
+    }
+
+    // Open via "Tambah Kegiatan" buttons (any button with class that triggers modal)
+    document.querySelectorAll('#btnTambahKegiatan, #btnTambahKegiatanEmpty').forEach(btn => {
+        btn?.addEventListener('click', openModal);
+    });
+    closeBtn?.addEventListener('click', closeModal);
+    cancelBtn?.addEventListener('click', closeModal);
+    overlay?.addEventListener('click', function (e) {
+        if (e.target === overlay) closeModal();
+    });
+
+    // Edit kegiatan — called from table row Edit button
+    window.editKegiatan = function (id) {
+        const editUrl = `/operator/kegiatan/${id}/edit`;
+        fetch(editUrl)
+            .then(r => r.json())
+            .then(data => {
+                if (modalTitle) modalTitle.textContent = 'Edit Kegiatan';
+                if (methodInp)  methodInp.value = 'PUT';
+                if (idInp)      idInp.value = data.id;
+
+                const box = document.getElementById('kegiatanModalBox');
+                if (form && box) form.action = box.dataset.storeUrl.replace('/operator/kegiatan', `/operator/kegiatan/${data.id}`);
+
+                // Populate fields
+                const f = (n) => document.getElementById(n);
+                if (f('f_nama'))    f('f_nama').value    = data.nama_kegiatan || '';
+                if (f('f_tanggal')) f('f_tanggal').value = data.tanggal || '';
+                if (f('f_durasi'))  f('f_durasi').value  = data.durasi_menit || 30;
+                if (f('f_mode'))    f('f_mode').value    = data.mode || 'digital';
+                if (f('f_catatan')) f('f_catatan').value = data.catatan || '';
+
+                window.setLokasiComboboxValue?.(data.lokasi_id, data.lokasi_nama || '');
+                openModal();
+            })
+            .catch(() => showToast('Gagal memuat data kegiatan', 'info'));
     };
 
-    // ── Instant Search-First Combobox Lokasi (0ms Delay) ─────
-    let masterLokasi = @json($lokasiList ?? []);
-    let activeComboIndex = -1;
-
-    const comboWrap     = document.getElementById('lokasiComboboxWrap');
-    const comboInput    = document.getElementById('f_lokasi_search');
-    const comboClearBtn = document.getElementById('f_lokasi_clear');
-    const comboMenu     = document.getElementById('lokasiComboboxMenu');
-    const comboList     = document.getElementById('lokasiComboboxList');
-    const comboIdInput  = document.getElementById('f_lokasi_id');
-    const comboBaruInput= document.getElementById('f_nama_lokasi_baru');
-
-    // ── Toast helper ─────────────────────────────────────────
+    // ── Toast helper ─────────────────────────────────────────────
     function showToast(message, type = 'success', duration = 3000) {
         const container = document.getElementById('kgToastContainer');
         if (!container) return;
@@ -835,41 +846,42 @@
             setTimeout(() => toast.remove(), 280);
         }, duration);
     }
+    // Expose for combobox
+    window.kgShowToast = showToast;
+
+    // ── Instant Search-First Combobox Lokasi ──────────────────────
+    let masterLokasi     = @json($lokasiList ?? []);
+    let activeComboIndex = -1;
+
+    const comboWrap     = document.getElementById('lokasiComboboxWrap');
+    const comboInput    = document.getElementById('f_lokasi_search');
+    const comboMenu     = document.getElementById('lokasiComboboxMenu');
+    const comboList     = document.getElementById('lokasiComboboxList');
+    const comboIdInput  = document.getElementById('f_lokasi_id');
+    const comboBaruInput = document.getElementById('f_nama_lokasi_baru');
 
     const addHint   = document.getElementById('lokasiAddHint');
     const addBtn    = document.getElementById('lokasiAddBtn');
     let   pendingNewName = '';
-    let   addHintTimer   = null;  // debounce timer untuk hint
+    let   addHintTimer   = null;
 
     function hideAddHint() {
-        if (addHintTimer) {
-            clearTimeout(addHintTimer);
-            addHintTimer = null;
-        }
+        clearTimeout(addHintTimer); addHintTimer = null;
         if (addHint) addHint.classList.add('hidden');
         pendingNewName = '';
     }
 
-    // Muncul setelah 3 detik jika ada input dan tidak ditemukan di database
     function scheduleAddHint(name) {
         if (addHintTimer) clearTimeout(addHintTimer);
         const trimmed = (name || '').trim();
-        // JIKA TIDAK ADA INPUT: WAJIB HIDE
-        if (!trimmed) {
-            hideAddHint();
-            return;
-        }
+        if (!trimmed) { hideAddHint(); return; }
         pendingNewName = trimmed;
         addHintTimer = setTimeout(() => {
             const currentVal = comboInput ? comboInput.value.trim() : '';
-            // Hanya munculkan jika kolom saat ini BENAR-BENAR ada teks input dan tidak ada yang cocok
             if (currentVal && pendingNewName && addHint) {
                 const matchFound = masterLokasi.some(l => l.nama_lokasi.toLowerCase() === currentVal.toLowerCase());
-                if (!matchFound) {
-                    addHint.classList.remove('hidden');
-                } else {
-                    hideAddHint();
-                }
+                if (!matchFound) addHint.classList.remove('hidden');
+                else hideAddHint();
             } else {
                 hideAddHint();
             }
@@ -881,170 +893,103 @@
         const q = query.trim().toLowerCase();
         comboList.innerHTML = '';
         activeComboIndex = -1;
+        if (!q) { comboMenu?.classList.add('hidden'); hideAddHint(); return; }
 
-        // Jika input kosong: tutup dropdown & sembunyikan hint
-        if (!q) {
-            comboMenu?.classList.add('hidden');
-            hideAddHint();
-            return;
-        }
-
-        // Filter instan 0ms (in-memory)
         const startsWith = masterLokasi.filter(l => l.nama_lokasi.toLowerCase().startsWith(q));
         const contains   = masterLokasi.filter(l => !l.nama_lokasi.toLowerCase().startsWith(q) && l.nama_lokasi.toLowerCase().includes(q));
         const matches    = [...startsWith, ...contains];
 
         if (matches.length > 0) {
-            // Ada hasil: tampilkan dropdown, sembunyikan hint
             hideAddHint();
             matches.forEach(lok => {
                 const item = document.createElement('div');
                 item.className = 'kg-combobox-item';
-                if (comboIdInput && comboIdInput.value == lok.id) {
-                    item.classList.add('selected');
-                }
-
-                // Highlight huruf yang cocok
+                if (comboIdInput && comboIdInput.value == lok.id) item.classList.add('selected');
                 let highlighted = escapeHtml(lok.nama_lokasi);
                 const regex = new RegExp(`(${escapeRegExp(q)})`, 'gi');
                 highlighted = highlighted.replace(regex, '<span style="font-weight:600;color:var(--primary);">$1</span>');
-
                 item.innerHTML = `
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 flex-shrink-0" style="color:var(--text-muted)" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
                     </svg>
-                    <span class="flex-1 truncate">${highlighted}</span>
-                `;
+                    <span class="flex-1 truncate">${highlighted}</span>`;
                 item.addEventListener('click', () => selectExistingLokasi(lok));
                 comboList.appendChild(item);
             });
             comboMenu?.classList.remove('hidden');
         } else {
-            // Tidak ada hasil: tutup dropdown, jadwalkan hint setelah 3 detik diam
             comboMenu?.classList.add('hidden');
-            const exactMatch = masterLokasi.some(l => l.nama_lokasi.toLowerCase() === q);
-            if (!exactMatch) {
-                scheduleAddHint(query.trim());
-            } else {
-                hideAddHint();
-            }
+            if (!masterLokasi.some(l => l.nama_lokasi.toLowerCase() === q)) scheduleAddHint(query.trim());
+            else hideAddHint();
         }
     }
 
     function selectExistingLokasi(lok) {
         if (!comboInput) return;
         comboInput.value = lok.nama_lokasi;
-        if (comboIdInput)   comboIdInput.value   = lok.id;
-        if (comboBaruInput) comboBaruInput.value = '';
+        if (comboIdInput)    comboIdInput.value   = lok.id;
+        if (comboBaruInput)  comboBaruInput.value = '';
         comboMenu?.classList.add('hidden');
         hideAddHint();
     }
 
     function selectNewLokasi(name) {
-        if (!name) return;
-        if (!comboInput) return;
+        if (!name || !comboInput) return;
         comboInput.value = name;
-        if (comboIdInput)   comboIdInput.value   = '';
-        if (comboBaruInput) comboBaruInput.value = name;
+        if (comboIdInput)    comboIdInput.value   = '';
+        if (comboBaruInput)  comboBaruInput.value = name;
         comboMenu?.classList.add('hidden');
         hideAddHint();
-
-        // Tambahkan ke memori lokal supaya langsung searchable
         if (!masterLokasi.some(l => l.nama_lokasi.toLowerCase() === name.toLowerCase())) {
             masterLokasi.push({ id: 'new_' + Date.now(), nama_lokasi: name });
         }
-
-        // Toast konfirmasi
         showToast(`Lokasi "${name}" akan didaftarkan saat disimpan`);
     }
 
-    function clearLokasiSelection() {
-        if (!comboInput) return;
-        comboInput.value = '';
-        if (comboIdInput)   comboIdInput.value   = '';
-        if (comboBaruInput) comboBaruInput.value = '';
-        comboMenu?.classList.add('hidden');
-        hideAddHint();
-        comboInput.focus();
-    }
-
-    // Tombol "tambah" di hint
-    if (addBtn) {
-        addBtn.addEventListener('click', function() {
-            if (pendingNewName) selectNewLokasi(pendingNewName);
-        });
-    }
+    if (addBtn) addBtn.addEventListener('click', () => { if (pendingNewName) selectNewLokasi(pendingNewName); });
 
     if (comboInput) {
-        // Input: 0ms delay, real-time filter
-        comboInput.addEventListener('input', function() {
-            const val = this.value;
-            // Selalu sembunyikan hint & batalkan timer saat user sedang mengetik
+        comboInput.addEventListener('input', function () {
             hideAddHint();
-
-            // Reset ID saat user mengetik ulang (sebelum pilih dari dropdown)
-            if (comboIdInput && val !== comboInput._lastSelected) {
+            if (comboIdInput && this.value !== comboInput._lastSelected) {
                 comboIdInput.value = '';
                 if (comboBaruInput) comboBaruInput.value = '';
             }
-
-            // Jika input kosong: tutup dropdown & pastikan hint tersembunyi
-            if (!val.trim()) {
-                comboMenu?.classList.add('hidden');
-                return;
-            }
-
-            renderLokasiDropdown(val);
+            if (!this.value.trim()) { comboMenu?.classList.add('hidden'); return; }
+            renderLokasiDropdown(this.value);
         });
 
-        // Fokus: hanya buka dropdown jika sudah ada teks
-        comboInput.addEventListener('focus', function() {
-            if (this.value.trim()) {
-                renderLokasiDropdown(this.value);
-            }
+        comboInput.addEventListener('focus', function () {
+            if (this.value.trim()) renderLokasiDropdown(this.value);
         });
 
-        // Keyboard navigation
-        comboInput.addEventListener('keydown', function(e) {
+        comboInput.addEventListener('keydown', function (e) {
             if (!comboList) return;
             const items = comboList.querySelectorAll('.kg-combobox-item');
-
             if (e.key === 'ArrowDown') {
                 e.preventDefault();
-                if (items.length) {
-                    activeComboIndex = (activeComboIndex + 1) % items.length;
-                    updateActiveComboItem(items);
-                }
+                if (items.length) { activeComboIndex = (activeComboIndex + 1) % items.length; updateActiveComboItem(items); }
             } else if (e.key === 'ArrowUp') {
                 e.preventDefault();
-                if (items.length) {
-                    activeComboIndex = (activeComboIndex - 1 + items.length) % items.length;
-                    updateActiveComboItem(items);
-                }
+                if (items.length) { activeComboIndex = (activeComboIndex - 1 + items.length) % items.length; updateActiveComboItem(items); }
             } else if (e.key === 'Enter') {
-                if (activeComboIndex >= 0 && activeComboIndex < items.length) {
-                    e.preventDefault();
-                    items[activeComboIndex].click();
-                }
+                if (activeComboIndex >= 0 && activeComboIndex < items.length) { e.preventDefault(); items[activeComboIndex].click(); }
             } else if (e.key === 'Escape') {
-                comboMenu?.classList.add('hidden');
-                hideAddHint();
+                comboMenu?.classList.add('hidden'); hideAddHint();
             }
         });
 
-        // Tutup dropdown saat klik di luar
-        document.addEventListener('click', function(e) {
+        document.addEventListener('click', function (e) {
             const hintEl = document.getElementById('lokasiAddHint');
             if (comboWrap && !comboWrap.contains(e.target) && !(hintEl && hintEl.contains(e.target))) {
                 comboMenu?.classList.add('hidden');
             }
         });
 
-        // Sinkronisasi otomatis saat form disubmit: jika user mengetik lokasi baru tanpa klik "tambah"
         const kgForm = document.getElementById('kegiatanForm');
         if (kgForm) {
-            kgForm.addEventListener('submit', function() {
+            kgForm.addEventListener('submit', function () {
                 if (comboInput && !comboIdInput?.value && comboInput.value.trim()) {
                     if (comboBaruInput) comboBaruInput.value = comboInput.value.trim();
                 }
@@ -1055,39 +1000,29 @@
     function updateActiveComboItem(items) {
         items.forEach((item, idx) => {
             item.classList.toggle('active', idx === activeComboIndex);
-            if (idx === activeComboIndex) {
-                item.scrollIntoView({ block: 'nearest' });
-            }
+            if (idx === activeComboIndex) item.scrollIntoView({ block: 'nearest' });
         });
     }
 
-    function escapeHtml(str) {
-        const div = document.createElement('div');
-        div.textContent = str;
-        return div.innerHTML;
-    }
+    function escapeHtml(str) { const d = document.createElement('div'); d.textContent = str; return d.innerHTML; }
+    function escapeRegExp(str) { return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
 
-    function escapeRegExp(str) {
-        return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    }
-
-    // Helper Global untuk Reset & Set Nilai dari Modal
-    window.resetLokasiCombobox = function() {
+    window.resetLokasiCombobox = function () {
         if (!comboInput) return;
         comboInput.value = '';
-        if (comboIdInput)   comboIdInput.value   = '';
-        if (comboBaruInput) comboBaruInput.value = '';
+        if (comboIdInput)    comboIdInput.value   = '';
+        if (comboBaruInput)  comboBaruInput.value = '';
         comboMenu?.classList.add('hidden');
         hideAddHint();
     };
 
-    window.setLokasiComboboxValue = function(id, name) {
+    window.setLokasiComboboxValue = function (id, name) {
         if (!comboInput) return;
         if (name) {
             comboInput.value = name;
             comboInput._lastSelected = name;
-            if (comboIdInput)   comboIdInput.value   = id ?? '';
-            if (comboBaruInput) comboBaruInput.value = '';
+            if (comboIdInput)    comboIdInput.value   = id ?? '';
+            if (comboBaruInput)  comboBaruInput.value = '';
             comboMenu?.classList.add('hidden');
             hideAddHint();
         } else {

@@ -7,7 +7,7 @@
 @section('content')
 
 {{-- ── Main Container ─────────────────────────────────────────── --}}
-<div class="glass animate-fade-in" style="padding: 0; overflow: hidden; border-radius: var(--r-xl); box-shadow: var(--shadow-sm); border: 1px solid var(--border); background: var(--surface);">
+<div class="glass animate-fade-in" style="padding: 0; overflow: hidden; border-radius: var(--r-xl);">
 
     {{-- Header & Toolbar --}}
     <div class="bs-toolbar">
