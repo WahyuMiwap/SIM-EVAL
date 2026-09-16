@@ -35,13 +35,18 @@
         </button>
 
         {{-- Page Title --}}
-        <div class="flex-1">
+        <div class="topbar-title-wrap">
             <h1 class="section-title">@yield('page-title', 'Dashboard')</h1>
             <p class="section-desc">@yield('page-subtitle', 'Selamat datang di SIM-EVAL P2M')</p>
         </div>
 
+        {{-- Global Search Bar (Semua data & fitur) --}}
+        <div class="topbar-search-col">
+            @include('components.topbar-search')
+        </div>
+
         {{-- Right Actions --}}
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-2 flex-shrink-0">
             {{-- Theme Toggle --}}
             <button id="themeToggleBtn" class="btn btn-secondary btn-icon" onclick="toggleTheme()" title="Toggle Dark/Light Mode">
                 <svg id="themeIconLight" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
@@ -64,6 +69,10 @@
 <div id="sidebarOverlay" class="fixed inset-0 z-40 hidden"
     style="background: rgba(17,24,39,0.4);"
     onclick="document.getElementById('sidebar').classList.remove('open'); this.classList.add('hidden');"></div>
+
+{{-- Global Search Backdrop (dim background content only) --}}
+<div id="globalSearchBackdrop" class="fixed inset-0 hidden"
+    style="z-index: 39; background: rgba(15, 23, 42, 0.2); backdrop-filter: blur(1px);"></div>
 
 <script>
     // ── Sidebar Mini State Persistence ──────────────────────────

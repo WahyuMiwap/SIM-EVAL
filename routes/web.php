@@ -141,111 +141,111 @@ Route::prefix('operator')->name('operator.')->group(function () {
         $mockQuestions = [
             (object)[
                 'id' => 1,
-                'pertanyaan' => 'Apa yang dimaksud dengan Narkoba menurut Undang-Undang Republik Indonesia?',
+                'pertanyaan' => 'Kepanjangan Narkoba adalah....',
                 'opsi' => [
-                    'A' => 'Zat atau obat alami/sintetis yang menyebabkan penurunan kesadaran, hilangnya rasa nyeri, dan ketergantungan',
-                    'B' => 'Minuman berenergi yang aman dikonsumsi setiap hari tanpa resep dokter',
-                    'C' => 'Suplemen makanan untuk meningkatkan stamina tubuh saat berolahraga',
-                    'D' => 'Obat penenang yang dapat dibeli bebas di warung kelontong'
+                    'A' => 'Narkotika Psikotropika dan Bahan yang membahayakan',
+                    'B' => 'Narkotika Psikotropika dan Bahan yang perlu diwaspadai',
+                    'C' => 'Narkotika Psikotropika dan Bahan Adiktif lainnya',
+                    'D' => 'Narkotika Psikotropika dan Bahan yang menyenangkan'
                 ],
-                'kunci' => 'A'
+                'kunci' => 'C'
             ],
             (object)[
                 'id' => 2,
-                'pertanyaan' => 'Undang-Undang Republik Indonesia yang mengatur secara komprehensif tentang Narkotika adalah...',
+                'pertanyaan' => 'Berikut adalah jenis-jenis Narkoba adalah...',
                 'opsi' => [
-                    'A' => 'UU No. 35 Tahun 2009',
-                    'B' => 'UU No. 22 Tahun 1997',
-                    'C' => 'UU No. 5 Tahun 1997',
-                    'D' => 'UU No. 36 Tahun 2009'
-                ],
-                'kunci' => 'A'
-            ],
-            (object)[
-                'id' => 3,
-                'pertanyaan' => 'Dampak negatif penyalahgunaan narkotika terhadap kesehatan mental dan psikologis seseorang meliputi...',
-                'opsi' => [
-                    'A' => 'Meningkatkan rasa percaya diri secara stabil dan permanen',
-                    'B' => 'Halusinasi, gangguan kecemasan berat, depresi, dan hilangnya kendali emosi',
-                    'C' => 'Meningkatkan konsentrasi belajar dan daya ingat jangka panjang',
-                    'D' => 'Membuat pola tidur dan metabolisme tubuh menjadi lebih teratur'
+                    'A' => 'Pil Koplo, ekstasi dan susu',
+                    'B' => 'Ganja, sabu dan lem',
+                    'C' => 'Ikan Pe, nasi dan buah jeruk',
+                    'D' => 'Rokok, alkohol dan Air putih'
                 ],
                 'kunci' => 'B'
             ],
             (object)[
-                'id' => 4,
-                'pertanyaan' => 'Program P4GN yang dicanangkan oleh BNN merupakan singkatan dari...',
+                'id' => 3,
+                'pertanyaan' => 'Dampak jangka panjang penyalahgunaan narkoba pada tubuh dan kesehatan adalah, Kecuali...',
                 'opsi' => [
-                    'A' => 'Pencegahan dan Pemberantasan Penyalahgunaan dan Peredaran Gelap Narkotika',
-                    'B' => 'Pengawasan dan Pengendalian Penggunaan Narkoba Generasi Nasional',
-                    'C' => 'Penyuluhan dan Pembinaan Pemuda Gerakan Nasional Anti Narkoba',
-                    'D' => 'Pusat Pelayanan Pengaduan Narkoba dan Rehabilitasi Mandiri'
+                    'A' => 'Kerusakan otak dan penurunan daya ingat',
+                    'B' => 'Kerusakan jantung, paru-paru, dan hati',
+                    'C' => 'Gangguan emosi, kecemasan, dan depresi',
+                    'D' => 'Meningkatkan kecerdasan dan kepercayaan diri'
                 ],
-                'kunci' => 'A'
+                'kunci' => 'D'
+            ],
+            (object)[
+                'id' => 4,
+                'pertanyaan' => 'Faktor lingkungan yang dapat mendorong seseorang mencoba Narkoba adalah...',
+                'opsi' => [
+                    'A' => 'Dukungan keluarga yang harmonis',
+                    'B' => 'Tekanan teman sebaya dan pergaulan bebas',
+                    'C' => 'Mengikuti kegiatan positif di sekolah',
+                    'D' => 'Memiliki hobi yang bermanfaat'
+                ],
+                'kunci' => 'B'
             ],
             (object)[
                 'id' => 5,
-                'pertanyaan' => 'Jika Anda menemukan indikasi penyalahgunaan narkoba pada anggota keluarga atau teman sebaya, tindakan awal yang paling tepat adalah...',
+                'pertanyaan' => 'Sikap yang paling tepat jika ditawari Narkoba oleh teman atau orang lain adalah...',
                 'opsi' => [
-                    'A' => 'Mengasingkannya dari lingkungan pergaulan agar tidak menulari orang lain',
-                    'B' => 'Melaporkan ke Institusi Penerima Wajib Lapor (IPWL) atau BNN untuk mendapatkan layanan rehabilitasi',
-                    'C' => 'Menghakiminya bersama masyarakat sekitar secara terbuka',
-                    'D' => 'Mendiamkan masalah tersebut karena dianggap urusan pribadi masing-masing'
+                    'A' => 'Menerima dan mencoba sedikit saja',
+                    'B' => 'Menolak dengan tegas dan menjauhi',
+                    'C' => 'Menerima lalu menyimpannya',
+                    'D' => 'Diam saja dan pergi tanpa berkata apa-apa'
                 ],
                 'kunci' => 'B'
             ],
             (object)[
                 'id' => 6,
-                'pertanyaan' => 'Bagian tubuh yang paling rentan mengalami kerusakan permanen akibat konsumsi zat narkotika stimulan adalah...',
+                'pertanyaan' => 'Pernyataan yang BENAR tentang obat keras dan obat bebas terbatas adalah...',
                 'opsi' => [
-                    'A' => 'Sistem saraf pusat dan jaringan otak',
-                    'B' => 'Kuku dan rambut',
-                    'C' => 'Jaringan kulit luar',
-                    'D' => 'Tulang dan persendian kaki'
-                ],
-                'kunci' => 'A'
-            ],
-            (object)[
-                'id' => 7,
-                'pertanyaan' => 'Apakah seorang penyalahguna narkoba yang dengan sukarela melapor ke BNN / IPWL untuk rehabilitasi akan dijatuhi hukuman pidana penjara?',
-                'opsi' => [
-                    'A' => 'Ya, tetap langsung dipenjara minimal 4 tahun',
-                    'B' => 'Tidak dipidana, melainkan mendapatkan hak rehabilitasi medis dan sosial sesuai UU No. 35 Tahun 2009',
-                    'C' => 'Ya, tetapi hukumannya dipotong setengah',
-                    'D' => 'Tergantung persetujuan dari pihak kepolisian setempat'
+                    'A' => 'Boleh dikonsumsi sesuka hati karena bukan Narkoba',
+                    'B' => 'Harus dengan resep/disetujui orang tua atau tenaga medis',
+                    'C' => 'Boleh dibeli dan diminum jika teman sedang sakit',
+                    'D' => 'Tidak berbahaya jika diminum melebihi dosis'
                 ],
                 'kunci' => 'B'
             ],
             (object)[
-                'id' => 8,
-                'pertanyaan' => 'Berikut yang merupakan salah satu faktor pencegahan protektif utama dalam membentengi remaja dari bahaya narkoba adalah...',
+                'id' => 7,
+                'pertanyaan' => 'Jika mengetahui teman atau orang lain menggunakan Narkoba, tindakan yang BENAR adalah...',
                 'opsi' => [
-                    'A' => 'Komunikasi keluarga yang terbuka, harmonis, serta keterlibatan aktif dalam kegiatan positif',
-                    'B' => 'Memberikan kebebasan pergaulan tanpa batas waktu di luar rumah',
-                    'C' => 'Mengikuti tren pergaulan tanpa menyaring pengaruh buruk kelompok teman',
-                    'D' => 'Mencoba zat baru untuk membuktikan keberanian di hadapan teman'
+                    'A' => 'Mengabaikannya agar tidak bermusuhan',
+                    'B' => 'Ikut mencoba agar diterima dalam kelompok',
+                    'C' => 'Melaporkan kepada guru atau orang tua atau pihak berwenang',
+                    'D' => 'Menyebarkan berita tersebut ke semua orang agar diketahui'
                 ],
-                'kunci' => 'A'
+                'kunci' => 'C'
+            ],
+            (object)[
+                'id' => 8,
+                'pertanyaan' => 'Mengapa Masa Remaja sama dengan masa rawan? Karena remaja ...',
+                'opsi' => [
+                    'A' => 'Mulai pintar bicara dan bekerja',
+                    'B' => 'Penasaran, Teman sebaya dan ingin mencoba hal baru',
+                    'C' => 'Banyak teman dan dilirik teman',
+                    'D' => 'Mulai suka bersolek dan banyak bicara'
+                ],
+                'kunci' => 'B'
             ],
             (object)[
                 'id' => 9,
-                'pertanyaan' => 'Zat adiktif yang terkandung dalam rokok dan tembakau yang dapat menyebabkan ketergantungan fisik dan psikologis adalah...',
+                'pertanyaan' => 'Berikut adalah anggota tubuh yang harus dijaga/privasi...',
                 'opsi' => [
-                    'A' => 'Nikotin',
-                    'B' => 'Kafein',
-                    'C' => 'Glukosa',
-                    'D' => 'Kalsium'
+                    'A' => 'Mata, mulut, dada dan kaki',
+                    'B' => 'Telinga, kaki, mulut, rambut',
+                    'C' => 'Mulut, dada, telinga dan rambut',
+                    'D' => 'Mulut, dada, alat kelamin, dan pantat'
                 ],
-                'kunci' => 'A'
+                'kunci' => 'D'
             ],
             (object)[
                 'id' => 10,
-                'pertanyaan' => 'Peran aktif masyarakat dalam mendukung program P4GN di lingkungan tempat tinggal dapat diwujudkan melalui...',
+                'pertanyaan' => 'Sebagai Remaja, upaya mencegah penyalahgunaan narkoba yang dapat dilakukan adalah...',
                 'opsi' => [
-                    'A' => 'Membentuk Relawan/Penggiat Anti Narkoba dan menciptakan lingkungan Desa/Kelurahan Bersinar (Bersih Narkoba)',
-                    'B' => 'Menolak kehadiran petugas sosialisasi BNN di wilayah pemukiman',
-                    'C' => 'Menyembunyikan informasi jika ada pengedar narkoba di lingkungannya',
-                    'D' => 'Memasang tarif retribusi bagi setiap kegiatan penyuluhan narkoba'
+                    'A' => 'Memilih pergaulan yang positif dan mengisi waktu dengan kegiatan bermanfaat',
+                    'B' => 'Sering berada di tempat keramaian dan pulang larut malam',
+                    'C' => 'Menerima makanan atau minuman dari orang yang baru dikenal',
+                    'D' => 'Mengikuti ajakan teman untuk pergi ke tempat yang tidak diketahui'
                 ],
                 'kunci' => 'A'
             ]
