@@ -199,17 +199,7 @@
             @endforeach
             </tbody>
         </table>
-
-        {{-- No result row (shown by JS) --}}
-        <div id="kgNoResult" class="empty-state hidden" style="border-top:1px solid var(--border);">
-            <div class="empty-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color:var(--text-muted)">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-            </div>
-            <p class="font-semibold text-sm" style="color:var(--text-secondary)">Tidak ada kegiatan ditemukan</p>
-            <p class="text-xs" style="color:var(--text-muted)">Coba ubah filter atau kata kunci pencarian</p>
-        </div>
+         </div>
     </div>
 
     {{-- Pagination --}}
