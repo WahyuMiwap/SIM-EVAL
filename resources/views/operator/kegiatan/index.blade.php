@@ -29,12 +29,12 @@
             <p class="kg-header-title">Semua Kegiatan</p>
             <p class="kg-header-count" id="totalCount">{{ $kegiatan->total() ?? 0 }} kegiatan ditemukan</p>
         </div>
-        <button class="btn btn-primary btn-sm" id="btnTambahKegiatan">
+        <a href="{{ route('operator.kegiatan.create') }}" class="btn btn-primary btn-sm">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
             </svg>
             Tambah Kegiatan
-        </button>
+        </a>
     </div>
 
     {{-- ── Filter Bar ────────────────────────────────────────── --}}
@@ -87,12 +87,6 @@
             </div>
         </div>
 
-        {{-- Mode Filter --}}
-        <div class="kg-pill-group">
-            <button class="kg-pill {{ $fMode === '' ? 'active' : '' }}" data-mode="">Semua</button>
-            <button class="kg-pill {{ $fMode === 'digital' ? 'active' : '' }}" data-mode="digital">Digital</button>
-            <button class="kg-pill {{ $fMode === 'kertas' ? 'active' : '' }}" data-mode="kertas">Kertas</button>
-        </div>
 
         {{-- Active filter chip --}}
         <div class="kg-active-chip {{ $fPeriod === 'all' ? 'hidden' : '' }}" id="activeChip">
@@ -115,7 +109,7 @@
         </div>
         <p class="font-semibold text-sm" style="color:var(--text-secondary)">Belum ada kegiatan</p>
         <p class="text-xs" style="color:var(--text-muted)">Tambahkan kegiatan pertama untuk memulai</p>
-        <button class="btn btn-primary btn-sm mt-2" id="btnTambahKegiatanEmpty">Tambah Sekarang</button>
+        <a href="{{ route('operator.kegiatan.create') }}" class="btn btn-primary btn-sm mt-2">Tambah Sekarang</a>
     </div>
     @else
     <div style="overflow-x:auto;">
@@ -125,7 +119,6 @@
                     <th>Nama Kegiatan</th>
                     <th>Lokasi</th>
                     <th>Tanggal</th>
-                    <th>Mode</th>
                     <th>Status</th>
                     <th>Peserta</th>
                     <th style="text-align:right;">Aksi</th>
@@ -133,7 +126,7 @@
             </thead>
             <tbody id="kgTbody">
             @foreach($kegiatan as $k)
-            <tr data-tanggal="{{ $k->tanggal ?? '' }}" data-mode="{{ $k->mode ?? '' }}" data-nama="{{ strtolower($k->nama_kegiatan) }}">
+            <tr data-tanggal="{{ $k->tanggal ?? '' }}" data-nama="{{ strtolower($k->nama_kegiatan) }}">
                 {{-- Nama --}}
                 <td>
                     <a href="{{ route('operator.kegiatan.detail', $k->id) }}"
@@ -148,22 +141,12 @@
                 <td style="white-space:nowrap; font-size:0.8125rem; color:var(--text-secondary)">
                     {{ isset($k->tanggal) ? \Carbon\Carbon::parse($k->tanggal)->format('d M Y') : '—' }}
                 </td>
-                {{-- Mode --}}
-                <td>
-                    @if(($k->mode ?? '') === 'digital')
-                        <span class="badge badge-blue">Digital</span>
-                    @else
-                        <span class="badge badge-gray">Kertas</span>
-                    @endif
-                </td>
                 {{-- Status --}}
                 <td>
                     @php $s = $k->status ?? 'menunggu'; @endphp
-                    @if($s === 'selesai')      <span class="badge badge-green">Selesai</span>
-                    @elseif($s === 'pretest')  <span class="badge badge-cyan">Pre-Test</span>
-                    @elseif($s === 'posttest') <span class="badge badge-purple">Post-Test</span>
-                    @elseif($s === 'jeda')     <span class="badge badge-yellow">Jeda</span>
-                    @else                      <span class="badge badge-gray">Menunggu</span>
+                    @if($s === 'selesai')         <span class="badge badge-green">Selesai</span>
+                    @elseif($s === 'berlangsung') <span class="badge badge-cyan">Berlangsung</span>
+                    @else                         <span class="badge badge-gray">Menunggu</span>
                     @endif
                 </td>
                 {{-- Peserta --}}
@@ -179,11 +162,11 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                             </svg>
                         </a>
-                        <button class="btn btn-secondary btn-sm" onclick="editKegiatan({{ $k->id }})" title="Edit">
+                        <a href="{{ route('operator.kegiatan.edit', $k->id) }}" class="btn btn-secondary btn-sm" title="Edit">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                             </svg>
-                        </button>
+                        </a>
                         <button class="btn btn-sm kg-btn-danger"
                             data-reauth-action="{{ route('operator.kegiatan.destroy', $k->id) }}"
                             data-reauth-id="{{ $k->id }}"
@@ -199,7 +182,6 @@
             @endforeach
             </tbody>
         </table>
-         </div>
     </div>
 
     {{-- Pagination --}}
@@ -228,79 +210,7 @@
     @endif
 </div>{{-- /glass --}}
 
-{{-- ── MODAL: Tambah / Edit ─────────────────────────────────── --}}
-<div class="modal-overlay" id="kegiatanModalOverlay">
-    <div class="modal-box" id="kegiatanModalBox" data-store-url="{{ route('operator.kegiatan.store') }}">
-        <div class="modal-header">
-            <p class="modal-title" id="kegiatanModalTitle">Tambah Kegiatan</p>
-            <button class="btn btn-secondary btn-icon" id="kegiatanModalClose">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                </svg>
-            </button>
-        </div>
-        <form id="kegiatanForm" method="POST" action="{{ route('operator.kegiatan.store') }}">
-            @csrf
-            <input type="hidden" name="_method" id="kegiatanFormMethod" value="POST">
-            <input type="hidden" name="id" id="kegiatanFormId">
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
-                <div class="form-group" style="grid-column:1/-1;">
-                    <label class="form-label" for="f_nama">Nama Kegiatan <span style="color:var(--danger)">*</span></label>
-                    <input type="text" name="nama_kegiatan" id="f_nama" class="form-input" placeholder="cth: Sosialisasi Anti Narkoba — SMAN 1" required>
-                </div>
-                <div class="form-group" style="position: relative;">
-                    <label class="form-label" for="f_lokasi_search">Lokasi</label>
-                    <div class="kg-combobox-wrap" id="lokasiComboboxWrap">
-                        <div class="kg-combobox-input-wrap">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="kg-combobox-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                            </svg>
-                            <input type="text" id="f_lokasi_search" class="form-input kg-combobox-input" placeholder="Cari nama lokasi..." autocomplete="off">
-                        </div>
-
-
-                        {{-- Hidden inputs: ID lokasi terdaftar atau nama lokasi baru --}}
-                        <input type="hidden" name="lokasi_id" id="f_lokasi_id">
-                        <input type="hidden" name="nama_lokasi_baru" id="f_nama_lokasi_baru">
-
-                        {{-- Dropdown Hasil Filter Instan --}}
-                        <div class="kg-combobox-menu hidden" id="lokasiComboboxMenu">
-                            <div class="kg-combobox-list" id="lokasiComboboxList"></div>
-                        </div>
-                    </div>
-                    {{-- Hint tambah lokasi baru (muncul di bawah kolom jika tidak ada hasil) --}}
-                    <div id="lokasiAddHint" class="kg-add-hint hidden">
-                        Lokasi tidak ditemukan, tambahkan lokasi?&nbsp;<button type="button" class="kg-add-link" id="lokasiAddBtn">tambah</button>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="form-label" for="f_tanggal">Tanggal</label>
-                    <input type="date" name="tanggal" id="f_tanggal" class="form-input">
-                </div>
-                <div class="form-group">
-                    <label class="form-label" for="f_durasi">Durasi (menit)</label>
-                    <input type="number" name="durasi_menit" id="f_durasi" class="form-input" value="30" min="5" max="180">
-                </div>
-                <div class="form-group">
-                    <label class="form-label" for="f_mode">Mode Pelaksanaan</label>
-                    <select name="mode" id="f_mode" class="form-input">
-                        <option value="digital">Digital (Aplikasi)</option>
-                        <option value="kertas">Kertas (OMR)</option>
-                    </select>
-                </div>
-                <div class="form-group" style="grid-column:1/-1;">
-                    <label class="form-label" for="f_catatan">Catatan (opsional)</label>
-                    <textarea name="catatan" id="f_catatan" class="form-input" rows="2" placeholder="Tambahkan catatan singkat..."></textarea>
-                </div>
-            </div>
-            <div class="flex gap-2 justify-end mt-2">
-                <button type="button" class="btn btn-secondary" id="kegiatanModalCancelBtn">Batal</button>
-                <button type="submit" class="btn btn-primary">Simpan Kegiatan</button>
-            </div>
-        </form>
-    </div>
-</div>
+{{-- Modal dihapus — Tambah & Edit sekarang menggunakan halaman terpisah --}}
 
 {{-- ── Styles ───────────────────────────────────────────────── --}}
 <style>

@@ -9,10 +9,10 @@
 <div class="dash-header-bar">
     <div>
         <h2 class="dash-heading-lg">
-            Overview Kegiatan
+            Selamat datang, Wahyu
         </h2>
         <p class="dash-subtext">
-            Pantauan evaluasi sosialisasi & performa N-Gain BNN Kota Surabaya hari ini
+            Pantauan evaluasi sosialisasi & performa N-Gain BNN Kota Surabaya
         </p>
     </div>
 
@@ -72,66 +72,30 @@
 <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-5">
 
     {{-- Card 1: Total Kegiatan --}}
-    <div class="dash-card">
-        <div class="flex items-center justify-between mb-3">
-            <div class="flex items-center gap-2.5">
-                <div class="dash-icon-box">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                    </svg>
-                </div>
-                <span class="text-xs font-semibold text-gray-500 dark:text-gray-400 font-sans">Total Kegiatan</span>
-            </div>
-            <button type="button" class="text-gray-300 hover:text-gray-500 dark:text-gray-600 dark:hover:text-gray-400 transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"/>
-                </svg>
-            </button>
+    <div class="dash-card dash-metric-card">
+        <div class="dash-metric-icon-wrap">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
         </div>
-
-        <div class="flex items-baseline justify-between pt-1">
+        <div class="dash-metric-body">
+            <span class="dash-metric-label">Total Kegiatan</span>
             <h3 class="dash-stat-number" id="sKegiatan">14</h3>
-            <div class="flex items-center gap-1.5">
-                <span class="badge-growth-up">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18"/>
-                    </svg>
-                    <span class="font-semibold">12.5%</span>
-                </span>
-                <span class="text-[11px] text-gray-400 font-sans">dari bulan lalu</span>
-            </div>
+            <span class="dash-metric-sub">kegiatan terlaksana</span>
         </div>
     </div>
 
     {{-- Card 2: Total Peserta --}}
-    <div class="dash-card">
-        <div class="flex items-center justify-between mb-3">
-            <div class="flex items-center gap-2.5">
-                <div class="dash-icon-box" style="background: var(--info-light); color: var(--info);">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-                    </svg>
-                </div>
-                <span class="text-xs font-semibold text-gray-500 dark:text-gray-400 font-sans">Total Peserta</span>
-            </div>
-            <button type="button" class="text-gray-300 hover:text-gray-500 dark:text-gray-600 dark:hover:text-gray-400 transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"/>
-                </svg>
-            </button>
+    <div class="dash-card dash-metric-card">
+        <div class="dash-metric-icon-wrap dash-metric-icon--info">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+            </svg>
         </div>
-
-        <div class="flex items-baseline justify-between pt-1">
+        <div class="dash-metric-body">
+            <span class="dash-metric-label">Total Peserta</span>
             <h3 class="dash-stat-number" id="sPeserta">1.248</h3>
-            <div class="flex items-center gap-1.5">
-                <span class="badge-growth-up">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18"/>
-                    </svg>
-                    <span class="font-semibold">8.2%</span>
-                </span>
-                <span class="text-[11px] text-gray-400 font-sans">Target <span class="font-semibold">1.500</span></span>
-            </div>
+            <span class="dash-metric-sub">peserta terdaftar</span>
         </div>
     </div>
 </div>
@@ -324,11 +288,54 @@
 }
 .dash-stat-number {
     font-family: var(--font-display);
-    font-size: 2.125rem;
+    font-size: 2rem;
     font-weight: 800;
     letter-spacing: -0.03em;
     color: var(--text-primary);
     line-height: 1;
+}
+
+/* Metric Card Layout */
+.dash-metric-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.25rem 1.5rem;
+}
+.dash-metric-icon-wrap {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--r-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    background: var(--primary-light);
+    color: var(--primary);
+}
+.dash-metric-icon--info {
+    background: var(--info-light);
+    color: var(--info);
+}
+.dash-metric-body {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+.dash-metric-label {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    letter-spacing: 0.01em;
+}
+.dash-metric-sub {
+    font-family: var(--font-sans);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    color: var(--text-xmuted);
+    margin-top: 1px;
 }
 
 /* Card Styling: Minimalist Modern Flat */

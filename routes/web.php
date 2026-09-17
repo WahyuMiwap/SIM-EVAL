@@ -122,7 +122,13 @@ Route::prefix('operator')->name('operator.')->group(function () {
         })->name('index');
 
 
-        Route::post('/', fn() => back()->with('success', 'Kegiatan berhasil ditambahkan.'))->name('store');
+        Route::get('/create', function () use ($mockLokasi) {
+            return view('operator.kegiatan.create', [
+                'lokasiList' => $mockLokasi,
+            ]);
+        })->name('create');
+
+        Route::post('/', fn() => redirect()->route('operator.kegiatan.index')->with('success', 'Kegiatan berhasil ditambahkan.'))->name('store');
 
         Route::get('/{id}', function ($id) {
             return view('operator.kegiatan.detail', [
@@ -130,8 +136,7 @@ Route::prefix('operator')->name('operator.')->group(function () {
                     'id'            => $id,
                     'nama_kegiatan' => 'Sosialisasi Anti Narkoba — SMA N 5 Surabaya',
                     'kode_join'     => 'AB1C2D',
-                    'status'        => 'jeda',
-                    'mode'          => 'digital',
+                    'status'        => 'berlangsung',
                     'tanggal'       => '2026-09-10',
                     'durasi_menit'  => 30,
                     'peserta_count' => 42,
@@ -140,10 +145,27 @@ Route::prefix('operator')->name('operator.')->group(function () {
             ]);
         })->name('detail');
 
-        Route::get('/{id}/edit',    fn($id) => response()->json(['id' => $id, 'nama_kegiatan' => 'Sosialisasi Demo', 'lokasi_id' => 1, 'tanggal' => '2026-09-10', 'durasi_menit' => 30, 'catatan' => '']))->name('edit');
-        Route::put('/{id}',         fn($id) => back())->name('update');
-        Route::delete('/{id}',      fn($id) => response()->json(['success' => true]))->name('destroy');
-        Route::get('/{id}/export',  fn($id) => back())->name('export');
+        Route::get('/{id}/edit', function ($id) use ($mockLokasi) {
+            return view('operator.kegiatan.edit', [
+                'kegiatan' => (object)[
+                    'id'            => $id,
+                    'nama_kegiatan' => 'Sosialisasi Anti Narkoba — SMA N 5 Surabaya',
+                    'kode_join'     => 'AB1C2D',
+                    'status'        => 'jeda',
+                    'mode'          => 'digital',
+                    'tanggal'       => '2026-09-10',
+                    'durasi_menit'  => 30,
+                    'catatan'       => '',
+                    'peserta_count' => 42,
+                    'lokasi_id'     => 1,
+                    'lokasi'        => (object)['nama_lokasi' => 'SMA N 5 Surabaya'],
+                ],
+                'lokasiList' => $mockLokasi,
+            ]);
+        })->name('edit');
+        Route::put('/{id}',    fn($id) => redirect()->route('operator.kegiatan.detail', $id)->with('success', 'Kegiatan berhasil diperbarui.'))->name('update');
+        Route::delete('/{id}', fn($id) => redirect()->route('operator.kegiatan.index')->with('success', 'Kegiatan berhasil dihapus.'))->name('destroy');
+        Route::get('/{id}/export', fn($id) => back())->name('export');
     });
 
     // ── Lokasi ────────────────────────────────────────────
