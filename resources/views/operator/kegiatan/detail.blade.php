@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('title', 'Detail Kegiatan')
 @section('page-title', $kegiatan->nama_kegiatan ?? 'Detail Kegiatan')
@@ -18,15 +18,15 @@
     <div>
         <div class="flex items-center gap-3 flex-wrap">
             <h1 class="kd-page-title">{{ $kegiatan->nama_kegiatan }}</h1>
-            @php $s = $kegiatan->status ?? 'menunggu'; @endphp
+            @php $s = $kegiatan->status ?? 'Dijadwalkan'; @endphp
             @if($s === 'selesai')         <span class="badge badge-green">Selesai</span>
             @elseif($s === 'berlangsung') <span class="badge badge-cyan">Berlangsung</span>
-            @else                         <span class="badge badge-gray">Menunggu</span>
+            @else                         <span class="badge badge-gray">Dijadwalkan</span>
             @endif
         </div>
         <p class="kd-page-sub">
-            {{ $kegiatan->lokasi->nama_lokasi ?? '—' }} &nbsp;·&nbsp;
-            {{ isset($kegiatan->tanggal) ? \Carbon\Carbon::parse($kegiatan->tanggal)->isoFormat('dddd, D MMMM Y') : '—' }}
+            {{ $kegiatan->lokasi->nama_lokasi ?? 'â€”' }} &nbsp;Â·&nbsp;
+            {{ isset($kegiatan->tanggal) ? \Carbon\Carbon::parse($kegiatan->tanggal)->isoFormat('dddd, D MMMM Y') : 'â€”' }}
         </p>
     </div>
     <div class="kd-page-actions">
@@ -64,7 +64,7 @@
                 <span class="kd-info-value">
                     @if($s === 'selesai')         <span class="badge badge-green">Selesai</span>
                     @elseif($s === 'berlangsung') <span class="badge badge-cyan">Berlangsung</span>
-                    @else                         <span class="badge badge-gray">Menunggu</span>
+                    @else                         <span class="badge badge-gray">Dijadwalkan</span>
                     @endif
                 </span>
             </div>
@@ -78,11 +78,11 @@
             </div>
             <div class="kd-info-item">
                 <span class="kd-info-label">Lokasi</span>
-                <span class="kd-info-value">{{ $kegiatan->lokasi->nama_lokasi ?? '—' }}</span>
+                <span class="kd-info-value">{{ $kegiatan->lokasi->nama_lokasi ?? 'â€”' }}</span>
             </div>
             <div class="kd-info-item">
                 <span class="kd-info-label">Tanggal</span>
-                <span class="kd-info-value">{{ isset($kegiatan->tanggal) ? \Carbon\Carbon::parse($kegiatan->tanggal)->format('d M Y') : '—' }}</span>
+                <span class="kd-info-value">{{ isset($kegiatan->tanggal) ? \Carbon\Carbon::parse($kegiatan->tanggal)->format('d M Y') : 'â€”' }}</span>
             </div>
         </div>
     </div>
@@ -105,7 +105,7 @@
             </div>
             <div style="height:1px;background:var(--border);margin:0.5rem 0;"></div>
             <div class="kd-sesi-btns">
-                @if($s === 'menunggu')
+                @if($s === 'Dijadwalkan')
                     <button class="btn btn-primary w-full" id="btnMulaiKegiatan" data-id="{{ $kegiatan->id }}">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                         Mulai Kegiatan
@@ -141,12 +141,12 @@
         </div>
         <div style="padding:1rem 1.25rem;">
             <div class="grid grid-cols-5 gap-2 max-h-48 overflow-y-auto" id="participantGrid">
-                <div class="col-span-full flex items-center justify-center py-8 text-sm" style="color:var(--text-muted)">Menunggu peserta bergabung...</div>
+                <div class="col-span-full flex items-center justify-center py-8 text-sm" style="color:var(--text-muted)">Dijadwalkan peserta bergabung...</div>
             </div>
         </div>
         <div class="kd-card-footer">
             <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-green-500"></span> Mengerjakan</span>
-            <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full" style="background:var(--warning)"></span> Menunggu</span>
+            <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full" style="background:var(--warning)"></span> Dijadwalkan</span>
             <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full" style="background:var(--primary)"></span> Selesai</span>
         </div>
     </div>
@@ -177,7 +177,7 @@
             <label class="kd-upload-zone" for="inputFotoScan">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color:var(--text-xmuted)"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
                 <p class="text-sm font-medium" style="color:var(--text-secondary)">Klik atau seret foto lembar jawaban</p>
-                <p class="text-xs" style="color:var(--text-muted)">JPG, PNG — maks. 10 MB</p>
+                <p class="text-xs" style="color:var(--text-muted)">JPG, PNG â€” maks. 10 MB</p>
                 <input type="file" id="inputFotoScan" accept="image/*" class="hidden">
             </label>
             <div class="kd-upload-preview hidden" id="uploadPreview">
@@ -208,7 +208,7 @@
         (object)['nama'=>'Budi Santoso',   'pretest'=>45,'posttest'=>75,'ngain'=>0.55,'status'=>'selesai'],
         (object)['nama'=>'Citra Dewi',     'pretest'=>70,'posttest'=>90,'ngain'=>0.67,'status'=>'selesai'],
         (object)['nama'=>'Dedi Kurniawan', 'pretest'=>50,'posttest'=>null,'ngain'=>null,'status'=>'pretest'],
-        (object)['nama'=>'Eva Marlina',    'pretest'=>null,'posttest'=>null,'ngain'=>null,'status'=>'menunggu'],
+        (object)['nama'=>'Eva Marlina',    'pretest'=>null,'posttest'=>null,'ngain'=>null,'status'=>'Dijadwalkan'],
     ];
     @endphp
     <div style="overflow-x:auto;">
@@ -221,24 +221,24 @@
             <tr>
                 <td style="color:var(--text-muted);font-size:0.8rem;">{{ $i+1 }}</td>
                 <td><span style="font-weight:600;font-size:0.875rem;color:var(--text-primary)">{{ $p->nama }}</span></td>
-                <td>@if($p->pretest !== null)<span class="kd-score">{{ $p->pretest }}</span>@else<span style="color:var(--text-xmuted)">—</span>@endif</td>
-                <td>@if($p->posttest !== null)<span class="kd-score">{{ $p->posttest }}</span>@else<span style="color:var(--text-xmuted)">—</span>@endif</td>
+                <td>@if($p->pretest !== null)<span class="kd-score">{{ $p->pretest }}</span>@else<span style="color:var(--text-xmuted)">â€”</span>@endif</td>
+                <td>@if($p->posttest !== null)<span class="kd-score">{{ $p->posttest }}</span>@else<span style="color:var(--text-xmuted)">â€”</span>@endif</td>
                 <td>
                     @if($p->ngain !== null)
                         <span class="kd-ngain {{ $p->ngain >= 0.7 ? 'kd-ngain-high' : ($p->ngain >= 0.3 ? 'kd-ngain-mid' : 'kd-ngain-low') }}">{{ number_format($p->ngain,2) }}</span>
-                    @else<span style="color:var(--text-xmuted)">—</span>@endif
+                    @else<span style="color:var(--text-xmuted)">â€”</span>@endif
                 </td>
                 <td>
                     @if($p->ngain !== null)
                         @if($p->ngain >= 0.7)<span class="badge badge-green">Tinggi</span>
                         @elseif($p->ngain >= 0.3)<span class="badge badge-yellow">Sedang</span>
                         @else<span class="badge badge-gray">Rendah</span>@endif
-                    @else<span style="color:var(--text-xmuted)">—</span>@endif
+                    @else<span style="color:var(--text-xmuted)">â€”</span>@endif
                 </td>
                 <td>
                     @if($p->status === 'selesai')<span class="badge badge-green">Selesai</span>
                     @elseif($p->status === 'pretest')<span class="badge badge-cyan">Pre-Test</span>
-                    @else<span class="badge badge-gray">Menunggu</span>@endif
+                    @else<span class="badge badge-gray">Dijadwalkan</span>@endif
                 </td>
             </tr>
             @endforeach
@@ -437,3 +437,4 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>
 
 @endsection
+

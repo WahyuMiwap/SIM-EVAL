@@ -146,7 +146,7 @@
                     @php $s = $k->status ?? 'menunggu'; @endphp
                     @if($s === 'selesai')         <span class="badge badge-green">Selesai</span>
                     @elseif($s === 'berlangsung') <span class="badge badge-cyan">Berlangsung</span>
-                    @else                         <span class="badge badge-gray">Menunggu</span>
+                    @else                         <span class="badge badge-gray">Dijadwalkan</span>
                     @endif
                 </td>
                 {{-- Peserta --}}
