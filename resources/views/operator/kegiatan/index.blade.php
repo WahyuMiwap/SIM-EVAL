@@ -12,10 +12,25 @@
     $fFrom    = $filters['dateFrom'] ?? '';
     $fTo      = $filters['dateTo']   ?? '';
     $periodLabels = [
-        'all'  => 'Semua Waktu', '1d' => '1 Hari Terakhir', '7d' => '7 Hari Terakhir',
+        'all'  => 'Semua Waktu', '1d' => 'Hari Ini', '7d' => '7 Hari Terakhir',
         '30d'  => '30 Hari Terakhir', '90d' => '3 Bulan Terakhir',
-        '180d' => '6 Bulan Terakhir', '365d' => '1 Tahun Terakhir', 'custom' => 'Rentang Kustom',
+        '180d' => '6 Bulan Terakhir', '365d' => '1 Tahun Terakhir', 'month' => 'Bulan Ini', 'custom' => 'Rentang Kustom',
     ];
+
+    $displayLabel = 'Semua Waktu';
+    if (($fPeriod === 'custom' || $fFrom || $fTo) && ($fFrom || $fTo)) {
+        if ($fFrom && $fTo) {
+            $fromFormatted = \Carbon\Carbon::parse($fFrom)->translatedFormat('d M Y');
+            $toFormatted   = \Carbon\Carbon::parse($fTo)->translatedFormat('d M Y');
+            $displayLabel  = ($fFrom === $fTo) ? $fromFormatted : "{$fromFormatted} – {$toFormatted}";
+        } elseif ($fFrom) {
+            $displayLabel = 'Mulai ' . \Carbon\Carbon::parse($fFrom)->translatedFormat('d M Y');
+        } elseif ($fTo) {
+            $displayLabel = 'Sampai ' . \Carbon\Carbon::parse($fTo)->translatedFormat('d M Y');
+        }
+    } elseif (isset($periodLabels[$fPeriod]) && $fPeriod !== 'all') {
+        $displayLabel = $periodLabels[$fPeriod];
+    }
 @endphp
 
 @section('content')
@@ -49,49 +64,65 @@
                    value="{{ $fSearch }}">
         </div>
 
-        {{-- Period Dropdown --}}
-        <div class="kg-dropdown-wrap" id="periodDropdownWrap">
-            <button class="kg-dropdown-trigger {{ $fPeriod !== 'all' ? 'open' : '' }}" id="periodTrigger">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                </svg>
-                <span id="periodLabel">{{ $periodLabels[$fPeriod] ?? 'Semua Waktu' }}</span>
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 kg-caret" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                </svg>
-            </button>
+        {{-- 3 Filter Waktu (Persis seperti di Dashboard BNN: Bulan ini, Tahun ini, dan Pilih Bulan & Tahun) --}}
+        <div class="dash-filter-group relative" id="periodFilterGroup">
+            <div class="dash-filter-presets">
+                <button id="fBulan" class="dash-preset-btn {{ $fPeriod === 'month' ? 'active' : '' }}" type="button">
+                    Bulan ini
+                </button>
+                <button id="fTahun" class="dash-preset-btn {{ $fPeriod === 'year' ? 'active' : '' }}" type="button">
+                    Tahun ini
+                </button>
+                <button id="fCustom" class="dash-preset-btn flex items-center gap-1.5 {{ ($fPeriod === 'custom' || $fFrom || $fTo) ? 'active' : '' }}" type="button">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 opacity-75" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    <span id="fCustomLabel">{{ ($fPeriod === 'custom' && $fFrom) ? $displayLabel : 'Pilih Bulan & Tahun' }}</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" id="fCustomCaret" class="w-3 h-3 opacity-60 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+            </div>
 
-            <div class="kg-dropdown-panel {{ $fPeriod !== 'all' ? 'open' : '' }}" id="periodPanel">
-                <div class="kg-dropdown-list">
-                    @foreach(['all' => 'Semua Waktu', '1d' => '1 Hari Terakhir', '7d' => '7 Hari Terakhir', '30d' => '30 Hari Terakhir', '90d' => '3 Bulan Terakhir', '180d' => '6 Bulan Terakhir', '365d' => '1 Tahun Terakhir'] as $val => $label)
-                    <button class="kg-dropdown-item {{ $fPeriod === $val ? 'active' : '' }}"
-                            data-period="{{ $val }}" data-label="{{ $label }}">{{ $label }}</button>
-                    @endforeach
-                    <div class="kg-dropdown-divider"></div>
-                    {{-- Custom Date Range --}}
-                    <div class="kg-custom-range">
-                        <p class="kg-custom-range-label">Rentang Kustom</p>
-                        <div class="kg-date-inputs">
-                            <div class="kg-date-field">
-                                <label>Dari</label>
-                                <input type="date" id="dateFrom" class="kg-date-input" value="{{ $fFrom }}">
-                            </div>
-                            <div class="kg-date-sep">–</div>
-                            <div class="kg-date-field">
-                                <label>Sampai</label>
-                                <input type="date" id="dateTo" class="kg-date-input" value="{{ $fTo }}">
-                            </div>
+            {{-- Popover Pemilih Bulan & Tahun (Persis Desain Dashboard) --}}
+            <div id="popoverMonthYear" class="popover-dropdown hidden">
+                <div class="popover-card">
+                    {{-- Header Popover: Tahun dengan Input Langsung & Tombol Navigasi --}}
+                    <div class="popover-header">
+                        <span class="popover-title">Pilih Waktu</span>
+                        <div class="popover-year-nav">
+                            <button type="button" id="popPrevYear" class="popover-nav-btn" title="Tahun sebelumnya">
+                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+                            </button>
+                            <input type="number" id="popYearInput" class="popover-year-input" value="2026" min="2000" max="2099" title="Ketik tahun langsung (contoh: 2026)">
+                            <button type="button" id="popNextYear" class="popover-nav-btn" title="Tahun berikutnya">
+                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+                            </button>
                         </div>
+                    </div>
+
+                    {{-- Grid 12 Bulan (3 Kolom x 4 Baris) --}}
+                    <div class="popover-month-grid" id="popMonthGrid">
+                        <!-- Dirender via JS (Jan s/d Des) -->
+                    </div>
+
+                    {{-- Footer Popover --}}
+                    <div class="popover-footer">
+                        <button type="button" id="popBtnAll" class="popover-foot-action" style="background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:0.75rem;padding:0;">
+                            Semua Waktu
+                        </button>
+                        <button type="button" id="popBtnClose" class="popover-foot-close" style="background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:0.75rem;padding:0;">
+                            Tutup
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
 
-
         {{-- Active filter chip --}}
-        <div class="kg-active-chip {{ $fPeriod === 'all' ? 'hidden' : '' }}" id="activeChip">
-            <span id="activeChipText">{{ $periodLabels[$fPeriod] ?? '' }}</span>
-            <button id="btnClearPeriod" class="kg-chip-clear">
+        <div class="kg-active-chip {{ (($fPeriod === 'all' || $fPeriod === 'month') && !$fFrom && !$fTo) ? 'hidden' : '' }}" id="activeChip">
+            <span id="activeChipText">{{ $displayLabel }}</span>
+            <button id="btnClearPeriod" class="kg-chip-clear" aria-label="Hapus filter tanggal">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
                 </svg>
@@ -294,99 +325,229 @@
 .kg-caret { transition: transform 0.2s ease; flex-shrink: 0; }
 .kg-dropdown-trigger.open .kg-caret { transform: rotate(180deg); }
 
-/* Dropdown Panel */
-.kg-dropdown-panel {
-    position: absolute;
-    top: calc(100% + 6px);
-    left: 0;
-    z-index: 200;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--r-lg);
-    box-shadow: var(--shadow-lg);
-    width: 240px;
-    overflow: hidden;
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(-6px);
-    transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s ease;
-}
-.kg-dropdown-panel.open {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
-}
-.kg-dropdown-list { padding: 0.375rem; }
-.kg-dropdown-item {
-    display: block;
-    width: 100%;
-    text-align: left;
-    padding: 0.475rem 0.75rem;
-    font-size: 0.8125rem;
-    color: var(--text-secondary);
-    font-family: var(--font-sans);
-    background: none;
-    border: none;
-    border-radius: var(--r-sm);
-    cursor: pointer;
-    transition: background 0.12s ease, color 0.12s ease;
-    white-space: nowrap;
-}
-.kg-dropdown-item:hover { background: var(--bg-alt); color: var(--text-primary); }
-.kg-dropdown-item.active { background: var(--primary-light); color: var(--primary); font-weight: 600; }
-
-.kg-dropdown-divider {
-    height: 1px;
-    background: var(--border);
-    margin: 0.375rem 0;
-}
-
-/* Custom Date Range inside dropdown */
-.kg-custom-range {
-    padding: 0.625rem 0.75rem 0.5rem;
-}
-.kg-custom-range-label {
-    font-size: 0.7rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--text-muted);
-    margin-bottom: 0.5rem;
-}
-.kg-date-inputs {
-    display: flex;
+/* ─── Dashboard-Matching Filter & 12-Month Popover ─────────── */
+.dash-filter-group {
+    position: relative;
+    display: inline-flex;
     align-items: center;
-    gap: 0.375rem;
 }
-.kg-date-field {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 0.2rem;
+.dash-filter-presets {
+    display: inline-flex;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.6rem;
+    padding: 4px;
+    gap: 4px;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.02);
 }
-.kg-date-field label {
-    font-size: 0.68rem;
+.dash-preset-btn {
+    font-family: var(--font-sans);
+    padding: 0.4rem 0.9rem;
+    border-radius: calc(0.6rem - 3px);
+    font-size: 0.75rem;
     font-weight: 500;
     color: var(--text-muted);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
 }
-.kg-date-input {
-    background: var(--bg-alt);
-    border: 1px solid var(--border);
-    border-radius: var(--r-sm);
-    padding: 0.3rem 0.45rem;
-    font-size: 0.75rem;
+.dash-preset-btn:hover {
     color: var(--text-primary);
-    font-family: var(--font-sans);
-    width: 100%;
-    outline: none;
-    transition: border-color 0.15s;
+    background: rgba(0, 0, 0, 0.03);
 }
-.kg-date-input:focus { border-color: var(--primary); }
-.kg-date-sep {
+.dash-preset-btn.active {
+    background: #ffffff;
+    color: var(--primary);
+    font-weight: 600;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+/* Popover Dropdown (Month & Year) */
+.popover-dropdown {
+    position: absolute;
+    left: 0;
+    top: calc(100% + 8px);
+    z-index: 300;
+    width: 290px;
+}
+.popover-dropdown.hidden {
+    display: none !important;
+}
+.popover-card {
+    background: var(--surface, #ffffff);
+    border: 1px solid var(--border, #e2e8f0);
+    border-radius: var(--r-xl, 16px);
+    padding: 1rem;
+    box-shadow: 0 12px 36px -4px rgba(17, 24, 39, 0.14), 0 4px 12px -2px rgba(17, 24, 39, 0.06);
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    user-select: none;
+}
+.popover-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 0.65rem;
+    border-bottom: 1px solid var(--border, #e2e8f0);
+}
+.popover-title {
+    font-family: var(--font-display, 'Plus Jakarta Sans', sans-serif);
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-primary, #111827);
+}
+.popover-year-nav {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.popover-nav-btn {
+    width: 26px;
+    height: 26px;
+    border-radius: var(--r-sm, 6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted, #9ca3af);
+    background: transparent;
+    border: 1px solid var(--border, #e2e8f0);
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+.popover-nav-btn:hover {
+    color: var(--text-primary, #111827);
+    background: var(--surface-2, #f9fafb);
+    border-color: var(--border-strong, #cbd0df);
+}
+
+/* Year Input (Langsung Ketik Tahun & UX Nyaman) */
+.popover-year-input {
+    width: 58px;
+    height: 26px;
+    font-family: var(--font-display, 'Plus Jakarta Sans', sans-serif);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: var(--primary, #4361ee);
+    background: var(--primary-light, #eef1ff);
+    border: 1.5px solid transparent;
+    border-radius: var(--r-sm, 6px);
+    text-align: center;
+    padding: 0 4px;
+    outline: none;
+    transition: all 0.15s ease;
+    -moz-appearance: textfield;
+}
+.popover-year-input::-webkit-outer-spin-button,
+.popover-year-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+.popover-year-input:hover {
+    border-color: var(--primary, #4361ee);
+}
+.popover-year-input:focus {
+    border-color: var(--primary, #4361ee);
+    background: #ffffff;
+    box-shadow: 0 0 0 2.5px rgba(67, 97, 238, 0.2);
+}
+
+/* 12-Month Grid (3 cols x 4 rows) */
+.popover-month-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 6px !important;
+}
+.pop-month-btn {
+    font-family: var(--font-sans, 'Inter', sans-serif);
+    padding: 0.45rem 0.25rem;
+    border-radius: var(--r-md, 8px);
     font-size: 0.75rem;
-    color: var(--text-muted);
-    margin-top: 1.1rem;
-    flex-shrink: 0;
+    font-weight: 500;
+    color: var(--text-secondary, #4b5563);
+    background: var(--surface-2, #f9fafb);
+    border: 1px solid var(--border, #e2e8f0);
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s ease;
+    box-sizing: border-box;
+}
+.pop-month-btn:hover {
+    background: var(--primary-light, #eef1ff);
+    color: var(--primary, #4361ee);
+    border-color: var(--primary-light, #eef1ff);
+}
+.pop-month-btn.active {
+    background: var(--primary, #4361ee) !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    border-color: var(--primary, #4361ee) !important;
+    box-shadow: 0 2px 6px rgba(67, 97, 238, 0.35);
+}
+
+.popover-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 0.65rem;
+    border-top: 1px solid var(--border, #e2e8f0);
+    font-size: 0.6875rem;
+    font-family: var(--font-sans, 'Inter', sans-serif);
+}
+.popover-foot-action {
+    color: var(--text-muted, #6b7280);
+    font-weight: 500;
+    transition: color 0.15s ease;
+}
+.popover-foot-action:hover {
+    color: var(--primary, #4361ee);
+}
+.popover-foot-close {
+    color: var(--text-muted, #9ca3af);
+    font-weight: 500;
+    transition: color 0.15s ease;
+}
+.popover-foot-close:hover {
+    color: var(--text-primary, #111827);
+}
+
+/* Dark mode overrides */
+:is(.dark) .dash-filter-presets {
+    background: rgba(255,255,255,0.03);
+    border-color: rgba(255,255,255,0.05);
+}
+:is(.dark) .dash-preset-btn:hover {
+    background: rgba(255,255,255,0.04);
+    color: var(--text-primary);
+}
+:is(.dark) .dash-preset-btn.active {
+    background: var(--surface);
+    color: var(--primary-light);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+}
+:is(.dark) .popover-card {
+    background: var(--surface, #1e293b);
+    border-color: var(--border, #334155);
+    box-shadow: 0 12px 36px -4px rgba(0, 0, 0, 0.5);
+}
+:is(.dark) .popover-year-input {
+    background: rgba(67, 97, 238, 0.15);
+    color: #93c5fd;
+}
+:is(.dark) .popover-year-input:focus {
+    background: #0f172a;
+    border-color: #60a5fa;
+}
+:is(.dark) .pop-month-btn {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.08);
+    color: var(--text-secondary, #cbd5e1);
+}
+:is(.dark) .pop-month-btn:hover {
+    background: var(--primary-light, rgba(67, 97, 238, 0.15));
+    color: #ffffff;
 }
 
 /* Mode Pill Group */
@@ -610,53 +771,164 @@
         });
     }
 
-    // ── Period dropdown open/close ────────────────────────────────
-    let panelOpen = false;
-    const periodTrigger = document.getElementById('periodTrigger');
-    const periodPanel   = document.getElementById('periodPanel');
+    // ── Mode Waktu & Popover Pemilih Bulan/Tahun (Persis Dashboard BNN) ───
+    const fPeriod = @json($fPeriod);
+    const fFrom   = @json($fFrom);
+    const fTo     = @json($fTo);
 
-    if (periodTrigger) {
-        periodTrigger.addEventListener('click', function () {
-            panelOpen = !panelOpen;
-            periodPanel.classList.toggle('open', panelOpen);
-            periodTrigger.classList.toggle('open', panelOpen);
-        });
-    }
+    // Hitung tahun & bulan aktif saat ini
+    const SHORT_MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+    let popoverYear = 2026;
+    let activeSelectedMonth = null;
+    let activeSelectedYear  = null;
 
-    // Close dropdown when clicking outside
-    document.addEventListener('click', function (e) {
-        const wrap = document.getElementById('periodDropdownWrap');
-        if (wrap && !wrap.contains(e.target) && panelOpen) {
-            panelOpen = false;
-            periodPanel?.classList.remove('open');
-            periodTrigger?.classList.remove('open');
+    if (fFrom) {
+        const parts = fFrom.split('-');
+        if (parts.length === 3) {
+            popoverYear = parseInt(parts[0], 10);
+            activeSelectedMonth = parseInt(parts[1], 10) - 1;
+            activeSelectedYear  = popoverYear;
         }
+    } else if (fPeriod === 'month') {
+        const now = new Date();
+        activeSelectedMonth = now.getMonth();
+        activeSelectedYear  = now.getFullYear();
+        popoverYear         = activeSelectedYear;
+    }
+
+    const popMonthGrid     = document.getElementById('popMonthGrid');
+    const popYearInput     = document.getElementById('popYearInput');
+    const popPrevYear      = document.getElementById('popPrevYear');
+    const popNextYear      = document.getElementById('popNextYear');
+    const popoverMonthYear = document.getElementById('popoverMonthYear');
+    const fCustomCaret     = document.getElementById('fCustomCaret');
+
+    function renderPopoverMonthGrid() {
+        if (!popMonthGrid) return;
+        let html = '';
+        SHORT_MONTHS.forEach((mName, idx) => {
+            const isSelected = (idx === activeSelectedMonth && popoverYear === activeSelectedYear);
+            html += `<button type="button" class="pop-month-btn ${isSelected ? 'active' : ''}" data-month="${idx}">
+                ${mName}
+            </button>`;
+        });
+        popMonthGrid.innerHTML = html;
+
+        popMonthGrid.querySelectorAll('.pop-month-btn').forEach(btn => {
+            btn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                const m = parseInt(this.getAttribute('data-month'), 10);
+                selectMonthYear(m, popoverYear);
+            });
+        });
+    }
+
+    function updateYearInput(val) {
+        popoverYear = val;
+        if (popYearInput) popYearInput.value = val;
+        renderPopoverMonthGrid();
+    }
+
+    function togglePopover() {
+        if (!popoverMonthYear) return;
+        const isHidden = popoverMonthYear.classList.contains('hidden');
+        if (isHidden) {
+            if (popYearInput) popYearInput.value = popoverYear;
+            renderPopoverMonthGrid();
+            popoverMonthYear.classList.remove('hidden');
+            fCustomCaret?.classList.add('rotate-180');
+        } else {
+            closePopover();
+        }
+    }
+
+    function closePopover() {
+        if (popoverMonthYear && !popoverMonthYear.classList.contains('hidden')) {
+            popoverMonthYear.classList.add('hidden');
+            fCustomCaret?.classList.remove('rotate-180');
+        }
+    }
+
+    // Pilih Bulan & Tahun spesifik -> navigasi ke rentang tanggal bulan tersebut
+    function selectMonthYear(month, year) {
+        const mStr = String(month + 1).padStart(2, '0');
+        const startDate = `${year}-${mStr}-01`;
+        const lastDay   = new Date(year, month + 1, 0).getDate();
+        const endDate   = `${year}-${mStr}-${String(lastDay).padStart(2, '0')}`;
+        closePopover();
+        navigate({ period: 'custom', date_from: startDate, date_to: endDate });
+    }
+
+    // Event listener tombol 1 & 2: Bulan ini & Tahun ini
+    document.getElementById('fBulan')?.addEventListener('click', function () {
+        closePopover();
+        navigate({ period: 'month', date_from: null, date_to: null });
     });
 
-    // ── Period items ──────────────────────────────────────────────
-    document.querySelectorAll('.kg-dropdown-item[data-period]').forEach(btn => {
-        btn.addEventListener('click', function () {
-            const period = this.dataset.period;
-            if (period !== 'custom') {
-                navigate({ period });
+    document.getElementById('fTahun')?.addEventListener('click', function () {
+        closePopover();
+        navigate({ period: 'year', date_from: null, date_to: null });
+    });
+
+    // Event listener tombol ke-3: Buka popover
+    document.getElementById('fCustom')?.addEventListener('click', function (e) {
+        e.stopPropagation();
+        togglePopover();
+    });
+
+    // Klik di dalam card popover jangan menutup popover
+    popoverMonthYear?.addEventListener('click', function (e) {
+        e.stopPropagation();
+    });
+
+    // Tombol Previous Year (<)
+    popPrevYear?.addEventListener('click', function (e) {
+        e.stopPropagation();
+        updateYearInput(popoverYear - 1);
+    });
+
+    // Tombol Next Year (>)
+    popNextYear?.addEventListener('click', function (e) {
+        e.stopPropagation();
+        updateYearInput(popoverYear + 1);
+    });
+
+    // Input Tahun Langsung (UX Cepat: Ketik 2024, 2025, 2026 dll)
+    if (popYearInput) {
+        popYearInput.addEventListener('input', function () {
+            const val = parseInt(this.value, 10);
+            if (val >= 1990 && val <= 2099) {
+                popoverYear = val;
+                renderPopoverMonthGrid();
             }
-            // For 'custom', wait for date inputs
         });
+        popYearInput.addEventListener('change', function () {
+            const val = parseInt(this.value, 10);
+            if (val >= 1990 && val <= 2099) {
+                updateYearInput(val);
+            } else {
+                this.value = popoverYear;
+            }
+        });
+    }
+
+    // Tombol di footer popover
+    document.getElementById('popBtnAll')?.addEventListener('click', function () {
+        closePopover();
+        navigate({ period: 'all', date_from: null, date_to: null });
     });
 
-    // Custom date range inputs
-    const dateFrom = document.getElementById('dateFrom');
-    const dateTo   = document.getElementById('dateTo');
-    if (dateFrom) {
-        dateFrom.addEventListener('change', () => {
-            navigate({ period: 'custom', date_from: dateFrom.value, date_to: dateTo?.value || '' });
-        });
-    }
-    if (dateTo) {
-        dateTo.addEventListener('change', () => {
-            navigate({ period: 'custom', date_from: dateFrom?.value || '', date_to: dateTo.value });
-        });
-    }
+    document.getElementById('popBtnClose')?.addEventListener('click', function () {
+        closePopover();
+    });
+
+    // Klik di luar menutup popover
+    document.addEventListener('click', function () {
+        closePopover();
+    });
+
+    // Inisialisasi awal render grid popover
+    renderPopoverMonthGrid();
 
     // ── Mode pills ────────────────────────────────────────────────
     document.querySelectorAll('.kg-pill[data-mode]').forEach(btn => {
@@ -933,3 +1205,4 @@
 </script>
 
 @endsection
+

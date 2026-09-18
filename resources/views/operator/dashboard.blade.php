@@ -8,11 +8,24 @@
 {{-- ─── Header Section & Filter Global ───────────────────────── --}}
 <div class="dash-header-bar">
     <div>
-        <h2 class="dash-heading-lg">
-            Selamat datang, Wahyu
-        </h2>
-        <p class="dash-subtext">
-            Pantauan evaluasi sosialisasi & performa N-Gain BNN Kota Surabaya
+        <div class="flex items-center gap-2 mb-1">
+            <h2 class="dash-heading-lg">
+                Selamat datang, Wahyu
+            </h2>
+            <span class="dash-live-badge hidden sm:inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                Sistem P2M Aktif
+            </span>
+        </div>
+        <p class="dash-subtext flex items-center gap-2 flex-wrap">
+            <span>Pantauan evaluasi sosialisasi & performa N-Gain BNN Kota Surabaya</span>
+            <span class="text-gray-300 dark:text-gray-700">&middot;</span>
+            <span class="text-primary font-semibold text-xs flex items-center gap-1">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 opacity-75" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+                <span id="activePeriodDisplay">Periode: September 2026</span>
+            </span>
         </p>
     </div>
 
@@ -41,12 +54,12 @@
             <div class="popover-card">
                 {{-- Header Popover: Tahun --}}
                 <div class="popover-header">
-                    <span class="popover-title">Pilih Periode</span>
+                    <span class="popover-title">Pilih Waktu Evaluasi</span>
                     <div class="popover-year-nav">
                         <button type="button" id="popPrevYear" class="popover-nav-btn" title="Tahun sebelumnya">
                             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
                         </button>
-                        <span id="popYearLabel" class="popover-year-badge">2026</span>
+                        <input type="number" id="popYearInput" class="popover-year-input" value="2026" min="2000" max="2099" title="Ketik tahun langsung (contoh: 2026)">
                         <button type="button" id="popNextYear" class="popover-nav-btn" title="Tahun berikutnya">
                             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
                         </button>
@@ -58,71 +71,145 @@
                     <!-- Dirender via JS (Jan s/d Des) -->
                 </div>
 
-                {{-- Footer: Shortcut & Close --}}
                 <div class="popover-footer">
-                    <button type="button" id="popBtnCurrentMonth" class="popover-foot-action">Bulan Sekarang</button>
-                    <button type="button" id="popBtnClose" class="popover-foot-close">Tutup</button>
+                    <button type="button" id="popBtnCurrentMonth" class="popover-foot-action">
+                        Kembali ke Bulan Ini
+                    </button>
+                    <button type="button" id="popBtnClose" class="popover-foot-close">
+                        Tutup
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-{{-- ─── Row 1: Dua Kartu Metrik Utama (Total Kegiatan & Total Peserta) ─── --}}
-<div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-5">
+{{-- ─── Row 1: Empat Kartu Metrik Evaluasi P2M BNN ────────────── --}}
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
 
     {{-- Card 1: Total Kegiatan --}}
     <div class="dash-card dash-metric-card">
-        <div class="dash-metric-icon-wrap">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-            </svg>
+        <div class="flex items-start justify-between">
+            <div class="dash-metric-icon-wrap">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+            </div>
+            <span id="sKegiatanGrowth" class="badge-growth-up">+16.7%</span>
         </div>
-        <div class="dash-metric-body">
+        <div class="dash-metric-body mt-2">
             <span class="dash-metric-label">Total Kegiatan</span>
-            <h3 class="dash-stat-number" id="sKegiatan">14</h3>
-            <span class="dash-metric-sub">kegiatan terlaksana</span>
+            <div class="flex items-baseline gap-1.5">
+                <h3 class="dash-stat-number tabular-nums" id="sKegiatan">14</h3>
+                <span class="text-xs text-muted font-medium">kegiatan</span>
+            </div>
+            <div class="flex items-center justify-between text-[11px] text-gray-500 dark:text-gray-400 mt-1">
+                <span id="sKegiatanSub">kegiatan terlaksana</span>
+                <span id="sKegiatanPeriod" class="text-muted text-[10px]">vs bulan lalu</span>
+            </div>
         </div>
     </div>
 
     {{-- Card 2: Total Peserta --}}
     <div class="dash-card dash-metric-card">
-        <div class="dash-metric-icon-wrap dash-metric-icon--info">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-            </svg>
+        <div class="flex items-start justify-between">
+            <div class="dash-metric-icon-wrap dash-metric-icon--cyan">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                </svg>
+            </div>
+            <span id="sPesertaGrowth" class="badge-growth-up">+23.4%</span>
         </div>
-        <div class="dash-metric-body">
+        <div class="dash-metric-body mt-2">
             <span class="dash-metric-label">Total Peserta</span>
-            <h3 class="dash-stat-number" id="sPeserta">1.248</h3>
-            <span class="dash-metric-sub">peserta terdaftar</span>
+            <div class="flex items-baseline gap-1.5">
+                <h3 class="dash-stat-number tabular-nums" id="sPeserta">1.248</h3>
+                <span class="text-xs text-muted font-medium">peserta</span>
+            </div>
+            <div class="flex items-center justify-between text-[11px] text-gray-500 dark:text-gray-400 mt-1">
+                <span id="sPesertaSub">peserta terdaftar</span>
+                <span id="sPesertaPeriod" class="text-muted text-[10px]">vs bulan lalu</span>
+            </div>
+        </div>
+    </div>
+
+    {{-- Card 3: Rata-rata Skor N-Gain (Efektivitas Inti BNN) --}}
+    <div class="dash-card dash-metric-card">
+        <div class="flex items-start justify-between">
+            <div class="dash-metric-icon-wrap dash-metric-icon--emerald">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                </svg>
+            </div>
+            <span id="sGainBadge" class="badge badge-green text-[10px]">Efektif</span>
+        </div>
+        <div class="dash-metric-body mt-2">
+            <span class="dash-metric-label">Rata-rata Skor N-Gain</span>
+            <div class="flex items-baseline gap-1.5">
+                <h3 class="dash-stat-number tabular-nums text-emerald-600 dark:text-emerald-400" id="sGain">0.72</h3>
+                <span class="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400" id="sGainGrowth">+0.06</span>
+            </div>
+            <div class="flex items-center justify-between text-[11px] text-gray-500 dark:text-gray-400 mt-1">
+                <span id="sGainSub">kategori efektivitas tinggi</span>
+                <span class="text-muted text-[10px]">skor IKU</span>
+            </div>
+        </div>
+    </div>
+
+    {{-- Card 4: Tingkat Pemahaman Audien --}}
+    <div class="dash-card dash-metric-card">
+        <div class="flex items-start justify-between">
+            <div class="dash-metric-icon-wrap dash-metric-icon--purple">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                </svg>
+            </div>
+            <span id="sEfektivitasGrowth" class="badge-growth-up">+5.2%</span>
+        </div>
+        <div class="dash-metric-body mt-2">
+            <span class="dash-metric-label">Tingkat Pemahaman</span>
+            <div class="flex items-baseline gap-1.5">
+                <h3 class="dash-stat-number tabular-nums text-purple-600 dark:text-purple-400" id="sEfektivitas">84.6%</h3>
+                <span class="text-xs text-muted font-medium">audien</span>
+            </div>
+            <div class="flex items-center justify-between text-[11px] text-gray-500 dark:text-gray-400 mt-1">
+                <span id="sEfektivitasSub">kategori paham/cukup</span>
+                <span class="text-muted text-[10px]">IKU BNN</span>
+            </div>
         </div>
     </div>
 </div>
 
-{{-- ─── Row 2: Kalender Agenda & Riwayat Kegiatan Lengkap ─────── --}}
+{{-- ─── Row 3: Kalender Agenda & Sisi Kanan (Kegiatan + Distribusi) ─ --}}
 <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 mb-5">
-    {{-- Kalender Agenda Minimalist (7 cols) --}}
-    <div class="lg:col-span-7 dash-card">
-        {{-- Header Kalender: Tanggal besar (dikontrol oleh filter global) --}}
-        <div class="cal-header">
-            <div class="cal-date-display">
-                <span class="cal-day-big" id="calDayBig">17</span>
-                <div class="cal-month-wrap">
-                    <span class="cal-month-name" id="calMonthName">September</span>
-                    <span class="cal-year-name" id="calYearName">2026</span>
+
+    {{-- Kolom Kiri: Kalender Agenda Interaktif (7 cols) --}}
+    <div class="lg:col-span-7 dash-card flex flex-col justify-between">
+        <div>
+            {{-- Header Kalender: Tanggal besar (dikontrol oleh filter global) --}}
+            <div class="cal-header">
+                <div class="cal-date-display">
+                    <span class="cal-day-big" id="calDayBig">17</span>
+                    <div class="cal-month-wrap">
+                        <span class="cal-month-name" id="calMonthName">September</span>
+                        <span class="cal-year-name" id="calYearName">2026</span>
+                    </div>
+                </div>
+                <div class="cal-nav-legend">
+                    <div class="cal-legend-row">
+                        <span class="cal-dot" style="background:#22c55e"></span><span class="cal-legend-text">Selesai</span>
+                        <span class="cal-dot" style="background:#06b6d4"></span><span class="cal-legend-text">Berlangsung</span>
+                        <span class="cal-dot" style="background:#f59e0b"></span><span class="cal-legend-text">Aktif</span>
+                        <span class="cal-dot" style="background:var(--primary)"></span><span class="cal-legend-text">Mendatang</span>
+                    </div>
+                    <span class="text-[10px] text-gray-400 font-sans mt-0.5">Klik tanggal bertitik untuk rincian</span>
                 </div>
             </div>
-            <div class="cal-legend-row">
-                <span class="cal-dot" style="background:#22c55e"></span><span class="cal-legend-text">Selesai</span>
-                <span class="cal-dot" style="background:#f59e0b"></span><span class="cal-legend-text">Aktif</span>
-                <span class="cal-dot" style="background:var(--primary)"></span><span class="cal-legend-text">Mendatang</span>
-            </div>
-        </div>
 
-        {{-- Grid Kalender --}}
-        <div id="dashCalendar">
-            {{-- Dirender via JS --}}
+            {{-- Grid Kalender --}}
+            <div id="dashCalendar">
+                {{-- Dirender via JS --}}
+            </div>
         </div>
 
         {{-- Detail Acara Terpilih --}}
@@ -131,118 +218,60 @@
         </div>
     </div>
 
-    {{-- Kegiatan Terbaru Table (5 cols) --}}
-    <div class="lg:col-span-5 dash-card flex flex-col justify-between">
-        <div>
+    {{-- Kolom Kanan: Kegiatan Terbaru & Distribusi N-Gain (5 cols) --}}
+    <div class="lg:col-span-5 flex flex-col gap-4">
+
+        {{-- Card 1: Kegiatan Terbaru --}}
+        <div class="dash-card">
             <div class="flex items-center justify-between mb-3 pb-2 border-b border-gray-100 dark:border-gray-800">
                 <div>
                     <h4 class="dash-card-title text-sm">Kegiatan Terbaru</h4>
                     <p class="dash-card-sub">Riwayat pelaksanaan 5 kegiatan terkini</p>
                 </div>
+                <span class="text-[11px] font-semibold text-primary font-sans">
+                    Pre-Test / Post-Test
+                </span>
             </div>
 
-            <div class="divide-y divide-gray-100 dark:divide-gray-800 text-xs">
-                <div class="py-2.5 flex items-center justify-between">
-                    <div>
-                        <p class="font-semibold text-gray-800 dark:text-gray-200 font-sans">SMAN 1 Surabaya</p>
-                        <div class="flex items-center gap-1.5 mt-0.5 text-[11px] text-gray-400 font-sans">
-                            <span class="text-gray-500 dark:text-gray-400 font-medium">05 Sep</span>
-                            <span class="text-gray-300 dark:text-gray-600">&middot;</span>
-                            <span><span class="font-semibold text-gray-700 dark:text-gray-300">65</span> Peserta</span>
-                        </div>
-                    </div>
-                    <div class="text-right flex flex-col items-end gap-0.5">
-                        <span class="badge badge-green text-[10px] font-sans">Selesai</span>
-                        <p class="text-[11px] text-gray-400 font-sans flex items-center gap-1 mt-0.5">
-                            <span>Gain:</span>
-                            <span class="font-bold text-emerald-600 dark:text-emerald-400">0.78</span>
-                        </p>
-                    </div>
-                </div>
+            <div id="recentActivitiesList" class="divide-y divide-gray-100 dark:divide-gray-800 text-xs">
+                {{-- Dirender via JS dari RECENT_ACTIVITIES --}}
+            </div>
 
-                <div class="py-2.5 flex items-center justify-between">
-                    <div>
-                        <p class="font-semibold text-gray-800 dark:text-gray-200 font-sans">Kec. Tegalsari</p>
-                        <div class="flex items-center gap-1.5 mt-0.5 text-[11px] text-gray-400 font-sans">
-                            <span class="text-gray-500 dark:text-gray-400 font-medium">10 Sep</span>
-                            <span class="text-gray-300 dark:text-gray-600">&middot;</span>
-                            <span><span class="font-semibold text-gray-700 dark:text-gray-300">40</span> Peserta</span>
-                        </div>
-                    </div>
-                    <div class="text-right flex flex-col items-end gap-0.5">
-                        <span class="badge badge-green text-[10px] font-sans">Selesai</span>
-                        <p class="text-[11px] text-gray-400 font-sans flex items-center gap-1 mt-0.5">
-                            <span>Gain:</span>
-                            <span class="font-bold text-emerald-600 dark:text-emerald-400">0.71</span>
-                        </p>
-                    </div>
-                </div>
-
-                <div class="py-2.5 flex items-center justify-between">
-                    <div>
-                        <p class="font-semibold text-gray-800 dark:text-gray-200 font-sans">Kel. Jambangan</p>
-                        <div class="flex items-center gap-1.5 mt-0.5 text-[11px] text-gray-400 font-sans">
-                            <span class="text-gray-500 dark:text-gray-400 font-medium">14 Sep</span>
-                            <span class="text-gray-300 dark:text-gray-600">&middot;</span>
-                            <span><span class="font-semibold text-gray-700 dark:text-gray-300">80</span> Peserta</span>
-                        </div>
-                    </div>
-                    <div class="text-right flex flex-col items-end gap-0.5">
-                        <span class="badge badge-cyan text-[10px] font-sans">Berlangsung</span>
-                        <p class="text-[11px] text-gray-400 font-sans flex items-center gap-1 mt-0.5">
-                            <span>Gain:</span>
-                            <span class="font-bold text-amber-600 dark:text-amber-400">0.68</span>
-                        </p>
-                    </div>
-                </div>
-
-                <div class="py-2.5 flex items-center justify-between">
-                    <div>
-                        <p class="font-semibold text-gray-800 dark:text-gray-200 font-sans">Aula PDAM Sby</p>
-                        <div class="flex items-center gap-1.5 mt-0.5 text-[11px] text-gray-400 font-sans">
-                            <span class="text-gray-500 dark:text-gray-400 font-medium">22 Sep</span>
-                            <span class="text-gray-300 dark:text-gray-600">&middot;</span>
-                            <span><span class="font-semibold text-gray-700 dark:text-gray-300">50</span> Peserta</span>
-                        </div>
-                    </div>
-                    <div class="text-right flex flex-col items-end gap-0.5">
-                        <span class="badge badge-gray text-[10px] font-sans">Dijadwalkan</span>
-                        <p class="text-[11px] text-gray-400 font-sans flex items-center gap-1 mt-0.5">
-                            <span>Gain:</span>
-                            <span class="text-gray-400 font-medium">—</span>
-                        </p>
-                    </div>
-                </div>
-
-                <div class="py-2.5 flex items-center justify-between">
-                    <div>
-                        <p class="font-semibold text-gray-800 dark:text-gray-200 font-sans">Lapas Kelas I Surabaya</p>
-                        <div class="flex items-center gap-1.5 mt-0.5 text-[11px] text-gray-400 font-sans">
-                            <span class="text-gray-500 dark:text-gray-400 font-medium">28 Sep</span>
-                            <span class="text-gray-300 dark:text-gray-600">&middot;</span>
-                            <span><span class="font-semibold text-gray-700 dark:text-gray-300">120</span> Peserta</span>
-                        </div>
-                    </div>
-                    <div class="text-right flex flex-col items-end gap-0.5">
-                        <span class="badge badge-gray text-[10px] font-sans">Dijadwalkan</span>
-                        <p class="text-[11px] text-gray-400 font-sans flex items-center gap-1 mt-0.5">
-                            <span>Gain:</span>
-                            <span class="text-gray-400 font-medium">—</span>
-                        </p>
-                    </div>
-                </div>
+            <div class="pt-3 mt-2 border-t border-gray-100 dark:border-gray-800">
+                <a href="{{ route('operator.kegiatan.index') }}" class="w-full py-2 px-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 text-xs font-semibold text-center block transition-colors" style="border-radius: var(--r-md);">
+                    Kelola Seluruh Kegiatan &rarr;
+                </a>
             </div>
         </div>
 
-        <div class="pt-3 border-t border-gray-100 dark:border-gray-800">
-            <a href="{{ route('operator.kegiatan.index') }}" class="w-full py-2 px-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 text-xs font-semibold text-center block transition-colors" style="border-radius: var(--r-md);">
-                Kelola Seluruh Kegiatan
-            </a>
+        {{-- Card 2: Distribusi Efektivitas & Pemahaman (N-Gain Breakdown) --}}
+        <div class="dash-card">
+            <div class="flex items-center justify-between mb-2.5 pb-2 border-b border-gray-100 dark:border-gray-800">
+                <div>
+                    <h4 class="dash-card-title text-sm">Distribusi Pemahaman Audien</h4>
+                    <p class="dash-card-sub">Klasifikasi skor N-Gain peserta sosialisasi</p>
+                </div>
+                <span class="dash-chip">Standar Hake</span>
+            </div>
+
+            {{-- Progress Bars --}}
+            <div id="distributionContainer" class="space-y-3 py-1">
+                {{-- Dirender via JS --}}
+            </div>
+
+            <div class="mt-3 pt-2.5 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between text-[11px] text-gray-500 dark:text-gray-400">
+                <span class="flex items-center gap-1">
+                    <svg class="w-3.5 h-3.5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <span>Target IKU Tercapai (&ge; 75%)</span>
+                </span>
+                <span class="font-semibold text-gray-700 dark:text-gray-300">Format Diktari BNN</span>
+            </div>
         </div>
+
     </div>
 </div>
 
-{{-- ─── Styles Scoped Sesuai Prinsip Desain & Design Tokens ──── --}}
+{{-- ─── Styles Scoped Sesuai Prinsip Desain SIM-EVAL ─────────── --}}
 <style>
 /* Typography & Layout Tokens */
 .dash-header-bar {
@@ -278,7 +307,7 @@
 }
 .dash-stat-number {
     font-family: var(--font-display);
-    font-size: 2rem;
+    font-size: 1.85rem;
     font-weight: 800;
     letter-spacing: -0.03em;
     color: var(--text-primary);
@@ -288,14 +317,14 @@
 /* Metric Card Layout */
 .dash-metric-card {
     display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 1.25rem 1.5rem;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 1.15rem 1.25rem;
 }
 .dash-metric-icon-wrap {
-    width: 48px;
-    height: 48px;
-    border-radius: var(--r-lg);
+    width: 42px;
+    height: 42px;
+    border-radius: var(--r-md);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -303,9 +332,17 @@
     background: var(--primary-light);
     color: var(--primary);
 }
-.dash-metric-icon--info {
-    background: var(--info-light);
-    color: var(--info);
+.dash-metric-icon--cyan {
+    background: rgba(6, 182, 212, 0.12);
+    color: #06b6d4;
+}
+.dash-metric-icon--emerald {
+    background: rgba(34, 197, 94, 0.12);
+    color: #22c55e;
+}
+.dash-metric-icon--purple {
+    background: rgba(139, 92, 246, 0.12);
+    color: #8b5cf6;
 }
 .dash-metric-body {
     display: flex;
@@ -324,8 +361,7 @@
     font-family: var(--font-sans);
     font-size: 0.6875rem;
     font-weight: 500;
-    color: var(--text-xmuted);
-    margin-top: 1px;
+    color: var(--text-secondary);
 }
 
 /* Card Styling: Minimalist Modern Flat */
@@ -340,17 +376,6 @@
 .dash-card:hover {
     border-color: var(--border-strong) !important;
     box-shadow: var(--shadow-sm);
-}
-
-.dash-icon-box {
-    width: 34px;
-    height: 34px;
-    border-radius: var(--r-md);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--primary-light);
-    color: var(--primary);
 }
 
 .dash-chip {
@@ -385,7 +410,7 @@
 }
 .dash-filter-presets {
     display: inline-flex;
-    background: #f1f5f9; /* modern pill container bg */
+    background: #f1f5f9;
     border: 1px solid #e2e8f0;
     border-radius: 0.6rem;
     padding: 4px;
@@ -473,14 +498,34 @@
     background: var(--surface-2, #f9fafb);
     border-color: var(--border-strong, #cbd0df);
 }
-.popover-year-badge {
+.popover-year-input {
+    width: 58px;
+    height: 26px;
     font-family: var(--font-display, 'Plus Jakarta Sans', sans-serif);
-    font-size: 0.75rem;
+    font-size: 0.8125rem;
     font-weight: 700;
     color: var(--primary, #4361ee);
     background: var(--primary-light, #eef1ff);
-    padding: 2px 8px;
+    border: 1.5px solid transparent;
     border-radius: var(--r-sm, 6px);
+    text-align: center;
+    padding: 0 4px;
+    outline: none;
+    transition: all 0.15s ease;
+    -moz-appearance: textfield;
+}
+.popover-year-input::-webkit-outer-spin-button,
+.popover-year-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+.popover-year-input:hover {
+    border-color: var(--primary, #4361ee);
+}
+.popover-year-input:focus {
+    border-color: var(--primary, #4361ee);
+    background: #ffffff;
+    box-shadow: 0 0 0 2.5px rgba(67, 97, 238, 0.2);
 }
 .popover-month-grid {
     display: grid !important;
@@ -545,64 +590,7 @@
     color: var(--text-primary, #111827);
 }
 
-/* Dark mode overrides (fallback) */
-:is(.dark) .dash-filter-presets {
-    background: rgba(255,255,255,0.03);
-    border-color: rgba(255,255,255,0.05);
-}
-:is(.dark) .dash-preset-btn:hover {
-    background: rgba(255,255,255,0.04);
-    color: var(--text-primary);
-}
-:is(.dark) .dash-preset-btn.active {
-    background: var(--surface);
-    color: var(--primary-light);
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
-}
-:is(.dark) .popover-card {
-    background: var(--surface, #1e293b);
-    border-color: var(--border, #334155);
-    box-shadow: 0 12px 36px -4px rgba(0, 0, 0, 0.5);
-}
-:is(.dark) .pop-month-btn {
-    background: rgba(255, 255, 255, 0.04);
-    border-color: rgba(255, 255, 255, 0.08);
-    color: var(--text-secondary, #cbd5e1);
-}
-:is(.dark) .pop-month-btn:hover {
-    background: var(--primary-light, rgba(67, 97, 238, 0.15));
-    color: #ffffff;
-}
-
-/* Custom Dropdown Select */
-.dash-custom-select {
-    appearance: none;
-    font-family: var(--font-sans);
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-    background-position: right 0.45rem center;
-    background-repeat: no-repeat;
-    background-size: 1.25em 1.25em;
-    padding: 0.35rem 1.8rem 0.35rem 0.75rem;
-    font-size: 0.75rem;
-    border-radius: var(--r-md);
-    border: 1px solid var(--border);
-    background-color: var(--surface);
-    color: var(--text-primary);
-    cursor: pointer;
-    outline: none;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.dash-custom-select:hover {
-    border-color: var(--border-strong);
-}
-.dash-custom-select:focus {
-    border-color: var(--primary);
-    box-shadow: 0 0 0 2px var(--primary-light);
-}
-
 /* ── Custom Minimalist Calendar ─────────────────────────────── */
-
-/* Header: tanggal besar + navigasi */
 .cal-header {
     display: flex;
     align-items: flex-start;
@@ -648,12 +636,12 @@
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    gap: 0.4rem;
+    gap: 0.25rem;
 }
 .cal-legend-row {
     display: flex;
     align-items: center;
-    gap: 0.6rem;
+    gap: 0.5rem;
     flex-wrap: wrap;
 }
 .cal-dot {
@@ -668,32 +656,6 @@
     font-size: 0.65rem;
     font-weight: 500;
     color: var(--text-muted);
-}
-.cal-nav-btns {
-    display: flex;
-    gap: 4px;
-}
-.cal-nav-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 26px;
-    height: 26px;
-    border-radius: var(--r-sm);
-    border: 1px solid var(--border);
-    background: var(--surface);
-    color: var(--text-secondary);
-    cursor: pointer;
-    transition: all 0.18s ease;
-}
-.cal-nav-btn svg {
-    width: 14px;
-    height: 14px;
-}
-.cal-nav-btn:hover {
-    border-color: var(--primary);
-    color: var(--primary);
-    background: var(--primary-light);
 }
 
 /* Grid kalender */
@@ -784,138 +746,189 @@
     border-radius: 50%;
     flex-shrink: 0;
 }
+
+/* Dark mode overrides */
+:is(.dark) .dash-filter-presets {
+    background: rgba(255,255,255,0.03);
+    border-color: rgba(255,255,255,0.05);
+}
+:is(.dark) .dash-preset-btn:hover {
+    background: rgba(255,255,255,0.04);
+    color: var(--text-primary);
+}
+:is(.dark) .dash-preset-btn.active {
+    background: var(--surface);
+    color: var(--primary-light);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+}
+:is(.dark) .popover-card {
+    background: var(--surface, #1e293b);
+    border-color: var(--border, #334155);
+    box-shadow: 0 12px 36px -4px rgba(0, 0, 0, 0.5);
+}
+:is(.dark) .popover-year-input {
+    background: rgba(67, 97, 238, 0.15);
+    color: #93c5fd;
+}
+:is(.dark) .popover-year-input:focus {
+    background: #0f172a;
+    border-color: #60a5fa;
+}
+:is(.dark) .pop-month-btn {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.08);
+    color: var(--text-secondary, #cbd5e1);
+}
+:is(.dark) .pop-month-btn:hover {
+    background: var(--primary-light, rgba(67, 97, 238, 0.15));
+    color: #ffffff;
+}
 </style>
 
-
-
-{{-- ─── Script Kalender & Filter Presets ────────────────────────── --}}
+{{-- ─── Script Kalender & Filter Presets Terhubung Mock Data ─────── --}}
 <script>
 (function() {
-    // ── Data Acara Kalender ─────────────────────────────────────────
-    const CAL_EVENTS = [
-        {
-            date: '2026-09-05',
-            color: '#22c55e',
-            status: 'Selesai',
-            badgeClass: 'badge-green',
-            title: 'Sosialisasi P4GN SMAN 1 Surabaya',
-            category: 'Pendidikan / Remaja',
-            time: '08:30 - 11:30 WIB',
-            location: 'Aula SMAN 1 Surabaya',
-            participants: '65 Siswa'
-        },
-        {
-            date: '2026-09-10',
-            color: '#22c55e',
-            status: 'Selesai',
-            badgeClass: 'badge-green',
-            title: 'Workshop Ketahanan Keluarga Anti Narkoba',
-            category: 'Keluarga / Masyarakat',
-            time: '09:00 - 12:00 WIB',
-            location: 'Kec. Tegalsari Surabaya',
-            participants: '40 Warga'
-        },
-        {
-            date: '2026-09-14',
-            color: '#f59e0b',
-            status: 'Aktif',
-            badgeClass: 'badge-yellow',
-            title: 'Pembinaan & Edukasi Komunitas Pemuda Bersinar',
-            category: 'Komunitas Pemuda',
-            time: '13:00 - 15:30 WIB',
-            location: 'Kel. Jambangan Surabaya',
-            participants: '80 Pemuda'
-        },
-        {
-            date: '2026-09-17',
-            color: '#f59e0b',
-            status: 'Aktif',
-            badgeClass: 'badge-yellow',
-            title: 'Monitoring & Evaluasi Pelaksanaan P4GN Triwulan III',
-            category: 'Internal BNN & Mitra',
-            time: '09:30 - 12:00 WIB',
-            location: 'Ruang Rapat BNN Kota Surabaya',
-            participants: '25 Peserta'
-        },
-        {
-            date: '2026-09-22',
-            color: '#4361EE',
-            status: 'Mendatang',
-            badgeClass: 'badge-blue',
-            title: 'Sosialisasi Bahaya Narkoba Lingkungan Kerja PDAM Surya Sembada',
-            category: 'Instansi BUMD',
-            time: '08:00 - 12:00 WIB',
-            location: 'Kantor Pusat PDAM Surabaya',
-            participants: '120 Karyawan'
-        },
-        {
-            date: '2026-09-28',
-            color: '#4361EE',
-            status: 'Mendatang',
-            badgeClass: 'badge-blue',
-            title: 'Pemeriksaan & Deteksi Dini Tes Urin Berkala',
-            category: 'Dunia Usaha / Swasta',
-            time: '08:30 - 13:30 WIB',
-            location: 'Kawasan Industri Rungkut Surabaya',
-            participants: '200 Pekerja'
-        },
-        // Desember 2026 (Sesuai request user: "mau bulan desember")
-        {
-            date: '2026-12-05',
-            color: '#22c55e',
-            status: 'Selesai',
-            badgeClass: 'badge-green',
-            title: 'Sosialisasi Bahaya Narkoba Akhir Semester — SMK N 2 Surabaya',
-            category: 'Pendidikan / Remaja',
-            time: '08:30 - 11:00 WIB',
-            location: 'Auditorium SMK N 2 Surabaya',
-            participants: '95 Siswa'
-        },
-        {
-            date: '2026-12-12',
-            color: '#f59e0b',
-            status: 'Aktif',
-            badgeClass: 'badge-yellow',
-            title: 'Rapat Koordinasi Evaluasi Tahunan Relawan P4GN Surabaya',
-            category: 'Masyarakat & Penggiat',
-            time: '09:00 - 12:30 WIB',
-            location: 'Gedung Graha Sawunggaling Surabaya',
-            participants: '110 Peserta'
-        },
-        {
-            date: '2026-12-22',
-            color: '#4361EE',
-            status: 'Mendatang',
-            badgeClass: 'badge-blue',
-            title: 'Kampanye Terpadu Libur Nataru Bersinar (Bersih Narkoba)',
-            category: 'Masyarakat Umum / Transportasi',
-            time: '08:00 - 14:00 WIB',
-            location: 'Terminal Purabaya & Stasiun Gubeng',
-            participants: '350 Sasaran'
+    // ── Akses Mock Data (dari modul window.DashboardMock atau internal fallback)
+    const MockData = window.DashboardMock || {
+        MONTH_NAMES: ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'],
+        MONTH_NAMES_SHORT: ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'],
+        DAY_NAMES: ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'],
+        DAY_FULL_NAMES: ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'],
+        CALENDAR_EVENTS: [
+            { id: 1, date: '2026-09-05', color: '#22c55e', status: 'Selesai', badgeClass: 'badge-green', title: 'Sosialisasi P4GN SMAN 1 Surabaya', category: 'Pendidikan / Remaja', time: '08:30 - 11:30 WIB', location: 'Aula SMAN 1 Surabaya', participants: '65 Siswa', nGain: 0.78, kategoriGain: 'Tinggi' },
+            { id: 2, date: '2026-09-10', color: '#22c55e', status: 'Selesai', badgeClass: 'badge-green', title: 'Workshop Ketahanan Keluarga Anti Narkoba', category: 'Keluarga / Masyarakat', time: '09:00 - 12:00 WIB', location: 'Kec. Tegalsari Surabaya', participants: '40 Warga', nGain: 0.71, kategoriGain: 'Tinggi' },
+            { id: 3, date: '2026-09-14', color: '#06b6d4', status: 'Berlangsung', badgeClass: 'badge-cyan', title: 'Pembinaan & Edukasi Komunitas Pemuda Bersinar', category: 'Komunitas Pemuda', time: '13:00 - 15:30 WIB', location: 'Kel. Jambangan Surabaya', participants: '80 Pemuda', nGain: 0.68, kategoriGain: 'Sedang' },
+            { id: 4, date: '2026-09-17', color: '#f59e0b', status: 'Aktif', badgeClass: 'badge-yellow', title: 'Monitoring & Evaluasi Pelaksanaan P4GN Triwulan III', category: 'Internal BNN & Mitra', time: '09:30 - 12:00 WIB', location: 'Ruang Rapat BNN Kota Surabaya', participants: '25 Peserta', nGain: null, kategoriGain: '—' },
+            { id: 5, date: '2026-09-22', color: '#4361ee', status: 'Dijadwalkan', badgeClass: 'badge-blue', title: 'Sosialisasi Bahaya Narkoba Lingkungan Kerja PDAM Surya Sembada', category: 'Instansi BUMD', time: '08:00 - 12:00 WIB', location: 'Kantor Pusat PDAM Surabaya', participants: '50 Karyawan', nGain: null, kategoriGain: '—' },
+            { id: 6, date: '2026-09-28', color: '#4361ee', status: 'Dijadwalkan', badgeClass: 'badge-blue', title: 'Pemeriksaan & Deteksi Dini Tes Urin Berkala', category: 'Dunia Usaha / Swasta', time: '08:30 - 13:30 WIB', location: 'Kawasan Industri Rungkut Surabaya', participants: '120 Pekerja', nGain: null, kategoriGain: '—' },
+            { id: 10, date: '2026-12-05', color: '#22c55e', status: 'Selesai', badgeClass: 'badge-green', title: 'Sosialisasi Bahaya Narkoba Akhir Semester — SMK N 2 Surabaya', category: 'Pendidikan / Remaja', time: '08:30 - 11:00 WIB', location: 'Auditorium SMK N 2 Surabaya', participants: '95 Siswa', nGain: 0.75, kategoriGain: 'Tinggi' },
+            { id: 11, date: '2026-12-12', color: '#f59e0b', status: 'Aktif', badgeClass: 'badge-yellow', title: 'Rapat Koordinasi Evaluasi Tahunan Relawan P4GN Surabaya', category: 'Masyarakat & Penggiat', time: '09:00 - 12:30 WIB', location: 'Gedung Graha Sawunggaling Surabaya', participants: '110 Peserta', nGain: 0.69, kategoriGain: 'Sedang' },
+            { id: 12, date: '2026-12-22', color: '#4361ee', status: 'Mendatang', badgeClass: 'badge-blue', title: 'Kampanye Terpadu Libur Nataru Bersinar (Bersih Narkoba)', category: 'Masyarakat Umum / Transportasi', time: '08:00 - 14:00 WIB', location: 'Terminal Purabaya & Stasiun Gubeng', participants: '350 Sasaran', nGain: null, kategoriGain: '—' }
+        ],
+        RECENT_ACTIVITIES: [
+            { id: 1, nama: 'SMAN 1 Surabaya', tanggal_short: '05 Sep', peserta: 65, status: 'Selesai', status_badge: 'badge-green', n_gain: 0.78, n_gain_kategori: 'Tinggi' },
+            { id: 2, nama: 'Kec. Tegalsari', tanggal_short: '10 Sep', peserta: 40, status: 'Selesai', status_badge: 'badge-green', n_gain: 0.71, n_gain_kategori: 'Tinggi' },
+            { id: 3, nama: 'Kel. Jambangan', tanggal_short: '14 Sep', peserta: 80, status: 'Berlangsung', status_badge: 'badge-cyan', n_gain: 0.68, n_gain_kategori: 'Sedang' },
+            { id: 4, nama: 'Aula PDAM Sby', tanggal_short: '22 Sep', peserta: 50, status: 'Dijadwalkan', status_badge: 'badge-gray', n_gain: null, n_gain_kategori: '—' },
+            { id: 5, nama: 'Lapas Kelas I Surabaya', tanggal_short: '28 Sep', peserta: 120, status: 'Dijadwalkan', status_badge: 'badge-gray', n_gain: null, n_gain_kategori: '—' }
+        ],
+        DASHBOARD_METRICS_DATA: {
+            bulan_ini: {
+                periodLabel: 'September 2026',
+                kegiatan: { value: 14, growth: '+16.7%', sub: 'kegiatan terlaksana', growthLabel: 'vs bulan lalu' },
+                peserta: { value: '1.248', growth: '+23.4%', sub: 'peserta terdaftar', growthLabel: 'vs bulan lalu' },
+                nGain: { value: '0.72', growth: '+0.06', badge: 'Efektif', badgeColor: 'badge-green', sub: 'kategori efektivitas tinggi' },
+                efektivitas: { value: '84.6%', growth: '+5.2%', sub: 'kategori paham/cukup' },
+                distribusi: [
+                    { label: 'Paham / Tinggi (g ≥ 0.70)', count: 874, percent: 70.0, color: 'var(--success, #22c55e)' },
+                    { label: 'Cukup / Sedang (0.30 ≤ g < 0.70)', count: 288, percent: 23.1, color: 'var(--warning, #f59e0b)' },
+                    { label: 'Kurang / Rendah (g < 0.30)', count: 86, percent: 6.9, color: 'var(--danger, #ef4444)' }
+                ]
+            },
+            tahun_ini: {
+                periodLabel: 'Tahun 2026',
+                kegiatan: { value: 48, growth: '+32.4%', sub: 'kegiatan terlaksana tahun ini', growthLabel: 'vs tahun 2025' },
+                peserta: { value: '4.850', growth: '+28.1%', sub: 'total penerima sosialisasi', growthLabel: 'vs tahun 2025' },
+                nGain: { value: '0.74', growth: '+0.09', badge: 'Efektif Tinggi', badgeColor: 'badge-green', sub: 'rata-rata N-Gain tahunan' },
+                efektivitas: { value: '86.2%', growth: '+6.4%', sub: 'tingkat efektivitas rata-rata' },
+                distribusi: [
+                    { label: 'Paham / Tinggi (g ≥ 0.70)', count: 3492, percent: 72.0, color: 'var(--success, #22c55e)' },
+                    { label: 'Cukup / Sedang (0.30 ≤ g < 0.70)', count: 1067, percent: 22.0, color: 'var(--warning, #f59e0b)' },
+                    { label: 'Kurang / Rendah (g < 0.30)', count: 291, percent: 6.0, color: 'var(--danger, #ef4444)' }
+                ]
+            },
+            getCustomData(m, y) {
+                return this.bulan_ini;
+            }
         }
-    ];
-
-    const DAY_NAMES      = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
-    const DAY_FULL_NAMES = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-    const MONTH_NAMES    = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+    };
 
     let calYear     = 2026;
-    let calMonth    = 8;
-    let selectedDay = 17; // Tanggal default terpilih (Hari ini)
+    let calMonth    = 8; // September (0-indexed)
+    let selectedDay = 17; // Default terpilih
+    let currentMode = 'bulan_ini';
+    let popoverYear = 2026;
+
     const todayReal = new Date();
 
     function getEventsForDate(y, m, d) {
         const key = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-        return CAL_EVENTS.filter(e => e.date === key);
+        return (MockData.CALENDAR_EVENTS || []).filter(e => e.date === key);
     }
 
+    // ── Render Rincian Kegiatan Terbaru di Tabel Sisi Kanan ────────
+    function renderRecentActivities() {
+        const listEl = document.getElementById('recentActivitiesList');
+        if (!listEl) return;
+
+        const activities = MockData.RECENT_ACTIVITIES || [];
+        let html = '';
+
+        activities.forEach(act => {
+            const gainDisplay = act.n_gain !== null
+                ? `<span class="font-bold text-emerald-600 dark:text-emerald-400">${act.n_gain}</span>`
+                : `<span class="text-gray-400 font-medium">—</span>`;
+
+            html += `
+                <div class="py-2.5 flex items-center justify-between hover:bg-gray-50/60 dark:hover:bg-gray-800/30 px-1 rounded transition-colors">
+                    <div>
+                        <p class="font-semibold text-gray-800 dark:text-gray-200 font-sans">${act.nama}</p>
+                        <div class="flex items-center gap-1.5 mt-0.5 text-[11px] text-gray-400 font-sans">
+                            <span class="text-gray-500 dark:text-gray-400 font-medium">${act.tanggal_short}</span>
+                            <span class="text-gray-300 dark:text-gray-600">&middot;</span>
+                            <span><span class="font-semibold text-gray-700 dark:text-gray-300">${act.peserta}</span> Peserta</span>
+                        </div>
+                    </div>
+                    <div class="text-right flex flex-col items-end gap-0.5">
+                        <span class="badge ${act.status_badge} text-[10px] font-sans">${act.status}</span>
+                        <p class="text-[11px] text-gray-400 font-sans flex items-center gap-1 mt-0.5">
+                            <span>Gain:</span>
+                            ${gainDisplay}
+                        </p>
+                    </div>
+                </div>
+            `;
+        });
+
+        listEl.innerHTML = html;
+    }
+
+    // ── Render Breakdown Distribusi N-Gain ─────────────────────────
+    function renderDistribution(distData) {
+        const container = document.getElementById('distributionContainer');
+        if (!container) return;
+
+        const items = distData || MockData.DASHBOARD_METRICS_DATA.bulan_ini.distribusi;
+        let html = '';
+
+        items.forEach(item => {
+            html += `
+                <div>
+                    <div class="flex items-center justify-between text-xs font-sans mb-1">
+                        <span class="font-medium text-gray-700 dark:text-gray-300">${item.label}</span>
+                        <div class="flex items-center gap-2">
+                            <span class="text-muted tabular-nums">${item.count.toLocaleString('id-ID')} siswa</span>
+                            <span class="font-bold text-gray-900 dark:text-white tabular-nums">${item.percent}%</span>
+                        </div>
+                    </div>
+                    <div class="w-full h-2 rounded-full bg-gray-100 dark:bg-gray-800 overflow-hidden">
+                        <div class="h-full rounded-full transition-all duration-500" style="width: ${item.percent}%; background: ${item.color};"></div>
+                    </div>
+                </div>
+            `;
+        });
+
+        container.innerHTML = html;
+    }
+
+    // ── Render Detail Acara Kalender ──────────────────────────────
     function renderEventDetail(y, m, d) {
         const detailEl = document.getElementById('calEventDetail');
         if (!detailEl) return;
 
         const dateObj = new Date(y, m, d);
-        const dayName = DAY_FULL_NAMES[dateObj.getDay()];
-        const formattedDate = `${dayName}, ${d} ${MONTH_NAMES[m]} ${y}`;
+        const dayName = MockData.DAY_FULL_NAMES[dateObj.getDay()];
+        const formattedDate = `${dayName}, ${d} ${MockData.MONTH_NAMES[m]} ${y}`;
         const events = getEventsForDate(y, m, d);
 
         if (events.length === 0) {
@@ -940,6 +953,10 @@
 
         let eventsHtml = '';
         events.forEach(evt => {
+            const gainRow = evt.nGain !== null && evt.nGain !== undefined
+                ? `<div class="flex items-center gap-1"><span class="text-gray-400">N-Gain:</span><span class="font-bold text-emerald-600 dark:text-emerald-400">${evt.nGain} (${evt.kategoriGain})</span></div>`
+                : '';
+
             eventsHtml += `
                 <div class="p-3 rounded-xl bg-gray-50 dark:bg-gray-800/60 border border-gray-100 dark:border-gray-800 hover:border-gray-200 dark:hover:border-gray-700 transition-colors">
                     <div class="flex items-start justify-between gap-2">
@@ -970,6 +987,7 @@
                             </svg>
                             <span>${evt.participants}</span>
                         </div>
+                        ${gainRow}
                     </div>
                 </div>
             `;
@@ -998,6 +1016,7 @@
         `;
     }
 
+    // ── Render Kalender Bulanan ───────────────────────────────────
     function renderCalendar() {
         const calEl = document.getElementById('dashCalendar');
         if (!calEl) return;
@@ -1013,12 +1032,12 @@
         const monthNameEl = document.getElementById('calMonthName');
         const yearNameEl  = document.getElementById('calYearName');
         if (dayBigEl)    dayBigEl.textContent    = selectedDay;
-        if (monthNameEl) monthNameEl.textContent = MONTH_NAMES[calMonth];
+        if (monthNameEl) monthNameEl.textContent = MockData.MONTH_NAMES[calMonth];
         if (yearNameEl)  yearNameEl.textContent  = calYear;
 
         let html = '<div class="cal-grid-wrap">';
         html += '<div class="cal-row cal-head-row">';
-        DAY_NAMES.forEach(d => { html += `<div class="cal-cell cal-head-cell">${d}</div>`; });
+        MockData.DAY_NAMES.forEach(d => { html += `<div class="cal-cell cal-head-cell">${d}</div>`; });
         html += '</div>';
 
         let cellCount = 0;
@@ -1032,7 +1051,7 @@
             const isSelected = d === selectedDay;
             const isWeekend  = ((firstDay + d - 1) % 7 === 0) || ((firstDay + d - 1) % 7 === 6);
             const dots       = events.map(e => `<span class="cal-event-dot" style="background:${e.color}"></span>`).join('');
-            
+
             html += `<div class="cal-cell cal-date-cell${isToday?' cal-today':''}${isSelected?' cal-selected':''}${isWeekend?' cal-weekend':''}" data-day="${d}">
                 <span class="cal-date-num">${d}</span>
                 ${dots ? `<div class="cal-dots">${dots}</div>` : ''}
@@ -1044,41 +1063,84 @@
         html += '</div></div>';
         calEl.innerHTML = html;
 
-        // Pasang event listener klik pada tanggal
+        // Pasang listener klik tanggal
         calEl.querySelectorAll('.cal-date-cell').forEach(cell => {
             cell.addEventListener('click', function() {
                 const day = parseInt(this.getAttribute('data-day'), 10);
                 if (!day) return;
                 selectedDay = day;
 
-                // Update visual selection
                 calEl.querySelectorAll('.cal-date-cell').forEach(c => c.classList.remove('cal-selected'));
                 this.classList.add('cal-selected');
 
-                // Update header angka besar
                 if (dayBigEl) dayBigEl.textContent = selectedDay;
-
-                // Render detail acara di bawah kalender
                 renderEventDetail(calYear, calMonth, selectedDay);
             });
         });
 
-        // Render detail acara untuk tanggal yang terpilih
         renderEventDetail(calYear, calMonth, selectedDay);
     }
 
-    // ── Mode Waktu Aktif: 'bulan_ini' | 'tahun_ini' | 'custom' ───
-    let currentMode = 'bulan_ini';
-    let popoverYear = 2026;
+    // ── Update Tampilan Metrik KPI ────────────────────────────────
+    function updateMetricsUI(data) {
+        if (!data) return;
 
-    // ── Render Grid 12 Bulan Popover ─────────────────────────────
+        // Active period badge in header
+        const activePeriod = document.getElementById('activePeriodDisplay');
+        if (activePeriod) activePeriod.textContent = `Periode: ${data.periodLabel}`;
+
+        // 1. Total Kegiatan
+        const elKegiatan = document.getElementById('sKegiatan');
+        const elKegiatanGrowth = document.getElementById('sKegiatanGrowth');
+        const elKegiatanSub = document.getElementById('sKegiatanSub');
+        const elKegiatanPeriod = document.getElementById('sKegiatanPeriod');
+        if (elKegiatan) elKegiatan.textContent = data.kegiatan.value;
+        if (elKegiatanGrowth) elKegiatanGrowth.textContent = data.kegiatan.growth;
+        if (elKegiatanSub) elKegiatanSub.textContent = data.kegiatan.sub;
+        if (elKegiatanPeriod) elKegiatanPeriod.textContent = data.kegiatan.growthLabel;
+
+        // 2. Total Peserta
+        const elPeserta = document.getElementById('sPeserta');
+        const elPesertaGrowth = document.getElementById('sPesertaGrowth');
+        const elPesertaSub = document.getElementById('sPesertaSub');
+        const elPesertaPeriod = document.getElementById('sPesertaPeriod');
+        if (elPeserta) elPeserta.textContent = data.peserta.value;
+        if (elPesertaGrowth) elPesertaGrowth.textContent = data.peserta.growth;
+        if (elPesertaSub) elPesertaSub.textContent = data.peserta.sub;
+        if (elPesertaPeriod) elPesertaPeriod.textContent = data.peserta.growthLabel;
+
+        // 3. N-Gain
+        const elGain = document.getElementById('sGain');
+        const elGainGrowth = document.getElementById('sGainGrowth');
+        const elGainBadge = document.getElementById('sGainBadge');
+        const elGainSub = document.getElementById('sGainSub');
+        if (elGain) elGain.textContent = data.nGain.value;
+        if (elGainGrowth) elGainGrowth.textContent = data.nGain.growth;
+        if (elGainBadge) {
+            elGainBadge.textContent = data.nGain.badge;
+            elGainBadge.className = `badge ${data.nGain.badgeColor} text-[10px]`;
+        }
+        if (elGainSub) elGainSub.textContent = data.nGain.sub;
+
+        // 4. Efektivitas
+        const elEfektivitas = document.getElementById('sEfektivitas');
+        const elEfektivitasGrowth = document.getElementById('sEfektivitasGrowth');
+        const elEfektivitasSub = document.getElementById('sEfektivitasSub');
+        if (elEfektivitas) elEfektivitas.textContent = data.efektivitas.value;
+        if (elEfektivitasGrowth) elEfektivitasGrowth.textContent = data.efektivitas.growth;
+        if (elEfektivitasSub) elEfektivitasSub.textContent = data.efektivitas.sub;
+
+        // Render Distribution Bars
+        renderDistribution(data.distribusi);
+    }
+
+    // ── Render Grid Popover 12 Bulan ──────────────────────────────
     function renderPopoverMonthGrid() {
         const grid = document.getElementById('popMonthGrid');
         if (!grid) return;
-        const SHORT_MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
 
         let html = '';
-        SHORT_MONTHS.forEach((mName, idx) => {
+        MockData.MONTH_NAMES_SHORT.forEach((mName, idx) => {
             const isSelected = (idx === calMonth && popoverYear === calYear && currentMode === 'custom');
             html += `<button type="button" class="pop-month-btn ${isSelected ? 'active' : ''}" data-month="${idx}">
                 ${mName}
@@ -1102,7 +1164,8 @@
         const isHidden = pop.classList.contains('hidden');
         if (isHidden) {
             popoverYear = calYear;
-            document.getElementById('popYearLabel').textContent = popoverYear;
+            const popYearInp = document.getElementById('popYearInput');
+            if (popYearInp) popYearInp.value = popoverYear;
             renderPopoverMonthGrid();
             pop.classList.remove('hidden');
             caret?.classList.add('rotate-180');
@@ -1120,41 +1183,31 @@
         }
     }
 
-    // ── Pilih Bulan & Tahun Khusus (Kustom) ──────────────────────
+    // ── Pilih Bulan & Tahun Khusus ────────────────────────────────
     function selectCustomMonthYear(month, year) {
         currentMode = 'custom';
         calMonth    = month;
         calYear     = year;
 
-        // Update button visual states
         document.getElementById('fBulan')?.classList.remove('active');
         document.getElementById('fTahun')?.classList.remove('active');
         document.getElementById('fCustom')?.classList.add('active');
 
-        // Update label tombol ke-3
         const labelEl = document.getElementById('fCustomLabel');
         if (labelEl) {
-            labelEl.textContent = `${MONTH_NAMES[calMonth]} ${calYear}`;
+            labelEl.textContent = `${MockData.MONTH_NAMES[calMonth]} ${calYear}`;
         }
 
-        // Update metric values
-        const sKegiatan = document.getElementById('sKegiatan');
-        const sPeserta  = document.getElementById('sPeserta');
-        if (year === 2026 && month === 11) { // Desember 2026
-            if (sKegiatan) sKegiatan.textContent = '19';
-            if (sPeserta)  sPeserta.textContent  = '1.680';
-        } else if (year === 2026 && month === 8) { // September 2026
-            if (sKegiatan) sKegiatan.textContent = '14';
-            if (sPeserta)  sPeserta.textContent  = '1.248';
-        } else {
-            const baseKegiatan = 10 + (month % 5) + (year === 2026 ? 2 : 0);
-            const basePeserta  = 850 + (month * 50) + (year === 2026 ? 100 : 0);
-            if (sKegiatan) sKegiatan.textContent = baseKegiatan.toString();
-            if (sPeserta)  sPeserta.textContent  = basePeserta.toLocaleString('id-ID');
-        }
+        // Ambil data mock kustom
+        const metricsFn = MockData.DASHBOARD_METRICS_DATA.getCustomData;
+        const metricsData = typeof metricsFn === 'function'
+            ? metricsFn(month, year)
+            : MockData.DASHBOARD_METRICS_DATA.bulan_ini;
 
-        // Tentukan selectedDay
-        const evts = CAL_EVENTS.filter(e => {
+        updateMetricsUI(metricsData);
+
+        // Cari tanggal pertama yang ada kegiatan di bulan tersebut
+        const evts = (MockData.CALENDAR_EVENTS || []).filter(e => {
             const parts = e.date.split('-');
             return parseInt(parts[0], 10) === calYear && parseInt(parts[1], 10) === (calMonth + 1);
         });
@@ -1176,10 +1229,7 @@
         const fTahun   = document.getElementById('fTahun');
         const fCustom  = document.getElementById('fCustom');
         const labelEl  = document.getElementById('fCustomLabel');
-        const sKegiatan = document.getElementById('sKegiatan');
-        const sPeserta  = document.getElementById('sPeserta');
 
-        // Reset label tombol ke-3 ke default
         if (labelEl) labelEl.textContent = 'Pilih Bulan & Tahun';
 
         if (mode === 'bulan_ini') {
@@ -1189,19 +1239,16 @@
 
             calMonth    = 8; // September
             calYear     = 2026;
-            selectedDay = 17; // Hari ini
+            selectedDay = 17;
 
-            if (sKegiatan) sKegiatan.textContent = '14';
-            if (sPeserta)  sPeserta.textContent  = '1.248';
+            updateMetricsUI(MockData.DASHBOARD_METRICS_DATA.bulan_ini);
         } else if (mode === 'tahun_ini') {
             fTahun?.classList.add('active');
             fBulan?.classList.remove('active');
             fCustom?.classList.remove('active');
 
             calYear  = 2026;
-            // Tampilkan akumulasi tahunan
-            if (sKegiatan) sKegiatan.textContent = '48';
-            if (sPeserta)  sPeserta.textContent  = '4.850';
+            updateMetricsUI(MockData.DASHBOARD_METRICS_DATA.tahun_ini);
         }
 
         renderCalendar();
@@ -1209,6 +1256,9 @@
 
     // ── Bootstrapping Saat DOM Siap ──────────────────────────────
     document.addEventListener('DOMContentLoaded', function() {
+        // Sinkronisasi data awal
+        updateMetricsUI(MockData.DASHBOARD_METRICS_DATA.bulan_ini);
+        renderRecentActivities();
         renderCalendar();
 
         // 3 Tombol Utama
@@ -1222,17 +1272,39 @@
         // Popover Controls
         document.getElementById('popoverMonthYear')?.addEventListener('click', (e) => e.stopPropagation());
 
+        const popYearInput = document.getElementById('popYearInput');
+
         document.getElementById('popPrevYear')?.addEventListener('click', () => {
             popoverYear--;
-            document.getElementById('popYearLabel').textContent = popoverYear;
+            if (popYearInput) popYearInput.value = popoverYear;
             renderPopoverMonthGrid();
         });
 
         document.getElementById('popNextYear')?.addEventListener('click', () => {
             popoverYear++;
-            document.getElementById('popYearLabel').textContent = popoverYear;
+            if (popYearInput) popYearInput.value = popoverYear;
             renderPopoverMonthGrid();
         });
+
+        if (popYearInput) {
+            popYearInput.addEventListener('input', function () {
+                const val = parseInt(this.value, 10);
+                if (val >= 1990 && val <= 2099) {
+                    popoverYear = val;
+                    renderPopoverMonthGrid();
+                }
+            });
+            popYearInput.addEventListener('change', function () {
+                const val = parseInt(this.value, 10);
+                if (val >= 1990 && val <= 2099) {
+                    popoverYear = val;
+                    this.value = val;
+                    renderPopoverMonthGrid();
+                } else {
+                    this.value = popoverYear;
+                }
+            });
+        }
 
         document.getElementById('popBtnCurrentMonth')?.addEventListener('click', () => {
             setPreset('bulan_ini');

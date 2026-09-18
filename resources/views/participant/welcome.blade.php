@@ -49,15 +49,26 @@
                 @enderror
             </div>
 
-            {{-- Sekolah --}}
-            <div class="form-group">
-                <label class="form-label" for="pesertaSekolah">Asal Sekolah / Instansi <span style="color: var(--danger);">*</span></label>
-                <input type="text" name="sekolah" id="pesertaSekolah" class="form-input"
-                    placeholder="cth: SMA Negeri 1 Surabaya"
-                    value="{{ old('sekolah') }}" required>
-                @error('sekolah')
-                    <p class="text-xs mt-1.5" style="color: var(--danger);">{{ $message }}</p>
-                @enderror
+            {{-- Sekolah & Kelas --}}
+            <div class="grid grid-cols-2 gap-3">
+                <div class="form-group">
+                    <label class="form-label" for="pesertaSekolah">Asal Sekolah <span style="color: var(--danger);">*</span></label>
+                    <input type="text" name="sekolah" id="pesertaSekolah" class="form-input"
+                        placeholder="cth: SMAN 5 Surabaya"
+                        value="{{ old('sekolah') }}" required>
+                    @error('sekolah')
+                        <p class="text-xs mt-1.5" style="color: var(--danger);">{{ $message }}</p>
+                    @enderror
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="pesertaKelas">Kelas / Tingkat <span style="color: var(--danger);">*</span></label>
+                    <input type="text" name="kelas" id="pesertaKelas" class="form-input"
+                        placeholder="cth: XI MIPA 1"
+                        value="{{ old('kelas') }}" required>
+                    @error('kelas')
+                        <p class="text-xs mt-1.5" style="color: var(--danger);">{{ $message }}</p>
+                    @enderror
+                </div>
             </div>
 
             {{-- Submit --}}

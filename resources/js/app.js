@@ -12,6 +12,11 @@ window.Chart = Chart;
 import ReauthModal   from './modules/ReauthModal.js';
 import QuizEngine    from './modules/QuizEngine.js';
 import ApiHelper     from './api/ApiHelper.js';
+import * as DashboardMock from './data/dashboardMock.js';
+import SIMEVAL_MOCK from './mock.js';
+window.DashboardMock = DashboardMock;
+window.SIMEVAL_MOCK = SIMEVAL_MOCK;
+window.MockData = SIMEVAL_MOCK;
 
 // =============================================
 //  INIT: HALAMAN UMUM (Sidebar, Topbar, etc.)

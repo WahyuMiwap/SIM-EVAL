@@ -14,13 +14,25 @@
 <body>
 
 @php
-    $userName  = 'Wahyu';
-    $userEmail = 'wahyu@bnnsurabaya.go.id';
-    $userInit  = 'W';
+    $currentRole = session('current_role', 'operator');
+    if ($currentRole === 'superadmin') {
+        $userName = 'Super Admin BNN';
+        $userEmail = 'superadmin@bnn.go.id';
+        $userRoleLabel = 'Super Admin';
+    } elseif ($currentRole === 'magang') {
+        $userName = 'Rizky (Magang)';
+        $userEmail = 'rizky.magang@mhs.unair.ac.id';
+        $userRoleLabel = 'Anak Magang';
+    } else {
+        $userName = 'Wahyu Prasetyo';
+        $userEmail = 'wahyu@bnnsurabaya.go.id';
+        $userRoleLabel = 'Staf Operator';
+    }
+    $userInit  = strtoupper(substr($userName, 0, 1));
 @endphp
 
 {{-- Sidebar --}}
-@include('components.sidebar', compact('userName', 'userEmail', 'userInit'))
+@include('components.sidebar', compact('userName', 'userEmail', 'userInit', 'currentRole', 'userRoleLabel'))
 
 {{-- Main Wrapper --}}
 <div class="main-wrapper" id="mainWrapper">
@@ -47,6 +59,20 @@
 
         {{-- Right Actions --}}
         <div class="flex items-center gap-2 flex-shrink-0">
+            {{-- Quick Role Switcher --}}
+            <div class="relative hidden sm:block">
+                <form action="{{ route('operator.staf.switch-role', $currentRole === 'superadmin' ? 'operator' : ($currentRole === 'operator' ? 'magang' : 'superadmin')) }}" method="POST" class="inline">
+                    @csrf
+                    <button type="submit" class="btn btn-sm btn-secondary flex items-center gap-1.5 text-xs font-medium py-1 px-2.5" title="Klik untuk beralih role">
+                        <span class="w-2 h-2 rounded-full {{ $currentRole === 'superadmin' ? 'bg-purple-500' : ($currentRole === 'operator' ? 'bg-blue-500' : 'bg-amber-500') }}"></span>
+                        <span>{{ $userRoleLabel }}</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                        </svg>
+                    </button>
+                </form>
+            </div>
+
             {{-- Theme Toggle --}}
             <button id="themeToggleBtn" class="btn btn-secondary btn-icon" onclick="toggleTheme()" title="Toggle Dark/Light Mode">
                 <svg id="themeIconLight" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>

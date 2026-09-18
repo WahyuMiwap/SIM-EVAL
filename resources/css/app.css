@@ -10,6 +10,16 @@
 @theme {
     --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
     --font-display: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+    --font-mono: 'Inter', ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Eradicate typewriter monospace across the entire system — use Inter with tabular-nums */
+.font-mono,
+code,
+kbd,
+samp,
+pre {
+    font-family: var(--font-sans) !important;
 }
 
 /* ═══════════════════════════════════════════════════

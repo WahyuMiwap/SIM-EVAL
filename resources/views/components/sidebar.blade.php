@@ -22,12 +22,20 @@
     <nav class="sidebar-nav">
         {{-- Minimize Toggle (Desktop) --}}
         <button class="nav-item minimize-toggle md-show mb-1" onclick="toggleSidebarMini()" title="Minimize Sidebar">
-            {{-- Single arrow icon - CSS rotates it when mini --}}
             <svg id="iconMinimize" xmlns="http://www.w3.org/2000/svg" class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
             </svg>
             <span class="sidebar-text">Tutup Sidebar</span>
         </button>
+
+        {{-- Role Indicator Chip in Sidebar --}}
+        <div class="px-3 py-2 mb-2 rounded-lg bg-gray-50 dark:bg-gray-800/60 border border-gray-100 dark:border-gray-800 sidebar-text">
+            <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full {{ ($currentRole ?? '') === 'superadmin' ? 'bg-purple-500' : (($currentRole ?? '') === 'operator' ? 'bg-blue-500' : 'bg-amber-500') }}"></span>
+                <span class="text-[11px] font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300">{{ $userRoleLabel ?? 'Staf Operator' }}</span>
+            </div>
+            <p class="text-[10px] text-muted truncate mt-0.5">{{ $userName ?? 'Pengguna BNN' }}</p>
+        </div>
 
         <p class="nav-section-label">Operasional</p>
 
@@ -42,11 +50,11 @@
 
         <a href="{{ route('operator.kegiatan.index') }}"
            class="nav-item {{ request()->routeIs('operator.kegiatan.*') ? 'active' : '' }}"
-           id="nav-kegiatan" title="Daftar Kegiatan">
+           id="nav-kegiatan" title="Daftar Kegiatan & Rekap">
             <svg xmlns="http://www.w3.org/2000/svg" class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
-            <span class="sidebar-text">Daftar Kegiatan</span>
+            <span class="sidebar-text">Kegiatan & Rekap</span>
         </a>
 
         <a href="{{ route('operator.lokasi.index') }}"
@@ -68,7 +76,17 @@
             <span class="sidebar-text">Bank Soal</span>
         </a>
 
-        <p class="nav-section-label" style="margin-top: 1rem;">Akun</p>
+        {{-- Kelola Staf / Pengguna (Super Admin & Staf BNN) --}}
+        <p class="nav-section-label" style="margin-top: 1rem;">Administrasi</p>
+
+        <a href="{{ route('operator.staf.index') }}"
+           class="nav-item {{ request()->routeIs('operator.staf.*') ? 'active' : '' }}"
+           id="nav-staf" title="Tata Kelola Pengguna">
+            <svg xmlns="http://www.w3.org/2000/svg" class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+            <span class="sidebar-text">Tata Kelola Pengguna</span>
+        </a>
 
         <a href="{{ route('operator.profile') }}"
            class="nav-item {{ request()->routeIs('operator.profile') ? 'active' : '' }}"
@@ -83,11 +101,11 @@
     {{-- Sidebar Footer --}}
     <div class="sidebar-footer">
         {{-- Link ke Halaman Peserta --}}
-        <a href="{{ route('participant.welcome') }}" class="nav-item" style="color: var(--primary); font-size: 0.8125rem;" title="Preview Peserta">
+        <a href="{{ route('participant.welcome') }}" class="nav-item" style="color: var(--primary); font-size: 0.8125rem;" title="Preview Peserta" target="_blank">
             <svg xmlns="http://www.w3.org/2000/svg" class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
-            <span class="sidebar-text">Preview Halaman Peserta</span>
+            <span class="sidebar-text">Buka Portal Peserta (PWA)</span>
         </a>
 
         {{-- Logout --}}
@@ -100,6 +118,5 @@
                 <span class="sidebar-text">Logout</span>
             </button>
         </form>
-
     </div>
 </aside>
