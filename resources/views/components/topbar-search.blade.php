@@ -410,7 +410,7 @@ document.addEventListener('DOMContentLoaded', function () {
             badgeClass: 'badge-aksi',
             iconClass: 'icon-bg-emerald',
             icon: `<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>`,
-            url: "{{ route('operator.kegiatan.index') }}?action=create",
+            url: "{{ route('operator.kegiatan.create') }}",
             desc: 'Buat agenda sosialisasi P4GN dan jadwalkan evaluasi baru',
             keywords: 'tambah buat kegiatan baru sosialisasi form create add'
         },
@@ -485,8 +485,8 @@ document.addEventListener('DOMContentLoaded', function () {
             iconClass: 'icon-bg-emerald',
             icon: `<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>`,
             url: "{{ route('operator.kegiatan.detail', 1) }}",
-            desc: 'PIN: AB1C2D • Status: Jeda • 42 Peserta • Mode Digital',
-            keywords: 'kegiatan sosialisasi sma n 5 surabaya sma5 ab1c2d digital jeda peserta'
+            desc: 'PIN: AB1C2D • Status: Berlangsung • 42 Peserta',
+            keywords: 'kegiatan sosialisasi sma n 5 surabaya sma5 ab1c2d berlangsung peserta'
         },
         {
             id: 'data-kegiatan-2',
@@ -497,8 +497,8 @@ document.addEventListener('DOMContentLoaded', function () {
             iconClass: 'icon-bg-emerald',
             icon: `<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>`,
             url: "{{ route('operator.kegiatan.detail', 2) }}",
-            desc: 'PIN: XY9Z8W • Status: Selesai • 35 Peserta • Mode Kertas',
-            keywords: 'kegiatan sosialisasi p4gn sman 12 surabaya sman12 xy9z8w kertas selesai'
+            desc: 'PIN: XY9Z8W • Status: Selesai • 35 Peserta',
+            keywords: 'kegiatan sosialisasi p4gn sman 12 surabaya sman12 xy9z8w selesai'
         },
         {
             id: 'data-kegiatan-3',
@@ -509,8 +509,8 @@ document.addEventListener('DOMContentLoaded', function () {
             iconClass: 'icon-bg-emerald',
             icon: `<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>`,
             url: "{{ route('operator.kegiatan.detail', 3) }}",
-            desc: 'PIN: LP3K4X • Status: Menunggu • 0 Peserta • Mode Kertas',
-            keywords: 'kegiatan sosialisasi narkoba lapas kelas 1 i surabaya lp3k4x kertas menunggu'
+            desc: 'PIN: LP3K4X • Status: Dijadwalkan • 0 Peserta',
+            keywords: 'kegiatan sosialisasi narkoba lapas kelas 1 i surabaya lp3k4x dijadwalkan'
         },
 
         // 📝 Data Bank Soal (Mock)

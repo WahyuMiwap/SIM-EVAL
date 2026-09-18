@@ -15,7 +15,7 @@
 
         {{-- Header --}}
         <div class="text-center mb-5">
-            <h3 class="text-lg font-bold text-white font-display" id="reauthModalTitle">Konfirmasi Penghapusan</h3>
+            <h3 class="text-lg font-bold font-display" style="color:var(--text-primary);" id="reauthModalTitle">Konfirmasi Penghapusan</h3>
             <p class="text-sm text-slate-400 mt-1.5" id="reauthModalDesc">
                 Masukkan password akun Anda untuk mengonfirmasi penghapusan data ini. Tindakan ini tidak dapat dibatalkan.
             </p>

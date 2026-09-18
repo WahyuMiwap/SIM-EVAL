@@ -55,14 +55,7 @@
                 <input type="date" name="tanggal" id="f_tanggal" class="kf-input" value="{{ $kegiatan->tanggal ?? '' }}">
             </div>
 
-            {{-- Mode --}}
-            <div class="kf-field">
-                <label class="kf-label" for="f_mode">Mode Pelaksanaan</label>
-                <select name="mode" id="f_mode" class="kf-input">
-                    <option value="digital" {{ ($kegiatan->mode ?? '') === 'digital' ? 'selected' : '' }}>Digital (Aplikasi PWA)</option>
-                    <option value="kertas"  {{ ($kegiatan->mode ?? '') === 'kertas'  ? 'selected' : '' }}>Kertas (OMR Scan)</option>
-                </select>
-            </div>
+
 
             {{-- Durasi --}}
             <div class="kf-field">
@@ -98,11 +91,9 @@
             <div class="kf-info-row">
                 <span class="kf-info-key">Status</span>
                 @php $s = $kegiatan->status ?? 'menunggu'; @endphp
-                @if($s === 'selesai')      <span class="badge badge-green">Selesai</span>
-                @elseif($s === 'pretest')  <span class="badge badge-cyan">Pre-Test</span>
-                @elseif($s === 'posttest') <span class="badge badge-purple">Post-Test</span>
-                @elseif($s === 'jeda')     <span class="badge badge-yellow">Jeda</span>
-                @else                      <span class="badge badge-gray">Menunggu</span>
+                @if($s === 'selesai')         <span class="badge badge-green">Selesai</span>
+                @elseif($s === 'berlangsung') <span class="badge badge-cyan">Berlangsung</span>
+                @else                         <span class="badge badge-gray">Dijadwalkan</span>
                 @endif
             </div>
             <div class="kf-info-row">
@@ -112,7 +103,7 @@
         </div>
         <div class="glass kf-info-card mt-4" style="border:1.5px solid rgba(239,68,68,.15);">
             <p class="kf-info-title" style="color:var(--danger)">Perhatian</p>
-            <p class="kf-info-desc">Mengubah mode pelaksanaan saat kegiatan sedang berlangsung dapat mempengaruhi data peserta.</p>
+            <p class="kf-info-desc">Mengubah data kegiatan yang sedang berlangsung dapat mempengaruhi pengalaman peserta yang sedang bergabung.</p>
         </div>
     </div>
 </div>

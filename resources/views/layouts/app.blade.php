@@ -14,9 +14,9 @@
 <body>
 
 @php
-    $userName  = 'Staf P2M Demo';
-    $userEmail = 'staf@bnnsurabaya.go.id';
-    $userInit  = 'S';
+    $userName  = 'Wahyu';
+    $userEmail = 'wahyu@bnnsurabaya.go.id';
+    $userInit  = 'W';
 @endphp
 
 {{-- Sidebar --}}

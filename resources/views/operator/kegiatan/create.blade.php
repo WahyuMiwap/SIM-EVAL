@@ -53,14 +53,7 @@
                 <input type="date" name="tanggal" id="f_tanggal" class="kf-input">
             </div>
 
-            {{-- Mode --}}
-            <div class="kf-field">
-                <label class="kf-label" for="f_mode">Mode Pelaksanaan</label>
-                <select name="mode" id="f_mode" class="kf-input">
-                    <option value="digital">Digital (Aplikasi PWA)</option>
-                    <option value="kertas">Kertas (OMR Scan)</option>
-                </select>
-            </div>
+
 
             {{-- Durasi --}}
             <div class="kf-field">
@@ -89,20 +82,12 @@
     {{-- Side Info --}}
     <div class="kf-side">
         <div class="glass kf-info-card">
-            <p class="kf-info-title">Mode Pelaksanaan</p>
-            <div class="kf-info-item">
-                <span class="badge badge-blue" style="margin-bottom:.5rem">Digital (PWA)</span>
-                <p class="kf-info-desc">Peserta mengerjakan ujian langsung dari browser smartphone atau laptop mereka. Tidak perlu lembar kertas.</p>
-            </div>
-            <div style="height:1px;background:var(--border);margin:.875rem 0;"></div>
-            <div class="kf-info-item">
-                <span class="badge badge-gray" style="margin-bottom:.5rem">Kertas (OMR)</span>
-                <p class="kf-info-desc">Peserta mengisi lembar jawaban fisik. Hasilnya discan menggunakan fitur Scan Soal Hybrid di halaman detail.</p>
-            </div>
+            <p class="kf-info-title">Kode Join Otomatis</p>
+            <p class="kf-info-desc">Kode join unik 6 karakter akan dibuat otomatis setelah kegiatan disimpan. Bagikan kode ini kepada peserta sosialisasi untuk bergabung ke sesi evaluasi.</p>
         </div>
         <div class="glass kf-info-card mt-4">
-            <p class="kf-info-title">Kode Join</p>
-            <p class="kf-info-desc">Kode join akan dibuat otomatis setelah kegiatan disimpan. Bagikan kode ini ke peserta untuk bergabung.</p>
+            <p class="kf-info-title">Catatan Penggunaan</p>
+            <p class="kf-info-desc">Setelah kegiatan dibuat, Anda dapat memilih paket soal Pre-Test dan Post-Test dari Bank Soal melalui halaman detail kegiatan.</p>
         </div>
     </div>
 </div>

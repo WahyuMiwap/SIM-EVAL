@@ -43,8 +43,7 @@ Route::prefix('operator')->name('operator.')->group(function () {
                 'id'            => 1,
                 'nama_kegiatan' => 'Sosialisasi Anti Narkoba — SMA N 5 Surabaya',
                 'kode_join'     => 'AB1C2D',
-                'status'        => 'jeda',
-                'mode'          => 'digital',
+                'status'        => 'berlangsung',
                 'tanggal'       => '2026-09-10',
                 'durasi_menit'  => 30,
                 'jumlah_peserta'=> 42,
@@ -151,8 +150,7 @@ Route::prefix('operator')->name('operator.')->group(function () {
                     'id'            => $id,
                     'nama_kegiatan' => 'Sosialisasi Anti Narkoba — SMA N 5 Surabaya',
                     'kode_join'     => 'AB1C2D',
-                    'status'        => 'jeda',
-                    'mode'          => 'digital',
+                    'status'        => 'berlangsung',
                     'tanggal'       => '2026-09-10',
                     'durasi_menit'  => 30,
                     'catatan'       => '',
@@ -164,7 +162,8 @@ Route::prefix('operator')->name('operator.')->group(function () {
             ]);
         })->name('edit');
         Route::put('/{id}',    fn($id) => redirect()->route('operator.kegiatan.detail', $id)->with('success', 'Kegiatan berhasil diperbarui.'))->name('update');
-        Route::delete('/{id}', fn($id) => redirect()->route('operator.kegiatan.index')->with('success', 'Kegiatan berhasil dihapus.'))->name('destroy');
+        // DELETE: kembalikan JSON agar kompatibel dengan ReauthModal.js (fetch-based)
+        Route::delete('/{id}', fn($id) => response()->json(['success' => true, 'message' => 'Kegiatan berhasil dihapus.']))->name('destroy');
         Route::get('/{id}/export', fn($id) => back())->name('export');
     });
 
@@ -358,8 +357,8 @@ Route::prefix('operator')->name('operator.')->group(function () {
             return response()->json(['soal' => $mockQuestions]);
         })->name('soal');
 
-        // Delete
-        Route::delete('/{id}', fn($id) => response()->json(['success' => true]))->name('destroy');
+        // Delete — JSON untuk kompatibilitas ReauthModal.js
+        Route::delete('/{id}', fn($id) => response()->json(['success' => true, 'message' => 'Paket soal berhasil dihapus.']))->name('destroy');
     });
 });
 

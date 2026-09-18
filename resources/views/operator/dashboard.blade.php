@@ -147,10 +147,8 @@
                         <p class="font-semibold text-gray-800 dark:text-gray-200 font-sans">SMAN 1 Surabaya</p>
                         <div class="flex items-center gap-1.5 mt-0.5 text-[11px] text-gray-400 font-sans">
                             <span class="text-gray-500 dark:text-gray-400 font-medium">05 Sep</span>
-                            <span class="text-gray-300 dark:text-gray-600">·</span>
+                            <span class="text-gray-300 dark:text-gray-600">&middot;</span>
                             <span><span class="font-semibold text-gray-700 dark:text-gray-300">65</span> Peserta</span>
-                            <span class="text-gray-300 dark:text-gray-600">·</span>
-                            <span class="px-1.5 py-0.2 rounded bg-gray-100 dark:bg-gray-800 text-[10px] text-gray-500 font-medium">Digital</span>
                         </div>
                     </div>
                     <div class="text-right flex flex-col items-end gap-0.5">
@@ -167,10 +165,8 @@
                         <p class="font-semibold text-gray-800 dark:text-gray-200 font-sans">Kec. Tegalsari</p>
                         <div class="flex items-center gap-1.5 mt-0.5 text-[11px] text-gray-400 font-sans">
                             <span class="text-gray-500 dark:text-gray-400 font-medium">10 Sep</span>
-                            <span class="text-gray-300 dark:text-gray-600">·</span>
+                            <span class="text-gray-300 dark:text-gray-600">&middot;</span>
                             <span><span class="font-semibold text-gray-700 dark:text-gray-300">40</span> Peserta</span>
-                            <span class="text-gray-300 dark:text-gray-600">·</span>
-                            <span class="px-1.5 py-0.2 rounded bg-gray-100 dark:bg-gray-800 text-[10px] text-gray-500 font-medium">Hybrid</span>
                         </div>
                     </div>
                     <div class="text-right flex flex-col items-end gap-0.5">
@@ -187,14 +183,12 @@
                         <p class="font-semibold text-gray-800 dark:text-gray-200 font-sans">Kel. Jambangan</p>
                         <div class="flex items-center gap-1.5 mt-0.5 text-[11px] text-gray-400 font-sans">
                             <span class="text-gray-500 dark:text-gray-400 font-medium">14 Sep</span>
-                            <span class="text-gray-300 dark:text-gray-600">·</span>
+                            <span class="text-gray-300 dark:text-gray-600">&middot;</span>
                             <span><span class="font-semibold text-gray-700 dark:text-gray-300">80</span> Peserta</span>
-                            <span class="text-gray-300 dark:text-gray-600">·</span>
-                            <span class="px-1.5 py-0.2 rounded bg-gray-100 dark:bg-gray-800 text-[10px] text-gray-500 font-medium">Digital</span>
                         </div>
                     </div>
                     <div class="text-right flex flex-col items-end gap-0.5">
-                        <span class="badge badge-yellow text-[10px] font-sans">Aktif</span>
+                        <span class="badge badge-cyan text-[10px] font-sans">Berlangsung</span>
                         <p class="text-[11px] text-gray-400 font-sans flex items-center gap-1 mt-0.5">
                             <span>Gain:</span>
                             <span class="font-bold text-amber-600 dark:text-amber-400">0.68</span>
@@ -207,14 +201,12 @@
                         <p class="font-semibold text-gray-800 dark:text-gray-200 font-sans">Aula PDAM Sby</p>
                         <div class="flex items-center gap-1.5 mt-0.5 text-[11px] text-gray-400 font-sans">
                             <span class="text-gray-500 dark:text-gray-400 font-medium">22 Sep</span>
-                            <span class="text-gray-300 dark:text-gray-600">·</span>
+                            <span class="text-gray-300 dark:text-gray-600">&middot;</span>
                             <span><span class="font-semibold text-gray-700 dark:text-gray-300">50</span> Peserta</span>
-                            <span class="text-gray-300 dark:text-gray-600">·</span>
-                            <span class="px-1.5 py-0.2 rounded bg-gray-100 dark:bg-gray-800 text-[10px] text-gray-500 font-medium">Digital</span>
                         </div>
                     </div>
                     <div class="text-right flex flex-col items-end gap-0.5">
-                        <span class="badge badge-blue text-[10px] font-sans">Mendatang</span>
+                        <span class="badge badge-gray text-[10px] font-sans">Dijadwalkan</span>
                         <p class="text-[11px] text-gray-400 font-sans flex items-center gap-1 mt-0.5">
                             <span>Gain:</span>
                             <span class="text-gray-400 font-medium">—</span>
@@ -227,14 +219,12 @@
                         <p class="font-semibold text-gray-800 dark:text-gray-200 font-sans">Lapas Kelas I Surabaya</p>
                         <div class="flex items-center gap-1.5 mt-0.5 text-[11px] text-gray-400 font-sans">
                             <span class="text-gray-500 dark:text-gray-400 font-medium">28 Sep</span>
-                            <span class="text-gray-300 dark:text-gray-600">·</span>
+                            <span class="text-gray-300 dark:text-gray-600">&middot;</span>
                             <span><span class="font-semibold text-gray-700 dark:text-gray-300">120</span> Peserta</span>
-                            <span class="text-gray-300 dark:text-gray-600">·</span>
-                            <span class="px-1.5 py-0.2 rounded bg-gray-100 dark:bg-gray-800 text-[10px] text-gray-500 font-medium">Kertas</span>
                         </div>
                     </div>
                     <div class="text-right flex flex-col items-end gap-0.5">
-                        <span class="badge badge-blue text-[10px] font-sans">Mendatang</span>
+                        <span class="badge badge-gray text-[10px] font-sans">Dijadwalkan</span>
                         <p class="text-[11px] text-gray-400 font-sans flex items-center gap-1 mt-0.5">
                             <span>Gain:</span>
                             <span class="text-gray-400 font-medium">—</span>
