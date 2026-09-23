@@ -25,7 +25,7 @@
                 <div class="pf-avatar-ring" id="pfAvatarRing">
                     <div class="pf-avatar" id="pfAvatarDisplay">
                         <img id="pfAvatarImg" src="" alt="Foto Profil" class="pf-avatar-img pf-hidden">
-                        <span id="pfAvatarInitial" class="pf-avatar-initial">W</span>
+                        <span id="pfAvatarInitial" class="pf-avatar-initial">{{ strtoupper(substr(auth()->user()?->name ?? '?', 0, 1)) }}</span>
                     </div>
                     {{-- Upload overlay (hover) --}}
                     <label for="pfAvatarInput" class="pf-avatar-overlay" title="Ganti foto profil">
@@ -39,8 +39,8 @@
                 </div>
 
                 <div class="pf-avatar-info">
-                    <h3 class="pf-avatar-name" id="pfDisplayName">Wahyu</h3>
-                    <p class="pf-avatar-role" id="pfDisplayJabatan">Penyuluh Narkoba Ahli Pertama</p>
+                    <h3 class="pf-avatar-name" id="pfDisplayName">{{ auth()->user()?->name ?? 'Staf' }}</h3>
+                    <p class="pf-avatar-role" id="pfDisplayJabatan">{{ auth()->user()?->jabatan ?? 'Staf P2M' }}</p>
                     <span class="badge badge-blue">Seksi P2M &middot; BNN Kota Surabaya</span>
                 </div>
             </div>
@@ -56,13 +56,13 @@
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                     </svg>
-                    <span class="truncate" id="pfDisplayEmail">wahyu@bnnsurabaya.go.id</span>
+                    <span class="truncate" id="pfDisplayEmail">{{ auth()->user()?->email ?? '—' }}</span>
                 </div>
                 <div class="pf-quick-item">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"/>
                     </svg>
-                    <span>NIP: <span class="font-medium" id="pfDisplayNip">199203142015041001</span></span>
+                    <span>NIP: <span class="font-medium" id="pfDisplayNip">{{ auth()->user()?->nip ?? '—' }}</span></span>
                 </div>
                 <div class="pf-quick-item">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

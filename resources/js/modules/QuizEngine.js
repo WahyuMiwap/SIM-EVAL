@@ -15,6 +15,9 @@ const QuizEngine = {
     _sessionId  : null,
     _quizType   : null,  // 'pretest' | 'posttest'
     _submitUrl  : null,
+    _submitting : false, // kunci anti double-submit
+    _reviewTimer: null,  // interval hitung mundur modal review
+    _reviewLeft : 0,
 
     /**
      * Inisialisasi Quiz Engine dari data JSON di halaman
@@ -157,8 +160,10 @@ const QuizEngine = {
             if (this._current > 0) this._renderSoal(this._current - 1);
         });
 
-        document.getElementById('btnSubmitQuiz')?.addEventListener('click', () => this._submit());
-        document.getElementById('btnSubmitWarning')?.addEventListener('click', () => this._submit());
+        document.getElementById('btnSubmitQuiz')?.addEventListener('click', () => this._requestSubmit());
+        document.getElementById('btnSubmitWarning')?.addEventListener('click', () => this._requestSubmit());
+        // btnReviewBack di-bind sekali di _startReviewCountdown (butuh data kosong terkini)
+        document.getElementById('btnReviewSend')?.addEventListener('click', () => this._doSubmit(false));
 
         // Nav grid click
         document.querySelectorAll('[data-nav]').forEach(btn => {
@@ -182,14 +187,24 @@ const QuizEngine = {
             if (!btn) return;
             const answered = !!this._answers[soal.id];
             btn.className = [
-                'w-8 h-8 rounded-lg text-xs font-bold transition-all duration-150',
+                'w-10 h-10 sm:w-11 sm:h-11 rounded-xl text-xs font-bold transition-all duration-150 flex items-center justify-center shrink-0',
                 i === this._current
-                    ? 'bg-blue-600 border border-blue-500 text-white'
+                    ? 'bg-blue-600 border border-blue-500 text-white shadow-sm ring-2 ring-blue-400/30'
                     : answered
-                        ? 'bg-blue-500/20 border border-blue-500/40 text-blue-300'
-                        : 'bg-white/5 border border-white/8 text-slate-500 hover:border-blue-500/50 hover:text-slate-300',
+                        ? 'bg-blue-50 dark:bg-blue-950/60 border border-blue-300 dark:border-blue-800 text-blue-600 dark:text-blue-400 font-semibold'
+                        : 'bg-slate-100 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-primary/50 hover:text-primary',
             ].join(' ');
         });
+
+        // Update nomor aktif di header sidebar
+        const sidebarActiveNum = document.getElementById('sidebarActiveNum');
+        if (sidebarActiveNum) sidebarActiveNum.textContent = this._current + 1;
+
+        // Auto-scroll tombol aktif ke viewport sidebar
+        const currentBtn = document.getElementById(`navBtn${this._current}`);
+        if (currentBtn) {
+            currentBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
     },
 
     /** Restore jawaban offline dari IndexedDB */
@@ -199,16 +214,110 @@ const QuizEngine = {
         if (saved.length > 0) this._renderSoal(this._current);
     },
 
-    /** Auto-submit paksa (FR-24b) */
+    /** Auto-submit paksa (FR-24b): bypass modal review, kirim apa adanya */
     _autoSubmit() {
         TimerManager.stop();
         const warningOverlay = document.getElementById('warningTimerOverlay');
         if (warningOverlay) warningOverlay.classList.remove('active');
-        this._submit(true);
+        this._closeReview();
+        this._doSubmit(true);
     },
 
-    /** Submit jawaban via ApiHelper */
-    async _submit(isAutoSubmit = false) {
+    /** Tahap 1 (manual): buka modal review + jeda paksa 3 detik */
+    _requestSubmit() {
+        if (this._submitting) return;
+        TimerManager.stop();
+
+        const total = this._soal.length;
+        const blankIdx = [];
+        this._soal.forEach((s, i) => { if (!this._answers[s.id]) blankIdx.push(i + 1); });
+        const answered = total - blankIdx.length;
+
+        const summary = document.getElementById('reviewSummary');
+        if (summary) summary.textContent = `Terjawab ${answered} dari ${total} soal.`;
+        const note = document.getElementById('reviewBlankNote');
+        if (note) {
+            if (blankIdx.length) {
+                note.textContent = `Belum dijawab: No. ${blankIdx.join(', ')} (dihitung salah).`;
+                note.classList.remove('hidden');
+            } else {
+                note.classList.add('hidden');
+            }
+        }
+
+        const overlay = document.getElementById('reviewOverlay');
+        if (overlay) {
+            overlay.classList.remove('hidden');
+            overlay.classList.add('flex');
+        }
+
+        // Jeda paksa: hitung ulang dari 3 setiap kali modal dibuka
+        this._startReviewCountdown();
+
+        // Simpan untuk tombol Kembali (lompat ke kosong pertama bila ada)
+        this._reviewBlankIdx = blankIdx;
+    },
+
+    /** Tahap 2: tutup modal, batalkan timer, buka kembali bila perlu */
+    _closeReview() {
+        if (this._reviewTimer) {
+            clearInterval(this._reviewTimer);
+            this._reviewTimer = null;
+        }
+        const overlay = document.getElementById('reviewOverlay');
+        if (overlay) {
+            overlay.classList.add('hidden');
+            overlay.classList.remove('flex');
+        }
+    },
+
+    _startReviewCountdown() {
+        if (this._reviewTimer) clearInterval(this._reviewTimer);
+        const btn = document.getElementById('btnReviewSend');
+        this._reviewLeft = 3;
+        const paint = () => {
+            if (!btn) return;
+            if (this._reviewLeft > 0) {
+                btn.disabled = true;
+                btn.textContent = `Kirim (${this._reviewLeft})`;
+                btn.classList.add('opacity-50', 'cursor-not-allowed', 'btn-primary');
+            } else {
+                btn.disabled = false;
+                btn.textContent = 'Kirim Jawaban';
+                btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                btn.classList.add('btn-primary');
+                if (this._reviewTimer) clearInterval(this._reviewTimer);
+                this._reviewTimer = null;
+            }
+        };
+        paint();
+        this._reviewTimer = setInterval(() => {
+            this._reviewLeft -= 1;
+            if (this._reviewLeft <= 0) {
+                this._reviewLeft = 0;
+                paint();
+                return;
+            }
+            paint();
+        }, 1000);
+
+        // Kembali ke Soal: tutup + lompat ke kosong pertama (bila ada)
+        const back = document.getElementById('btnReviewBack');
+        if (back && !back.dataset.bound) {
+            back.dataset.bound = '1';
+            back.addEventListener('click', () => {
+                const first = (this._reviewBlankIdx && this._reviewBlankIdx[0]) || null;
+                this._closeReview();
+                if (first) this._renderSoal(first - 1);
+            });
+        }
+    },
+
+    /** Tahap 2 (aktual POST): dijaga anti double-submit */
+    async _doSubmit(isAutoSubmit = false) {
+        if (this._submitting) return;
+        this._submitting = true;
+        this._closeReview();
         TimerManager.stop();
 
         const payload = {

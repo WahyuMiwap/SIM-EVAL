@@ -1,7 +1,10 @@
 <aside class="sidebar" id="sidebar">
     {{-- Logo & Brand --}}
     <div class="sidebar-logo flex items-center justify-between">
-        <div class="flex items-center gap-2.5">
+        <div class="flex items-center gap-3.5">
+            @if(setting('app.logo'))
+                <img src="{{ setting('app.logo') }}" alt="Logo" class="w-9 h-9 rounded-xl object-cover flex-shrink-0 border border-slate-200/70">
+            @else
             {{-- Icon: bar chart / evaluation --}}
             <div class="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style="background: var(--primary);">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -11,32 +14,23 @@
                     <path d="M3 20h18"/>
                 </svg>
             </div>
-            <div class="sidebar-text">
-                <p class="font-display font-bold text-sm leading-tight" style="color: var(--text-primary);">SIM-EVAL</p>
-                <p class="text-xs leading-tight" style="color: var(--text-muted);">P2M BNN Kota Surabaya</p>
+            @endif
+            <div class="sidebar-text flex flex-col justify-center">
+                <p class="font-display font-bold text-sm tracking-wide leading-snug" style="color: var(--text-primary);">{{ setting('app.nama') }}</p>
+                <p class="text-xs leading-normal mt-0.5" style="color: var(--text-muted);">{{ setting('app.subnama') }}</p>
             </div>
         </div>
+
+        {{-- Tombol Tutup Menu (Khusus Mobile / PWA) --}}
+        <button type="button" class="btn btn-secondary btn-icon md-hide" onclick="toggleSidebarMobile()" title="Tutup Menu" style="width: 2rem; height: 2rem;">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+        </button>
     </div>
 
     {{-- Navigation --}}
     <nav class="sidebar-nav">
-        {{-- Minimize Toggle (Desktop) --}}
-        <button class="nav-item minimize-toggle md-show mb-1" onclick="toggleSidebarMini()" title="Minimize Sidebar">
-            <svg id="iconMinimize" xmlns="http://www.w3.org/2000/svg" class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
-            </svg>
-            <span class="sidebar-text">Tutup Sidebar</span>
-        </button>
-
-        {{-- Role Indicator Chip in Sidebar --}}
-        <div class="px-3 py-2 mb-2 rounded-lg bg-gray-50 dark:bg-gray-800/60 border border-gray-100 dark:border-gray-800 sidebar-text">
-            <div class="flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full {{ ($currentRole ?? '') === 'superadmin' ? 'bg-purple-500' : (($currentRole ?? '') === 'operator' ? 'bg-blue-500' : 'bg-amber-500') }}"></span>
-                <span class="text-[11px] font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300">{{ $userRoleLabel ?? 'Staf Operator' }}</span>
-            </div>
-            <p class="text-[10px] text-muted truncate mt-0.5">{{ $userName ?? 'Pengguna BNN' }}</p>
-        </div>
-
         <p class="nav-section-label">Operasional</p>
 
         <a href="{{ route('operator.dashboard') }}"
@@ -76,7 +70,8 @@
             <span class="sidebar-text">Bank Soal</span>
         </a>
 
-        {{-- Kelola Staf / Pengguna (Super Admin & Staf BNN) --}}
+        {{-- Kelola Staf / Pengguna (Superadmin saja — disembunyikan dari staf/magang) --}}
+        @if(($currentRole ?? '') === 'superadmin')
         <p class="nav-section-label" style="margin-top: 1rem;">Administrasi</p>
 
         <a href="{{ route('operator.staf.index') }}"
@@ -87,6 +82,16 @@
             </svg>
             <span class="sidebar-text">Tata Kelola Pengguna</span>
         </a>
+
+        <a href="{{ route('operator.setting.edit') }}"
+           class="nav-item {{ request()->routeIs('operator.setting.*') ? 'active' : '' }}"
+           id="nav-tampilan" title="Kustomisasi Tampilan">
+            <svg xmlns="http://www.w3.org/2000/svg" class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+            </svg>
+            <span class="sidebar-text">Kustomisasi Tampilan</span>
+        </a>
+        @endif
 
         <a href="{{ route('operator.profile') }}"
            class="nav-item {{ request()->routeIs('operator.profile') ? 'active' : '' }}"

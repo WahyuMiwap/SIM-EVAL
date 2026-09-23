@@ -113,6 +113,7 @@ class DatabaseSeeder extends Seeder
         // 3. Question Packages (Blueprint v2.0 Bab 8 & v3.1)
         $pkgPre = QuestionPackage::create([
             'nama_paket'       => 'Pre-Test Anti Narkoba Umum',
+            'tema'             => 'P4GN Pelajar',
             'kategori_audiens' => 'SMA',
             'jumlah_opsi'      => 4,
             'tipe'             => 'pretest',
@@ -123,6 +124,7 @@ class DatabaseSeeder extends Seeder
 
         $pkgPost = QuestionPackage::create([
             'nama_paket'       => 'Post-Test Anti Narkoba Umum',
+            'tema'             => 'P4GN Pelajar',
             'kategori_audiens' => 'SMA',
             'jumlah_opsi'      => 4,
             'tipe'             => 'posttest',
@@ -133,6 +135,7 @@ class DatabaseSeeder extends Seeder
 
         $pkgPelajar = QuestionPackage::create([
             'nama_paket'       => 'Pre-Test P4GN Pelajar',
+            'tema'             => 'P4GN Pelajar',
             'kategori_audiens' => 'SD',
             'jumlah_opsi'      => 4,
             'tipe'             => 'pretest',
@@ -143,6 +146,7 @@ class DatabaseSeeder extends Seeder
 
         $pkgLapas = QuestionPackage::create([
             'nama_paket'       => 'Pre-Test Lapas — Khusus',
+            'tema'             => 'Pembinaan Warga Binaan',
             'kategori_audiens' => 'LAPAS',
             'jumlah_opsi'      => 4,
             'tipe'             => 'pretest',

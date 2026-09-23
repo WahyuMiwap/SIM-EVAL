@@ -4,30 +4,33 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'SIM-EVAL') — SIM-EVAL P2M BNN Surabaya</title>
-    <meta name="description" content="Sistem Informasi Monitoring & Evaluasi Pre-Test/Post-Test Seksi P2M BNN Kota Surabaya">
+    <title>@yield('title', setting('app.nama')) — {{ setting('app.nama') }} {{ setting('app.subnama') }}</title>
+    <meta name="description" content="Sistem Informasi Monitoring & Evaluasi Pre-Test/Post-Test {{ setting('app.subnama') }}">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="SIM-EVAL">
+    <meta name="theme-color" content="{{ setting('app.warna_primer', '#4361EE') }}">
+    <link rel="manifest" href="/manifest.webmanifest">
+    <link rel="icon" href="/favicon.ico">
+    <link rel="apple-touch-icon" href="/favicon.ico">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     {{-- CDN for Chart.js & FullCalendar --}}
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+    {{-- Warna primer dinamis (Kustomisasi Tampilan) --}}
+    <style>:root { --primary: {{ setting('app.warna_primer') }}; }</style>
 </head>
 <body>
 
 @php
-    $currentRole = session('current_role', 'operator');
-    if ($currentRole === 'superadmin') {
-        $userName = 'Super Admin BNN';
-        $userEmail = 'superadmin@bnn.go.id';
-        $userRoleLabel = 'Super Admin';
-    } elseif ($currentRole === 'magang') {
-        $userName = 'Rizky (Magang)';
-        $userEmail = 'rizky.magang@mhs.unair.ac.id';
-        $userRoleLabel = 'Anak Magang';
-    } else {
-        $userName = 'Wahyu Prasetyo';
-        $userEmail = 'wahyu@bnnsurabaya.go.id';
-        $userRoleLabel = 'Staf Operator';
-    }
+    // Identitas dari akun login (bukan lagi simulasi peran).
+    $authUser = auth()->user();
+    $currentRole = $authUser->role ?? 'operator';
+    $userName = $authUser->name ?? 'Staf';
+    $userEmail = $authUser->email ?? '';
+    $userRoleLabel = $currentRole === 'superadmin' ? 'Super Admin'
+        : ($currentRole === 'magang' ? 'Anak Magang' : 'Staf Operator');
     $userInit  = strtoupper(substr($userName, 0, 1));
 @endphp
 
@@ -59,20 +62,6 @@
 
         {{-- Right Actions --}}
         <div class="flex items-center gap-2 flex-shrink-0">
-            {{-- Quick Role Switcher --}}
-            <div class="relative hidden sm:block">
-                <form action="{{ route('operator.staf.switch-role', $currentRole === 'superadmin' ? 'operator' : ($currentRole === 'operator' ? 'magang' : 'superadmin')) }}" method="POST" class="inline">
-                    @csrf
-                    <button type="submit" class="btn btn-sm btn-secondary flex items-center gap-1.5 text-xs font-medium py-1 px-2.5" title="Klik untuk beralih role">
-                        <span class="w-2 h-2 rounded-full {{ $currentRole === 'superadmin' ? 'bg-purple-500' : ($currentRole === 'operator' ? 'bg-blue-500' : 'bg-amber-500') }}"></span>
-                        <span>{{ $userRoleLabel }}</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-                        </svg>
-                    </button>
-                </form>
-            </div>
-
             {{-- Theme Toggle --}}
             <button id="themeToggleBtn" class="btn btn-secondary btn-icon" onclick="toggleTheme()" title="Toggle Dark/Light Mode">
                 <svg id="themeIconLight" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
@@ -91,35 +80,55 @@
 {{-- Re-auth Modal --}}
 @include('components.reauth-modal')
 
+{{-- Global Toast Notification Popup --}}
+@include('components.toast-notification')
+
 {{-- Sidebar Overlay (mobile) --}}
-<div id="sidebarOverlay" class="fixed inset-0 z-40 hidden"
-    style="background: rgba(17,24,39,0.4);"
-    onclick="document.getElementById('sidebar').classList.remove('open'); this.classList.add('hidden');"></div>
+<div id="sidebarOverlay" class="sidebar-overlay hidden"
+    onclick="toggleSidebarMobile(false)" aria-hidden="true"></div>
 
 <script>
-    // ── Sidebar Mini State Persistence ──────────────────────────
-    // Restore state instantly (before paint) to avoid layout flash
-    (function restoreSidebarState() {
-        if (localStorage.getItem('sidebarMini') === '1') {
-            document.documentElement.style.setProperty('--sidebar-transition', 'none');
-            document.body.classList.add('sidebar-mini');
-            // Re-enable CSS transitions after 2 frames (post-paint)
-            requestAnimationFrame(() => requestAnimationFrame(() => {
-                document.documentElement.style.removeProperty('--sidebar-transition');
-            }));
+    // Pastikan desktop sidebar selalu dalam mode default normal (ada teks)
+    try {
+        localStorage.removeItem('sidebarMini');
+        document.body.classList.remove('sidebar-mini');
+    } catch (e) {}
+
+    // ── Mobile / PWA Sidebar Drawer (Hamburger) ───────────────────
+    window.toggleSidebarMobile = function(forceState) {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        if (!sidebar) return;
+        
+        const isOpen = sidebar.classList.contains('open');
+        const nextState = typeof forceState === 'boolean' ? forceState : !isOpen;
+        
+        if (nextState) {
+            sidebar.classList.add('open');
+            if (overlay) overlay.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        } else {
+            sidebar.classList.remove('open');
+            if (overlay) overlay.classList.add('hidden');
+            document.body.style.overflow = '';
         }
-    })();
+    };
 
-    function toggleSidebarMini() {
-        document.body.classList.toggle('sidebar-mini');
-        const isMini = document.body.classList.contains('sidebar-mini');
-        localStorage.setItem('sidebarMini', isMini ? '1' : '0');
-    }
+    // Close on ESC key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar && sidebar.classList.contains('open')) {
+                window.toggleSidebarMobile(false);
+            }
+        }
+    });
 
-    // ── Mobile Sidebar ───────────────────────────────────────────
-    function toggleSidebarMobile() {
-        document.getElementById('sidebar').classList.toggle('open');
-        document.getElementById('sidebarOverlay').classList.toggle('hidden');
+    // PWA: daftarkan service worker
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function () {
+            navigator.serviceWorker.register('/sw.js').catch(function () {});
+        });
     }
 
     // ── Theme ────────────────────────────────────────────────────
@@ -145,6 +154,8 @@
     // Load saved theme immediately
     applyTheme(localStorage.getItem('theme') || 'light');
 </script>
+
+@stack('scripts')
 
 </body>
 </html>

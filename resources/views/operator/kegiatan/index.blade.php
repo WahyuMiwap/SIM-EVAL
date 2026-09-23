@@ -35,94 +35,157 @@
 
 @section('content')
 
-{{-- ── Table Card ────────────────────────────────────────────── --}}
-<div class="glass animate-fade-in" style="padding: 0; overflow: visible;">
 
-    {{-- Card Header --}}
-    <div class="kg-header">
-        <div>
-            <p class="kg-header-title">Semua Kegiatan</p>
-            <p class="kg-header-count" id="totalCount">{{ $kegiatan->total() ?? 0 }} kegiatan ditemukan</p>
+
+{{-- ── Table Card (Soft Rounded-2xl) ────────────────────────── --}}
+<div class="glass mb-6 rounded-2xl border border-slate-200/70 dark:border-slate-800 shadow-xs overflow-visible" style="padding: 0;">
+
+    {{-- Card Header Soft --}}
+    <div class="kg-header flex items-center justify-between p-3.5 sm:p-4 md:p-5 border-b border-slate-100 dark:border-slate-800">
+        <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
+            <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-blue-50 dark:bg-blue-950/50 text-primary flex items-center justify-center flex-shrink-0 border border-blue-100 dark:border-blue-900/50">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                </svg>
+            </div>
+            <div class="min-w-0">
+                <h2 class="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-100 truncate">Semua Kegiatan Sosialisasi</h2>
+                <p class="text-[11px] sm:text-xs text-slate-400 mt-0.5 truncate" id="totalCount">{{ $kegiatan->total() ?? 0 }} kegiatan ditemukan</p>
+            </div>
         </div>
-        <a href="{{ route('operator.kegiatan.create') }}" class="btn btn-primary btn-sm">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <a href="{{ route('operator.kegiatan.create') }}" 
+           class="btn btn-primary rounded-xl shadow-xs inline-flex items-center justify-center gap-1.5 flex-shrink-0 kg-btn-add" 
+           id="btnTambahKegiatan"
+           title="Tambah Kegiatan Baru">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
             </svg>
-            Tambah Kegiatan
+            <span class="kg-btn-add-label hidden sm:inline">Tambah Kegiatan</span>
         </a>
     </div>
 
-    {{-- ── Filter Bar ────────────────────────────────────────── --}}
-    <div class="kg-filterbar">
+    {{-- ── Filter Bar Soft ────────────────────────────────────── --}}
+    <div class="kg-filterbar p-3.5 md:p-4 bg-slate-50/50 dark:bg-slate-900/40 border-b border-slate-100 dark:border-slate-800 flex items-center gap-3 flex-wrap">
         {{-- Search --}}
         <div class="kg-search-wrap">
-            <svg xmlns="http://www.w3.org/2000/svg" class="kg-search-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" class="kg-search-icon" width="14" height="14" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
             </svg>
-            <input id="kgSearch" type="text" class="kg-search-input"
+            <input id="kgSearch" type="text" class="kg-search-input rounded-xl border border-slate-200/70 dark:border-slate-700"
                    placeholder="Cari nama kegiatan..."
                    value="{{ $fSearch }}">
         </div>
 
-        {{-- 3 Filter Waktu (Persis seperti di Dashboard BNN: Bulan ini, Tahun ini, dan Pilih Bulan & Tahun) --}}
-        <div class="dash-filter-group relative" id="periodFilterGroup">
-            <div class="dash-filter-presets">
-                <button id="fBulan" class="dash-preset-btn {{ $fPeriod === 'month' ? 'active' : '' }}" type="button">
-                    Bulan ini
-                </button>
-                <button id="fTahun" class="dash-preset-btn {{ $fPeriod === 'year' ? 'active' : '' }}" type="button">
-                    Tahun ini
-                </button>
-                <button id="fCustom" class="dash-preset-btn flex items-center gap-1.5 {{ ($fPeriod === 'custom' || $fFrom || $fTo) ? 'active' : '' }}" type="button">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 opacity-75" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+        {{-- Filter Periode Waktu (Tombol Icon Filter di Sisi Kanan Searchbar) --}}
+        <div class="dash-period-dropdown-wrap relative" id="kgPeriodWrap">
+            <button type="button" 
+                    id="kgPeriodBtn" 
+                    class="kg-filter-icon-btn" 
+                    aria-haspopup="true" 
+                    aria-expanded="false" 
+                    title="Filter rentang waktu">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
+                </svg>
+                <span id="kgPeriodActiveDot" class="kg-filter-active-dot hidden"></span>
+            </button>
+
+            {{-- Floating Dropdown Menu --}}
+            <div id="kgPeriodMenu" class="dash-period-menu hidden" role="menu">
+                <div class="dash-period-section-label">Pilihan Cepat</div>
+
+                {{-- 0. Semua Waktu --}}
+                <button type="button" class="dash-period-item active" id="optSemuaWaktu" role="menuitem">
+                    <div class="flex flex-col text-left">
+                        <span class="dash-period-item-title">Semua Waktu</span>
+                        <span class="dash-period-item-sub">Seluruh riwayat kegiatan</span>
+                    </div>
+                    <svg class="dash-period-check w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
                     </svg>
-                    <span id="fCustomLabel">{{ ($fPeriod === 'custom' && $fFrom) ? $displayLabel : 'Pilih Bulan & Tahun' }}</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" id="fCustomCaret" class="w-3 h-3 opacity-60 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                </button>
+
+                {{-- 1. Bulan Ini --}}
+                <button type="button" class="dash-period-item" id="optBulanIni" role="menuitem">
+                    <div class="flex flex-col text-left">
+                        <span class="dash-period-item-title">Bulan Ini</span>
+                        <span class="dash-period-item-sub">{{ \Carbon\Carbon::now()->isoFormat('MMMM Y') }}</span>
+                    </div>
+                    <svg class="dash-period-check w-4 h-4 text-primary hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                    </svg>
+                </button>
+
+                {{-- 2. Bulan Lalu --}}
+                @php
+                    $prevMonthCarbon = \Carbon\Carbon::now()->subMonth();
+                @endphp
+                <button type="button" class="dash-period-item" id="optBulanLalu" role="menuitem" data-month="{{ $prevMonthCarbon->month - 1 }}" data-year="{{ $prevMonthCarbon->year }}">
+                    <div class="flex flex-col text-left">
+                        <span class="dash-period-item-title">Bulan Lalu</span>
+                        <span class="dash-period-item-sub">{{ $prevMonthCarbon->isoFormat('MMMM Y') }}</span>
+                    </div>
+                    <svg class="dash-period-check w-4 h-4 text-primary hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                    </svg>
+                </button>
+
+                {{-- 3. Tahun Ini --}}
+                <button type="button" class="dash-period-item" id="optTahunIni" role="menuitem">
+                    <div class="flex flex-col text-left">
+                        <span class="dash-period-item-title">Tahun Ini</span>
+                        <span class="dash-period-item-sub">Kegiatan tahun {{ date('Y') }}</span>
+                    </div>
+                    <svg class="dash-period-check w-4 h-4 text-primary hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                    </svg>
+                </button>
+
+                <div class="dash-period-divider"></div>
+
+                {{-- 4. Pilih Bulan & Tahun Spesifik (Collapsible Form) --}}
+                <button type="button" class="dash-period-custom-toggle" id="btnToggleCustomPeriod">
+                    <span class="flex items-center gap-2 text-xs font-semibold" style="color: var(--text-secondary);">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
+                        </svg>
+                        Pilih Bulan &amp; Tahun Lain
+                    </span>
+                    <svg xmlns="http://www.w3.org/2000/svg" id="customPeriodCaret" class="w-3 h-3 opacity-60 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
                     </svg>
                 </button>
-            </div>
 
-            {{-- Popover Pemilih Bulan & Tahun (Persis Desain Dashboard) --}}
-            <div id="popoverMonthYear" class="popover-dropdown hidden">
-                <div class="popover-card">
-                    {{-- Header Popover: Tahun dengan Input Langsung & Tombol Navigasi --}}
-                    <div class="popover-header">
-                        <span class="popover-title">Pilih Waktu</span>
-                        <div class="popover-year-nav">
-                            <button type="button" id="popPrevYear" class="popover-nav-btn" title="Tahun sebelumnya">
-                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
-                            </button>
-                            <input type="number" id="popYearInput" class="popover-year-input" value="2026" min="2000" max="2099" title="Ketik tahun langsung (contoh: 2026)">
-                            <button type="button" id="popNextYear" class="popover-nav-btn" title="Tahun berikutnya">
-                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
-                            </button>
+                <div id="customPeriodForm" class="dash-period-custom-form hidden">
+                    <div class="grid grid-cols-2 gap-2 mt-2">
+                        <div>
+                            <label class="text-[11px] font-semibold block mb-1" style="color: var(--text-muted);">Bulan</label>
+                            <select id="selCustomMonth" class="form-input text-xs py-1 px-2" style="height: 32px; padding-top: 2px; padding-bottom: 2px;">
+                                @foreach(['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'] as $idx => $mName)
+                                    <option value="{{ $idx }}" {{ date('n') == ($idx + 1) ? 'selected' : '' }}>{{ $mName }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-[11px] font-semibold block mb-1" style="color: var(--text-muted);">Tahun</label>
+                            <select id="selCustomYear" class="form-input text-xs py-1 px-2" style="height: 32px; padding-top: 2px; padding-bottom: 2px;">
+                                @for($y = (int)date('Y') + 1; $y >= 2023; $y--)
+                                    <option value="{{ $y }}" {{ date('Y') == $y ? 'selected' : '' }}>{{ $y }}</option>
+                                @endfor
+                            </select>
                         </div>
                     </div>
-
-                    {{-- Grid 12 Bulan (3 Kolom x 4 Baris) --}}
-                    <div class="popover-month-grid" id="popMonthGrid">
-                        <!-- Dirender via JS (Jan s/d Des) -->
-                    </div>
-
-                    {{-- Footer Popover --}}
-                    <div class="popover-footer">
-                        <button type="button" id="popBtnAll" class="popover-foot-action" style="background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:0.75rem;padding:0;">
-                            Semua Waktu
-                        </button>
-                        <button type="button" id="popBtnClose" class="popover-foot-close" style="background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:0.75rem;padding:0;">
-                            Tutup
-                        </button>
-                    </div>
+                    <button type="button" id="btnApplyCustom" class="btn btn-primary btn-sm w-full mt-2.5 text-xs py-1.5 font-medium">
+                        Terapkan Periode
+                    </button>
                 </div>
             </div>
         </div>
 
         {{-- Active filter chip --}}
-        <div class="kg-active-chip {{ (($fPeriod === 'all' || $fPeriod === 'month') && !$fFrom && !$fTo) ? 'hidden' : '' }}" id="activeChip">
-            <span id="activeChipText">{{ $displayLabel }}</span>
-            <button id="btnClearPeriod" class="kg-chip-clear" aria-label="Hapus filter tanggal">
+        <div class="kg-active-chip hidden" id="activeChip">
+            <span id="activeChipText">Semua Waktu</span>
+            <button id="btnClearPeriod" class="kg-chip-clear" aria-label="Hapus filter tanggal" title="Reset filter">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
                 </svg>
@@ -130,83 +193,108 @@
         </div>
     </div>
 
-    {{-- ── Table ─────────────────────────────────────────────── --}}
+    {{-- ── Table Soft ─────────────────────────────────────────── --}}
     @if($kegiatan->isEmpty())
-    <div class="empty-state">
-        <div class="empty-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color:var(--text-muted)">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+    <div class="empty-state py-12 text-center">
+        <div class="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-400 flex items-center justify-center mx-auto mb-3">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
             </svg>
         </div>
-        <p class="font-semibold text-sm" style="color:var(--text-secondary)">Belum ada kegiatan</p>
-        <p class="text-xs" style="color:var(--text-muted)">Tambahkan kegiatan pertama untuk memulai</p>
-        <a href="{{ route('operator.kegiatan.create') }}" class="btn btn-primary btn-sm mt-2">Tambah Sekarang</a>
+        <p class="font-semibold text-sm text-slate-700 dark:text-slate-200">Belum ada kegiatan ditemukan</p>
+        <p class="text-xs text-slate-400 mt-0.5">Tambahkan kegiatan pertama untuk mulai melakukan monitoring evaluasi</p>
+        <a href="{{ route('operator.kegiatan.create') }}" class="btn btn-primary btn-sm rounded-xl mt-3 shadow-xs inline-flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            <span>Tambah Kegiatan Baru</span>
+        </a>
     </div>
     @else
-    <div style="overflow-x:auto;">
-        <table class="data-table" id="kgTable">
+    {{-- Tampilan Desktop: Tabel Data --}}
+    <div class="kg-desktop-table-wrap">
+        <table class="data-table w-full text-left" id="kgTable">
             <thead>
                 <tr>
-                    <th>Nama Kegiatan</th>
-                    <th>Lokasi</th>
-                    <th>Tanggal</th>
-                    <th>Status</th>
-                    <th>Peserta</th>
-                    <th style="text-align:right;">Aksi</th>
+                    <th class="py-3 px-4">Nama Kegiatan & Sesi</th>
+                    <th class="py-3 px-4">Lokasi Binaan</th>
+                    <th class="py-3 px-4">Tanggal</th>
+                    <th class="py-3 px-4">Peserta</th>
+                    <th class="py-3 px-4" style="text-align:right;">Aksi</th>
                 </tr>
             </thead>
-            <tbody id="kgTbody">
+            <tbody id="kgTbody" class="divide-y divide-slate-100 dark:divide-slate-800/70">
             @foreach($kegiatan as $k)
-            <tr data-tanggal="{{ $k->tanggal ?? '' }}" data-nama="{{ strtolower($k->nama_kegiatan) }}">
-                {{-- Nama --}}
-                <td>
-                    <a href="{{ route('operator.kegiatan.detail', $k->id) }}"
-                       class="font-semibold hover:underline" style="color:var(--text-primary); font-size:0.875rem;">
+            <tr data-tanggal="{{ $k->tanggal ?? '' }}"
+                data-nama="{{ strtolower($k->nama_kegiatan) }} {{ strtolower($k->lokasi->nama_lokasi ?? '') }} {{ strtolower($k->kode_join ?? '') }}"
+                class="hover:bg-blue-50/40 dark:hover:bg-slate-800/40 transition-colors cursor-pointer group"
+                onclick="window.location='{{ route('operator.kegiatan.detail', $k->id) }}'"
+                title="Klik untuk membuka detail kegiatan ini">
+                {{-- Nama & PIN Sesi --}}
+                <td class="py-3.5 px-4">
+                    <span class="font-semibold text-slate-800 dark:text-slate-100 group-hover:text-primary transition-colors block text-sm">
                         {{ $k->nama_kegiatan }}
-                    </a>
-                    <p class="font-semibold text-xs mt-0.5 tracking-wider" style="color:var(--text-muted);">{{ $k->kode_join ?? '—' }}</p>
+                    </span>
+                    <div class="flex items-center gap-1.5 mt-1">
+                        <span class="text-[11px] text-slate-400">PIN Sesi:</span>
+                        <span class="text-xs font-mono font-bold tracking-wider text-blue-600 dark:text-blue-400">
+                            {{ $k->kode_join ?? '—' }}
+                        </span>
+                    </div>
                 </td>
-                {{-- Lokasi --}}
-                <td style="color:var(--text-secondary); font-size:0.8125rem;">{{ $k->lokasi->nama_lokasi ?? '—' }}</td>
-                {{-- Tanggal --}}
-                <td style="white-space:nowrap; font-size:0.8125rem; color:var(--text-secondary)">
-                    {{ isset($k->tanggal) ? \Carbon\Carbon::parse($k->tanggal)->format('d M Y') : '—' }}
+
+                {{-- Lokasi Binaan --}}
+                <td class="py-3.5 px-4 text-xs text-slate-600 dark:text-slate-300">
+                    <div class="flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5 text-primary flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                        <span>{{ $k->lokasi->nama_lokasi ?? '—' }}</span>
+                    </div>
                 </td>
-                {{-- Status --}}
-                <td>
-                    @php $s = $k->status ?? 'menunggu'; @endphp
-                    @if($s === 'selesai')         <span class="badge badge-green">Selesai</span>
-                    @elseif($s === 'berlangsung') <span class="badge badge-cyan">Berlangsung</span>
-                    @else                         <span class="badge badge-gray">Dijadwalkan</span>
-                    @endif
+
+                {{-- Tanggal Pelaksanaan --}}
+                <td class="py-3.5 px-4 text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap">
+                    <div class="flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5 text-slate-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                        <span>{{ isset($k->tanggal) ? \Carbon\Carbon::parse($k->tanggal)->isoFormat('D MMMM Y') : '—' }}</span>
+                    </div>
                 </td>
-                {{-- Peserta --}}
-                <td style="font-size:0.8125rem; font-weight:600; color:var(--text-secondary)">
-                    {{ $k->jumlah_peserta ?? $k->peserta_count ?? 0 }}
+
+                {{-- Jumlah Peserta --}}
+                <td class="py-3.5 px-4 text-xs font-semibold text-slate-700 dark:text-slate-200">
+                    <div class="flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5 text-slate-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                        </svg>
+                        <span>{{ $k->peserta_count ?? 0 }} Siswa</span>
+                    </div>
                 </td>
-                {{-- Aksi --}}
-                <td>
+
+                {{-- Aksi: Edit + Hapus (Stop propagation agar klik tombol tidak memicu navigasi baris) --}}
+                <td class="py-3.5 px-4" onclick="event.stopPropagation()">
                     <div class="flex items-center justify-end gap-1.5">
-                        <a href="{{ route('operator.kegiatan.detail', $k->id) }}" class="btn btn-secondary btn-sm" title="Detail">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                            </svg>
-                        </a>
-                        <a href="{{ route('operator.kegiatan.edit', $k->id) }}" class="btn btn-secondary btn-sm" title="Edit">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <a href="{{ route('operator.kegiatan.edit', $k->id) }}"
+                           class="btn btn-secondary btn-icon rounded-xl" style="width: 2.125rem; height: 2.125rem;"
+                           title="Edit Informasi Kegiatan">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                             </svg>
                         </a>
-                        <button class="btn btn-sm kg-btn-danger"
+
+                        @if(auth()->user()?->role !== 'magang')
+                        <button type="button"
+                            class="btn btn-secondary btn-icon rounded-xl text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30"
+                            style="width: 2.125rem; height: 2.125rem;"
                             data-reauth-action="{{ route('operator.kegiatan.destroy', $k->id) }}"
                             data-reauth-id="{{ $k->id }}"
                             data-reauth-label="{{ $k->nama_kegiatan }}"
-                            onclick="ReauthModal.open(this)" title="Hapus">
+                            onclick="ReauthModal.open(this)" title="Hapus Kegiatan">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                             </svg>
                         </button>
+                        @endif
                     </div>
                 </td>
             </tr>
@@ -215,25 +303,98 @@
         </table>
     </div>
 
-    {{-- Pagination --}}
+    {{-- Tampilan Mobile / PWA: List Card Interaktif --}}
+    <div class="kg-mobile-list divide-y divide-slate-100 dark:divide-slate-800" id="kgMobileList">
+        @foreach($kegiatan as $k)
+        <div data-tanggal="{{ $k->tanggal ?? '' }}"
+             data-nama="{{ strtolower($k->nama_kegiatan) }} {{ strtolower($k->lokasi->nama_lokasi ?? '') }} {{ strtolower($k->kode_join ?? '') }}"
+             class="kg-mobile-card p-4 hover:bg-blue-50/30 dark:hover:bg-slate-800/30 transition-colors cursor-pointer"
+             onclick="window.location='{{ route('operator.kegiatan.detail', $k->id) }}'">
+            
+            {{-- Top Row: Nama & Quick Actions --}}
+            <div class="flex items-start justify-between gap-2">
+                <div class="min-w-0 flex-1">
+                    <h3 class="font-bold text-slate-800 dark:text-slate-100 text-sm leading-snug break-words">
+                        {{ $k->nama_kegiatan }}
+                    </h3>
+                    <div class="flex items-center gap-1.5 mt-1">
+                        <span class="text-[11px] text-slate-400">PIN Sesi:</span>
+                        <span class="text-xs font-mono font-bold tracking-wider text-blue-600 dark:text-blue-400 px-1.5 py-0.5 rounded bg-blue-50 dark:bg-blue-950/60 border border-blue-100 dark:border-blue-900/40">
+                            {{ $k->kode_join ?? '—' }}
+                        </span>
+                    </div>
+                </div>
+
+                {{-- Action Buttons --}}
+                <div class="flex items-center gap-1 flex-shrink-0" onclick="event.stopPropagation()">
+                    <a href="{{ route('operator.kegiatan.edit', $k->id) }}"
+                       class="btn btn-secondary btn-icon rounded-xl" style="width: 2rem; height: 2rem;"
+                       title="Edit Informasi Kegiatan">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                        </svg>
+                    </a>
+
+                    @if(auth()->user()?->role !== 'magang')
+                    <button type="button"
+                        class="btn btn-secondary btn-icon rounded-xl text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30"
+                        style="width: 2rem; height: 2rem;"
+                        data-reauth-action="{{ route('operator.kegiatan.destroy', $k->id) }}"
+                        data-reauth-id="{{ $k->id }}"
+                        data-reauth-label="{{ $k->nama_kegiatan }}"
+                        onclick="ReauthModal.open(this)" title="Hapus Kegiatan">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                    </button>
+                    @endif
+                </div>
+            </div>
+
+            {{-- Metadata Row: Lokasi, Peserta, Tanggal --}}
+            <div class="grid grid-cols-2 gap-2 mt-2.5 pt-2 border-t border-slate-100 dark:border-slate-800/80 text-xs text-slate-500 dark:text-slate-400">
+                <div class="flex items-center gap-1.5 truncate">
+                    <svg class="w-3.5 h-3.5 text-primary flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                    <span class="truncate">{{ $k->lokasi->nama_lokasi ?? '—' }}</span>
+                </div>
+                <div class="flex items-center gap-1.5 truncate justify-end">
+                    <svg class="w-3.5 h-3.5 text-slate-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                    </svg>
+                    <span class="font-medium text-slate-700 dark:text-slate-300">{{ $k->peserta_count ?? 0 }} Siswa</span>
+                </div>
+                <div class="flex items-center gap-1.5 col-span-2 text-[11px] text-slate-400">
+                    <svg class="w-3.5 h-3.5 text-slate-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    <span>{{ isset($k->tanggal) ? \Carbon\Carbon::parse($k->tanggal)->isoFormat('dddd, D MMMM Y') : '—' }}</span>
+                </div>
+            </div>
+        </div>
+        @endforeach
+    </div>
+
+    {{-- Pagination Soft --}}
     @if($kegiatan->hasPages())
-    <div class="px-5 py-3 flex items-center justify-between" style="border-top:1px solid var(--border);">
-        <p class="text-xs" style="color:var(--text-muted)">
-            Menampilkan {{ $kegiatan->firstItem() }}–{{ $kegiatan->lastItem() }} dari {{ $kegiatan->total() }}
+    <div class="px-5 py-3.5 flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-800">
+        <p class="text-xs text-slate-400">
+            Menampilkan {{ $kegiatan->firstItem() }}–{{ $kegiatan->lastItem() }} dari {{ $kegiatan->total() }} kegiatan
         </p>
-        <div class="flex gap-1">
+        <div class="flex gap-1.5">
             @if($kegiatan->onFirstPage())
-                <span class="page-btn" style="opacity:.4;cursor:not-allowed;">‹</span>
+                <span class="page-btn rounded-lg opacity-40 cursor-not-allowed">‹</span>
             @else
-                <a href="{{ $kegiatan->previousPageUrl() }}" class="page-btn">‹</a>
+                <a href="{{ $kegiatan->previousPageUrl() }}" class="page-btn rounded-lg">‹</a>
             @endif
             @foreach($kegiatan->getUrlRange(1, $kegiatan->lastPage()) as $page => $url)
-                <a href="{{ $url }}" class="page-btn {{ $page == $kegiatan->currentPage() ? 'active' : '' }}">{{ $page }}</a>
+                <a href="{{ $url }}" class="page-btn rounded-lg {{ $page == $kegiatan->currentPage() ? 'active' : '' }}">{{ $page }}</a>
             @endforeach
             @if($kegiatan->hasMorePages())
-                <a href="{{ $kegiatan->nextPageUrl() }}" class="page-btn">›</a>
+                <a href="{{ $kegiatan->nextPageUrl() }}" class="page-btn rounded-lg">›</a>
             @else
-                <span class="page-btn" style="opacity:.4;cursor:not-allowed;">›</span>
+                <span class="page-btn rounded-lg opacity-40 cursor-not-allowed">›</span>
             @endif
         </div>
     </div>
@@ -255,6 +416,14 @@
 }
 .kg-header-title { font-size: 0.9rem; font-weight: 700; color: var(--text-primary); }
 .kg-header-count { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.125rem; }
+
+/* Tombol Tambah Kegiatan: Teks di desktop, icon + di mobile */
+.kg-btn-add {
+    font-size: 0.8125rem;
+    padding: 0.42rem 0.85rem;
+    height: 2.25rem;
+    transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+}
 
 /* Filter Bar */
 .kg-filterbar {
@@ -325,229 +494,261 @@
 .kg-caret { transition: transform 0.2s ease; flex-shrink: 0; }
 .kg-dropdown-trigger.open .kg-caret { transform: rotate(180deg); }
 
-/* ─── Dashboard-Matching Filter & 12-Month Popover ─────────── */
-.dash-filter-group {
+/* ── Filter Waktu Dropdown Elegan (Konsisten dengan Dashboard) ── */
+.dash-period-dropdown-wrap {
     position: relative;
-    display: inline-flex;
-    align-items: center;
-}
-.dash-filter-presets {
-    display: inline-flex;
-    background: #f1f5f9;
-    border: 1px solid #e2e8f0;
-    border-radius: 0.6rem;
-    padding: 4px;
-    gap: 4px;
-    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.02);
-}
-.dash-preset-btn {
-    font-family: var(--font-sans);
-    padding: 0.4rem 0.9rem;
-    border-radius: calc(0.6rem - 3px);
-    font-size: 0.75rem;
-    font-weight: 500;
-    color: var(--text-muted);
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    white-space: nowrap;
-}
-.dash-preset-btn:hover {
-    color: var(--text-primary);
-    background: rgba(0, 0, 0, 0.03);
-}
-.dash-preset-btn.active {
-    background: #ffffff;
-    color: var(--primary);
-    font-weight: 600;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.03);
+    display: inline-block;
 }
 
-/* Popover Dropdown (Month & Year) */
-.popover-dropdown {
-    position: absolute;
-    left: 0;
-    top: calc(100% + 8px);
-    z-index: 300;
-    width: 290px;
-}
-.popover-dropdown.hidden {
-    display: none !important;
-}
-.popover-card {
-    background: var(--surface, #ffffff);
-    border: 1px solid var(--border, #e2e8f0);
-    border-radius: var(--r-xl, 16px);
-    padding: 1rem;
-    box-shadow: 0 12px 36px -4px rgba(17, 24, 39, 0.14), 0 4px 12px -2px rgba(17, 24, 39, 0.06);
-    display: flex;
-    flex-direction: column;
-    gap: 0.85rem;
-    user-select: none;
-}
-.popover-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding-bottom: 0.65rem;
-    border-bottom: 1px solid var(--border, #e2e8f0);
-}
-.popover-title {
-    font-family: var(--font-display, 'Plus Jakarta Sans', sans-serif);
-    font-size: 0.8rem;
-    font-weight: 700;
-    color: var(--text-primary, #111827);
-}
-.popover-year-nav {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-}
-.popover-nav-btn {
-    width: 26px;
-    height: 26px;
-    border-radius: var(--r-sm, 6px);
-    display: flex;
+.kg-filter-icon-btn {
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    color: var(--text-muted, #9ca3af);
-    background: transparent;
-    border: 1px solid var(--border, #e2e8f0);
+    position: relative;
+    width: 2.25rem;
+    height: 2.25rem;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--r-md);
+    color: var(--text-secondary);
     cursor: pointer;
-    transition: all 0.15s ease;
-}
-.popover-nav-btn:hover {
-    color: var(--text-primary, #111827);
-    background: var(--surface-2, #f9fafb);
-    border-color: var(--border-strong, #cbd0df);
+    box-shadow: var(--shadow-xs);
+    transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+    flex-shrink: 0;
 }
 
-/* Year Input (Langsung Ketik Tahun & UX Nyaman) */
-.popover-year-input {
-    width: 58px;
-    height: 26px;
-    font-family: var(--font-display, 'Plus Jakarta Sans', sans-serif);
+.kg-filter-icon-btn:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    background: var(--bg-alt);
+    box-shadow: var(--shadow-sm);
+}
+
+.kg-filter-icon-btn.active,
+.kg-filter-icon-btn:focus-visible {
+    border-color: var(--primary);
+    color: var(--primary);
+    background: var(--primary-light);
+}
+
+.kg-filter-active-dot {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 7px;
+    height: 7px;
+    border-radius: 9999px;
+    background-color: var(--primary);
+    border: 1.5px solid var(--surface);
+}
+
+.kg-filter-active-dot.hidden {
+    display: none !important;
+}
+
+.dash-period-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--r-md);
+    padding: 0.42rem 0.85rem;
+    color: var(--text-primary);
+    cursor: pointer;
+    box-shadow: var(--shadow-xs);
+    transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
+    font-family: var(--font-sans);
     font-size: 0.8125rem;
+}
+
+.dash-period-trigger:hover {
+    border-color: var(--primary);
+    background: var(--bg-alt);
+    box-shadow: var(--shadow-sm);
+}
+
+.dash-period-trigger:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 1px;
+}
+
+.dash-period-menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    width: 275px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    box-shadow: var(--shadow-xl), 0 12px 28px -4px rgba(0, 0, 0, 0.14);
+    z-index: 50;
+    padding: 0.4rem;
+    animation: periodDropdownIn 0.16s ease-out;
+}
+
+.dash-period-menu.hidden {
+    display: none !important;
+}
+
+@keyframes periodDropdownIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.dash-period-section-label {
+    font-size: 0.6875rem;
     font-weight: 700;
-    color: var(--primary, #4361ee);
-    background: var(--primary-light, #eef1ff);
-    border: 1.5px solid transparent;
-    border-radius: var(--r-sm, 6px);
-    text-align: center;
-    padding: 0 4px;
-    outline: none;
-    transition: all 0.15s ease;
-    -moz-appearance: textfield;
-}
-.popover-year-input::-webkit-outer-spin-button,
-.popover-year-input::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-}
-.popover-year-input:hover {
-    border-color: var(--primary, #4361ee);
-}
-.popover-year-input:focus {
-    border-color: var(--primary, #4361ee);
-    background: #ffffff;
-    box-shadow: 0 0 0 2.5px rgba(67, 97, 238, 0.2);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    padding: 0.35rem 0.6rem 0.25rem;
 }
 
-/* 12-Month Grid (3 cols x 4 rows) */
-.popover-month-grid {
-    display: grid !important;
-    grid-template-columns: repeat(3, 1fr) !important;
-    gap: 6px !important;
-}
-.pop-month-btn {
-    font-family: var(--font-sans, 'Inter', sans-serif);
-    padding: 0.45rem 0.25rem;
-    border-radius: var(--r-md, 8px);
-    font-size: 0.75rem;
-    font-weight: 500;
-    color: var(--text-secondary, #4b5563);
-    background: var(--surface-2, #f9fafb);
-    border: 1px solid var(--border, #e2e8f0);
-    cursor: pointer;
-    text-align: center;
-    transition: all 0.15s ease;
-    box-sizing: border-box;
-}
-.pop-month-btn:hover {
-    background: var(--primary-light, #eef1ff);
-    color: var(--primary, #4361ee);
-    border-color: var(--primary-light, #eef1ff);
-}
-.pop-month-btn.active {
-    background: var(--primary, #4361ee) !important;
-    color: #ffffff !important;
-    font-weight: 700 !important;
-    border-color: var(--primary, #4361ee) !important;
-    box-shadow: 0 2px 6px rgba(67, 97, 238, 0.35);
-}
-
-.popover-footer {
+.dash-period-item {
+    width: 100%;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding-top: 0.65rem;
-    border-top: 1px solid var(--border, #e2e8f0);
-    font-size: 0.6875rem;
-    font-family: var(--font-sans, 'Inter', sans-serif);
-}
-.popover-foot-action {
-    color: var(--text-muted, #6b7280);
-    font-weight: 500;
-    transition: color 0.15s ease;
-}
-.popover-foot-action:hover {
-    color: var(--primary, #4361ee);
-}
-.popover-foot-close {
-    color: var(--text-muted, #9ca3af);
-    font-weight: 500;
-    transition: color 0.15s ease;
-}
-.popover-foot-close:hover {
-    color: var(--text-primary, #111827);
+    padding: 0.5rem 0.65rem;
+    border-radius: var(--r-md);
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    transition: background 0.15s ease;
+    text-decoration: none;
+    margin-bottom: 2px;
 }
 
-/* Dark mode overrides */
-:is(.dark) .dash-filter-presets {
-    background: rgba(255,255,255,0.03);
-    border-color: rgba(255,255,255,0.05);
+.dash-period-item:hover {
+    background: var(--bg-alt);
 }
-:is(.dark) .dash-preset-btn:hover {
-    background: rgba(255,255,255,0.04);
+
+.dash-period-item.active {
+    background: var(--primary-light);
+}
+
+.dash-period-item.active .dash-period-item-title {
+    color: var(--primary);
+    font-weight: 600;
+}
+
+.dash-period-item.active .dash-period-check {
+    display: block !important;
+}
+
+.dash-period-item:not(.active) .dash-period-check {
+    display: none !important;
+}
+
+.dash-period-item-title {
+    font-size: 0.8125rem;
+    font-weight: 500;
     color: var(--text-primary);
 }
-:is(.dark) .dash-preset-btn.active {
-    background: var(--surface);
-    color: var(--primary-light);
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+
+.dash-period-item-sub {
+    font-size: 0.72rem;
+    color: var(--text-muted);
 }
-:is(.dark) .popover-card {
-    background: var(--surface, #1e293b);
-    border-color: var(--border, #334155);
-    box-shadow: 0 12px 36px -4px rgba(0, 0, 0, 0.5);
+
+.dash-period-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 0.35rem 0;
 }
-:is(.dark) .popover-year-input {
-    background: rgba(67, 97, 238, 0.15);
-    color: #93c5fd;
+
+.dash-period-custom-toggle {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 0.65rem;
+    border-radius: var(--r-md);
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    transition: background 0.15s ease;
 }
-:is(.dark) .popover-year-input:focus {
-    background: #0f172a;
-    border-color: #60a5fa;
+
+.dash-period-custom-toggle:hover {
+    background: var(--bg-alt);
 }
-:is(.dark) .pop-month-btn {
-    background: rgba(255, 255, 255, 0.04);
-    border-color: rgba(255, 255, 255, 0.08);
-    color: var(--text-secondary, #cbd5e1);
+
+.dash-period-custom-form {
+    padding: 0.55rem 0.65rem 0.45rem;
+    background: var(--bg-alt);
+    border-radius: var(--r-md);
+    margin-top: 0.25rem;
+    border: 1px solid var(--border);
 }
-:is(.dark) .pop-month-btn:hover {
-    background: var(--primary-light, rgba(67, 97, 238, 0.15));
-    color: #ffffff;
+
+/* ── Desktop Table vs Mobile Card Visibility ───────────────── */
+.kg-desktop-table-wrap {
+    display: block;
+    overflow-x: auto;
+}
+.kg-mobile-list {
+    display: none;
+}
+@media (max-width: 768px) {
+    .kg-desktop-table-wrap {
+        display: none !important;
+    }
+    .kg-mobile-list {
+        display: block !important;
+    }
+}
+
+/* ── Mobile PWA Responsive Tweaks ──────────────────────────── */
+.kg-mobile-card {
+    -webkit-tap-highlight-color: transparent;
+}
+.kg-mobile-card:active {
+    background-color: rgba(67, 97, 238, 0.05);
+}
+
+@media (max-width: 640px) {
+    .kg-header {
+        padding: 0.75rem 0.875rem;
+    }
+    .kg-btn-add {
+        width: 2.125rem !important;
+        height: 2.125rem !important;
+        padding: 0 !important;
+        border-radius: var(--r-md);
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+    .kg-btn-add-label {
+        display: none !important;
+    }
+    .kg-filterbar {
+        padding: 0.65rem 0.875rem;
+        gap: 0.5rem;
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+    .kg-search-wrap {
+        flex: 1 1 auto;
+        min-width: 0;
+        width: auto;
+    }
+    .kg-search-input {
+        width: 100% !important;
+    }
+    .dash-period-dropdown-wrap {
+        flex-shrink: 0;
+    }
+    .dash-period-menu {
+        right: 0;
+        left: auto;
+        width: 275px;
+        max-width: calc(100vw - 2rem);
+    }
 }
 
 /* Mode Pill Group */
@@ -746,204 +947,307 @@
 {{-- ── Scripts ──────────────────────────────────────────────── --}}
 <script>
 (function () {
-    // ── URL-based filter navigation ─────────────────────────────
-    // Reads current URL params and navigates with new values applied.
-    function navigate(overrides) {
-        const params = new URLSearchParams(window.location.search);
-        params.delete('page'); // reset pagination on filter change
-        Object.entries(overrides).forEach(([k, v]) => {
-            if (v === '' || v === null || v === undefined) {
-                params.delete(k);
-            } else {
-                params.set(k, v);
-            }
-        });
-        window.location.href = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
-    }
+    // ── Client-Side In-Place Filter Engine (Tanpa Reload / Tanpa Pindah Route) ──
+    let currentSearch = '';
+    let currentPeriod = 'all'; // 'all', 'month', 'prev_month', 'year', 'custom'
+    let customMonth   = null;
+    let customYear    = new Date().getFullYear();
 
-    // ── Search: debounce 400ms then navigate ─────────────────────
-    const searchInput = document.getElementById('kgSearch');
-    if (searchInput) {
-        let searchTimer;
-        searchInput.addEventListener('input', function () {
-            clearTimeout(searchTimer);
-            searchTimer = setTimeout(() => navigate({ search: this.value.trim() }), 400);
-        });
-    }
+    const MONTH_NAMES = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 
-    // ── Mode Waktu & Popover Pemilih Bulan/Tahun (Persis Dashboard BNN) ───
-    const fPeriod = @json($fPeriod);
-    const fFrom   = @json($fFrom);
-    const fTo     = @json($fTo);
-
-    // Hitung tahun & bulan aktif saat ini
-    const SHORT_MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
-    let popoverYear = 2026;
-    let activeSelectedMonth = null;
-    let activeSelectedYear  = null;
-
-    if (fFrom) {
-        const parts = fFrom.split('-');
-        if (parts.length === 3) {
-            popoverYear = parseInt(parts[0], 10);
-            activeSelectedMonth = parseInt(parts[1], 10) - 1;
-            activeSelectedYear  = popoverYear;
-        }
-    } else if (fPeriod === 'month') {
-        const now = new Date();
-        activeSelectedMonth = now.getMonth();
-        activeSelectedYear  = now.getFullYear();
-        popoverYear         = activeSelectedYear;
-    }
-
-    const popMonthGrid     = document.getElementById('popMonthGrid');
-    const popYearInput     = document.getElementById('popYearInput');
-    const popPrevYear      = document.getElementById('popPrevYear');
-    const popNextYear      = document.getElementById('popNextYear');
-    const popoverMonthYear = document.getElementById('popoverMonthYear');
-    const fCustomCaret     = document.getElementById('fCustomCaret');
-
-    function renderPopoverMonthGrid() {
-        if (!popMonthGrid) return;
-        let html = '';
-        SHORT_MONTHS.forEach((mName, idx) => {
-            const isSelected = (idx === activeSelectedMonth && popoverYear === activeSelectedYear);
-            html += `<button type="button" class="pop-month-btn ${isSelected ? 'active' : ''}" data-month="${idx}">
-                ${mName}
-            </button>`;
-        });
-        popMonthGrid.innerHTML = html;
-
-        popMonthGrid.querySelectorAll('.pop-month-btn').forEach(btn => {
-            btn.addEventListener('click', function (e) {
-                e.stopPropagation();
-                const m = parseInt(this.getAttribute('data-month'), 10);
-                selectMonthYear(m, popoverYear);
-            });
-        });
-    }
-
-    function updateYearInput(val) {
-        popoverYear = val;
-        if (popYearInput) popYearInput.value = val;
-        renderPopoverMonthGrid();
-    }
-
-    function togglePopover() {
-        if (!popoverMonthYear) return;
-        const isHidden = popoverMonthYear.classList.contains('hidden');
-        if (isHidden) {
-            if (popYearInput) popYearInput.value = popoverYear;
-            renderPopoverMonthGrid();
-            popoverMonthYear.classList.remove('hidden');
-            fCustomCaret?.classList.add('rotate-180');
-        } else {
-            closePopover();
-        }
-    }
-
-    function closePopover() {
-        if (popoverMonthYear && !popoverMonthYear.classList.contains('hidden')) {
-            popoverMonthYear.classList.add('hidden');
-            fCustomCaret?.classList.remove('rotate-180');
-        }
-    }
-
-    // Pilih Bulan & Tahun spesifik -> navigasi ke rentang tanggal bulan tersebut
-    function selectMonthYear(month, year) {
-        const mStr = String(month + 1).padStart(2, '0');
-        const startDate = `${year}-${mStr}-01`;
-        const lastDay   = new Date(year, month + 1, 0).getDate();
-        const endDate   = `${year}-${mStr}-${String(lastDay).padStart(2, '0')}`;
-        closePopover();
-        navigate({ period: 'custom', date_from: startDate, date_to: endDate });
-    }
-
-    // Event listener tombol 1 & 2: Bulan ini & Tahun ini
-    document.getElementById('fBulan')?.addEventListener('click', function () {
-        closePopover();
-        navigate({ period: 'month', date_from: null, date_to: null });
-    });
-
-    document.getElementById('fTahun')?.addEventListener('click', function () {
-        closePopover();
-        navigate({ period: 'year', date_from: null, date_to: null });
-    });
-
-    // Event listener tombol ke-3: Buka popover
-    document.getElementById('fCustom')?.addEventListener('click', function (e) {
-        e.stopPropagation();
-        togglePopover();
-    });
-
-    // Klik di dalam card popover jangan menutup popover
-    popoverMonthYear?.addEventListener('click', function (e) {
-        e.stopPropagation();
-    });
-
-    // Tombol Previous Year (<)
-    popPrevYear?.addEventListener('click', function (e) {
-        e.stopPropagation();
-        updateYearInput(popoverYear - 1);
-    });
-
-    // Tombol Next Year (>)
-    popNextYear?.addEventListener('click', function (e) {
-        e.stopPropagation();
-        updateYearInput(popoverYear + 1);
-    });
-
-    // Input Tahun Langsung (UX Cepat: Ketik 2024, 2025, 2026 dll)
-    if (popYearInput) {
-        popYearInput.addEventListener('input', function () {
-            const val = parseInt(this.value, 10);
-            if (val >= 1990 && val <= 2099) {
-                popoverYear = val;
-                renderPopoverMonthGrid();
-            }
-        });
-        popYearInput.addEventListener('change', function () {
-            const val = parseInt(this.value, 10);
-            if (val >= 1990 && val <= 2099) {
-                updateYearInput(val);
-            } else {
-                this.value = popoverYear;
-            }
-        });
-    }
-
-    // Tombol di footer popover
-    document.getElementById('popBtnAll')?.addEventListener('click', function () {
-        closePopover();
-        navigate({ period: 'all', date_from: null, date_to: null });
-    });
-
-    document.getElementById('popBtnClose')?.addEventListener('click', function () {
-        closePopover();
-    });
-
-    // Klik di luar menutup popover
-    document.addEventListener('click', function () {
-        closePopover();
-    });
-
-    // Inisialisasi awal render grid popover
-    renderPopoverMonthGrid();
-
-    // ── Mode pills ────────────────────────────────────────────────
-    document.querySelectorAll('.kg-pill[data-mode]').forEach(btn => {
-        btn.addEventListener('click', function () {
-            navigate({ mode: this.dataset.mode });
-        });
-    });
-
-    // ── Clear period chip ─────────────────────────────────────────
+    const searchInput    = document.getElementById('kgSearch');
+    const totalCountEl   = document.getElementById('totalCount');
+    const activeChip     = document.getElementById('activeChip');
+    const activeChipText = document.getElementById('activeChipText');
     const btnClearPeriod = document.getElementById('btnClearPeriod');
-    if (btnClearPeriod) {
-        btnClearPeriod.addEventListener('click', () => {
-            navigate({ period: null, date_from: null, date_to: null });
+
+    // ── Dropdown Filter Periode (Konsisten dengan Dashboard) ─────
+    const periodMenu    = document.getElementById('kgPeriodMenu');
+    const periodBtn     = document.getElementById('kgPeriodBtn');
+    const periodCaret   = document.getElementById('kgPeriodCaret');
+    const currentLabel  = document.getElementById('kgPeriodCurrentLabel');
+    const optSemuaWaktu = document.getElementById('optSemuaWaktu');
+    const optBulanIni   = document.getElementById('optBulanIni');
+    const optBulanLalu  = document.getElementById('optBulanLalu');
+    const optTahunIni   = document.getElementById('optTahunIni');
+    const customToggle  = document.getElementById('btnToggleCustomPeriod');
+    const customPanel   = document.getElementById('customPeriodForm');
+    const customCaret   = document.getElementById('customPeriodCaret');
+
+    function togglePeriodDropdown() {
+        if (!periodMenu) return;
+        const isHidden = periodMenu.classList.contains('hidden');
+        if (isHidden) {
+            periodMenu.classList.remove('hidden');
+            periodCaret?.classList.add('rotate-180');
+            periodBtn?.setAttribute('aria-expanded', 'true');
+        } else {
+            closePeriodDropdown();
+        }
+    }
+
+    function closePeriodDropdown() {
+        if (!periodMenu || periodMenu.classList.contains('hidden')) return;
+        periodMenu.classList.add('hidden');
+        periodCaret?.classList.remove('rotate-180');
+        periodBtn?.setAttribute('aria-expanded', 'false');
+    }
+
+    function setActivePeriodItem(activeItem, displayTitle) {
+        [optSemuaWaktu, optBulanIni, optBulanLalu, optTahunIni].forEach(el => {
+            el?.classList.remove('active');
+            el?.querySelector('.dash-period-check')?.classList.add('hidden');
+        });
+        if (activeItem) {
+            activeItem.classList.add('active');
+            activeItem.querySelector('.dash-period-check')?.classList.remove('hidden');
+        }
+        if (currentLabel && displayTitle) {
+            currentLabel.textContent = displayTitle;
+        }
+    }
+
+    // ── Fungsi Filter Baris Tabel & Mobile Cards (Live In-Place) ──
+    function applyFilter() {
+        const rows = document.querySelectorAll('#kgTbody tr[data-tanggal]');
+        const mobileCards = document.querySelectorAll('#kgMobileList .kg-mobile-card[data-tanggal]');
+        let visibleCount = 0;
+
+        const now = new Date();
+        const currentYearStr = String(now.getFullYear());
+        const currentMonthStr = String(now.getMonth() + 1).padStart(2, '0');
+        const currentMonthPrefix = `${currentYearStr}-${currentMonthStr}`; // misal: "2026-09"
+
+        const prevDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        const prevYearStr = String(prevDate.getFullYear());
+        const prevMonthStr = String(prevDate.getMonth() + 1).padStart(2, '0');
+        const prevMonthPrefix = `${prevYearStr}-${prevMonthStr}`;
+
+        const checkMatch = (nama, tanggal) => {
+            const matchSearch = !currentSearch || nama.includes(currentSearch);
+            let matchPeriod = true;
+            if (currentPeriod === 'month') {
+                matchPeriod = tanggal.startsWith(currentMonthPrefix);
+            } else if (currentPeriod === 'prev_month') {
+                matchPeriod = tanggal.startsWith(prevMonthPrefix);
+            } else if (currentPeriod === 'year') {
+                matchPeriod = tanggal.startsWith(currentYearStr);
+            } else if (currentPeriod === 'custom' && customMonth !== null && customYear !== null) {
+                const targetPrefix = `${customYear}-${String(customMonth + 1).padStart(2, '0')}`;
+                matchPeriod = tanggal.startsWith(targetPrefix);
+            }
+            return matchSearch && matchPeriod;
+        };
+
+        rows.forEach(row => {
+            const rowNama = (row.getAttribute('data-nama') || '').toLowerCase();
+            const rowTanggal = (row.getAttribute('data-tanggal') || '').trim();
+
+            if (checkMatch(rowNama, rowTanggal)) {
+                row.style.display = '';
+                visibleCount++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        mobileCards.forEach(card => {
+            const cardNama = (card.getAttribute('data-nama') || '').toLowerCase();
+            const cardTanggal = (card.getAttribute('data-tanggal') || '').trim();
+
+            if (checkMatch(cardNama, cardTanggal)) {
+                card.style.display = '';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+
+        // Update counter teks
+        if (totalCountEl) {
+            totalCountEl.textContent = `${visibleCount} kegiatan ditemukan`;
+        }
+
+        // Tampilkan/sembunyikan pesan jika tidak ada data yang cocok
+        let noResultsRow = document.getElementById('noResultsRow');
+        let noResultsMobile = document.getElementById('noResultsMobile');
+
+        if (visibleCount === 0 && (rows.length > 0 || mobileCards.length > 0)) {
+            if (!noResultsRow) {
+                noResultsRow = document.createElement('tr');
+                noResultsRow.id = 'noResultsRow';
+                noResultsRow.innerHTML = `
+                    <td colspan="5" class="py-12 text-center text-slate-400">
+                        <p class="font-semibold text-sm text-slate-600 dark:text-slate-300">Tidak ada kegiatan yang cocok</p>
+                        <p class="text-xs text-slate-400 mt-1">Coba gunakan kata kunci atau rentang waktu lain</p>
+                        <button type="button" class="btnResetFilter btn btn-secondary btn-sm rounded-xl mt-3 text-xs font-semibold text-primary">
+                            Reset Filter Pencarian
+                        </button>
+                    </td>
+                `;
+                document.getElementById('kgTbody')?.appendChild(noResultsRow);
+            } else {
+                noResultsRow.style.display = '';
+            }
+
+            if (!noResultsMobile) {
+                noResultsMobile = document.createElement('div');
+                noResultsMobile.id = 'noResultsMobile';
+                noResultsMobile.className = 'py-10 px-4 text-center text-slate-400';
+                noResultsMobile.innerHTML = `
+                    <p class="font-semibold text-sm text-slate-600 dark:text-slate-300">Tidak ada kegiatan yang cocok</p>
+                    <p class="text-xs text-slate-400 mt-1">Coba gunakan kata kunci atau rentang waktu lain</p>
+                    <button type="button" class="btnResetFilter btn btn-secondary btn-sm rounded-xl mt-3 text-xs font-semibold text-primary">
+                        Reset Filter Pencarian
+                    </button>
+                `;
+                document.getElementById('kgMobileList')?.appendChild(noResultsMobile);
+            } else {
+                noResultsMobile.style.display = '';
+            }
+
+            document.querySelectorAll('.btnResetFilter').forEach(btn => {
+                btn.onclick = resetAllFilters;
+            });
+        } else {
+            if (noResultsRow) noResultsRow.style.display = 'none';
+            if (noResultsMobile) noResultsMobile.style.display = 'none';
+        }
+    }
+
+    // ── Update Tampilan Chip Filter Aktif & Indikator Tombol ──────
+    function updateActiveChip() {
+        const activeDot = document.getElementById('kgPeriodActiveDot');
+        const now = new Date();
+        if (currentPeriod === 'all') {
+            periodBtn?.classList.remove('active');
+            activeDot?.classList.add('hidden');
+            if (activeChip) activeChip.classList.add('hidden');
+        } else {
+            periodBtn?.classList.add('active');
+            activeDot?.classList.remove('hidden');
+            if (activeChip && activeChipText) {
+                if (currentPeriod === 'month') {
+                    activeChipText.textContent = `Bulan ini (${MONTH_NAMES[now.getMonth()]})`;
+                } else if (currentPeriod === 'prev_month') {
+                    const prev = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+                    activeChipText.textContent = `Bulan lalu (${MONTH_NAMES[prev.getMonth()]})`;
+                } else if (currentPeriod === 'year') {
+                    activeChipText.textContent = `Tahun ${now.getFullYear()}`;
+                } else if (currentPeriod === 'custom' && customMonth !== null) {
+                    activeChipText.textContent = `${MONTH_NAMES[customMonth]} ${customYear}`;
+                }
+                activeChip.classList.remove('hidden');
+            }
+        }
+    }
+
+    function resetPeriodFilter() {
+        currentPeriod = 'all';
+        customMonth = null;
+        periodBtn?.classList.remove('active');
+        document.getElementById('kgPeriodActiveDot')?.classList.add('hidden');
+        setActivePeriodItem(optSemuaWaktu, 'Semua Waktu');
+        updateActiveChip();
+    }
+
+    function resetAllFilters() {
+        currentSearch = '';
+        if (searchInput) searchInput.value = '';
+        resetPeriodFilter();
+        applyFilter();
+    }
+
+    // ── Search Input: Instant Live Filter (Tanpa Reload) ─────────
+    if (searchInput) {
+        searchInput.addEventListener('input', function () {
+            currentSearch = this.value.trim().toLowerCase();
+            applyFilter();
         });
     }
+
+    // ── Dropdown Event Listeners ─────────────────────────────────
+    periodBtn?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        togglePeriodDropdown();
+    });
+
+    periodMenu?.addEventListener('click', (e) => e.stopPropagation());
+
+    optSemuaWaktu?.addEventListener('click', () => {
+        currentPeriod = 'all';
+        customMonth = null;
+        setActivePeriodItem(optSemuaWaktu, 'Semua Waktu');
+        closePeriodDropdown();
+        updateActiveChip();
+        applyFilter();
+    });
+
+    optBulanIni?.addEventListener('click', () => {
+        const now = new Date();
+        currentPeriod = 'month';
+        customMonth = null;
+        setActivePeriodItem(optBulanIni, `Bulan Ini (${MONTH_NAMES[now.getMonth()]} ${now.getFullYear()})`);
+        closePeriodDropdown();
+        updateActiveChip();
+        applyFilter();
+    });
+
+    optBulanLalu?.addEventListener('click', () => {
+        const now = new Date();
+        const prev = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        currentPeriod = 'prev_month';
+        customMonth = null;
+        setActivePeriodItem(optBulanLalu, `Bulan Lalu (${MONTH_NAMES[prev.getMonth()]} ${prev.getFullYear()})`);
+        closePeriodDropdown();
+        updateActiveChip();
+        applyFilter();
+    });
+
+    optTahunIni?.addEventListener('click', () => {
+        const now = new Date();
+        currentPeriod = 'year';
+        customMonth = null;
+        setActivePeriodItem(optTahunIni, `Tahun Ini (${now.getFullYear()})`);
+        closePeriodDropdown();
+        updateActiveChip();
+        applyFilter();
+    });
+
+    customToggle?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (customPanel) {
+            const isClosed = customPanel.classList.contains('hidden');
+            customPanel.classList.toggle('hidden');
+            customCaret?.classList.toggle('rotate-180', isClosed);
+        }
+    });
+
+    document.getElementById('btnApplyCustom')?.addEventListener('click', () => {
+        const m = parseInt(document.getElementById('selCustomMonth').value, 10);
+        const y = parseInt(document.getElementById('selCustomYear').value, 10);
+        currentPeriod = 'custom';
+        customMonth = m;
+        customYear = y;
+        setActivePeriodItem(null, `${MONTH_NAMES[m]} ${y}`);
+        closePeriodDropdown();
+        updateActiveChip();
+        applyFilter();
+    });
+
+    document.addEventListener('click', () => {
+        closePeriodDropdown();
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closePeriodDropdown();
+        }
+    });
+
+    btnClearPeriod?.addEventListener('click', () => {
+        resetPeriodFilter();
+        applyFilter();
+    });
 
     // ── Modal: Tambah / Edit Kegiatan ─────────────────────────────
     const overlay    = document.getElementById('kegiatanModalOverlay');

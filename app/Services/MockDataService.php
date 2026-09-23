@@ -26,10 +26,13 @@ class MockDataService
 
     /**
      * Daftar Lokasi Sasaran BNN Surabaya
+     * (digabung dengan lokasi custom dari session agar Quick-Add tetap
+     *  bertahan selama sesi mock — penting untuk pemakaian jangka panjang
+     *  sebelum migrasi penuh ke tabel `locations`.)
      */
     public static function getLocations(): array
     {
-        return [
+        $base = [
             (object)[
                 'id'            => 1,
                 'nama_lokasi'   => 'SMAN 1 Surabaya',
@@ -103,6 +106,45 @@ class MockDataService
                 'created_at'    => Carbon::parse('2026-09-05'),
             ],
         ];
+
+        $custom = session('custom_mock_locations', []);
+        if (!empty($custom)) {
+            // Pastikan id tidak bentrok dengan base (lanjutkan dari max id)
+            $maxId = collect($base)->max('id') ?? 0;
+            foreach (array_values($custom) as $i => $c) {
+                $c = (object) $c;
+                if (empty($c->id)) $c->id = $maxId + $i + 1;
+                $base[] = $c;
+            }
+        }
+
+        return $base;
+    }
+
+    /**
+     * Simpan lokasi custom (Quick-Add saat Mock Mode) ke session.
+     * Mengembalikan objek lokasi yang tersimpan.
+     */
+    public static function addCustomLocation(array $data): object
+    {
+        $existing = self::getLocations();
+        $maxId = collect($existing)->max('id') ?? 0;
+
+        $obj = (object)[
+            'id'            => $maxId + 1,
+            'nama_lokasi'   => $data['nama_lokasi'],
+            'alamat'        => $data['alamat'] ?? null,
+            'kecamatan'     => $data['kecamatan'] ?? null,
+            'jenis_sasaran' => $data['jenis_sasaran'] ?? 'sekolah',
+            'events_count'  => 0,
+            'created_at'    => Carbon::now(),
+        ];
+
+        $custom = session('custom_mock_locations', []);
+        $custom[] = $obj;
+        session(['custom_mock_locations' => $custom]);
+
+        return $obj;
     }
 
     /**
@@ -253,10 +295,11 @@ class MockDataService
         $questions1 = self::getQuestionsForPackage(1);
         $questions2 = self::getQuestionsForPackage(2);
 
-        return [
+        $base = [
             (object)[
                 'id'              => 1,
                 'nama_paket'      => 'Instrumen Pre-Test P4GN Remaja & Pelajar (SMA/SMK)',
+                'tema'            => 'P4GN Pelajar',
                 'tipe'            => 'pretest',
                 'durasi'          => 30,
                 'deskripsi'       => 'Paket pengukuran awal tingkat pengetahuan bahaya narkoba bagi pelajar.',
@@ -270,6 +313,7 @@ class MockDataService
             (object)[
                 'id'              => 2,
                 'nama_paket'      => 'Instrumen Post-Test P4GN Remaja & Pelajar (SMA/SMK)',
+                'tema'            => 'P4GN Pelajar',
                 'tipe'            => 'posttest',
                 'durasi'          => 30,
                 'deskripsi'       => 'Paket evaluasi akhir setelah materi sosialisasi bahaya narkoba.',
@@ -283,6 +327,7 @@ class MockDataService
             (object)[
                 'id'              => 3,
                 'nama_paket'      => 'Evaluasi Ketahanan Keluarga Anti Narkoba',
+                'tema'            => 'Ketahanan Keluarga',
                 'tipe'            => 'kombinasi',
                 'durasi'          => 25,
                 'deskripsi'       => 'Paket evaluasi komprehensif peran orang tua dan keluarga.',
@@ -296,6 +341,7 @@ class MockDataService
             (object)[
                 'id'              => 4,
                 'nama_paket'      => 'Sosialisasi Lingkungan Kerja Bebas Narkoba (BUMD/Swasta)',
+                'tema'            => 'Lingkungan Kerja',
                 'tipe'            => 'kombinasi',
                 'durasi'          => 30,
                 'deskripsi'       => 'Evaluasi kesadaran K3 dan regulasi P4GN di lingkungan instansi.',
@@ -307,6 +353,49 @@ class MockDataService
                 'created_at'      => Carbon::parse('2026-08-20'),
             ],
         ];
+
+        $custom = session('custom_mock_packages', []);
+        if (!empty($custom)) {
+            $maxId = collect($base)->max('id') ?? 0;
+            foreach (array_values($custom) as $i => $c) {
+                $c = (object) $c;
+                if (empty($c->id)) $c->id = $maxId + $i + 1;
+                if (!isset($c->questions)) $c->questions = collect([]);
+                $base[] = $c;
+            }
+        }
+
+        return $base;
+    }
+
+    /**
+     * Simpan paket custom (buat baru / duplikat saat Mock Mode) ke session.
+     */
+    public static function addCustomPackage(array $data): object
+    {
+        $existing = self::getQuestionPackages();
+        $maxId = collect($existing)->max('id') ?? 0;
+
+        $obj = (object)[
+            'id'              => $maxId + 1,
+            'nama_paket'      => $data['nama_paket'],
+            'tema'            => $data['tema'] ?? null,
+            'tipe'            => $data['tipe'] ?? 'umum',
+            'durasi'          => (int) ($data['durasi'] ?? 30),
+            'deskripsi'       => $data['deskripsi'] ?? null,
+            'acak_urutan'     => (bool) ($data['acak_urutan'] ?? true),
+            'soal_count'      => (int) ($data['soal_count'] ?? 0),
+            'questions_count' => (int) ($data['soal_count'] ?? 0),
+            'events_count'    => 0,
+            'questions'       => collect([]),
+            'created_at'      => Carbon::now(),
+        ];
+
+        $custom = session('custom_mock_packages', []);
+        $custom[] = $obj;
+        session(['custom_mock_packages' => $custom]);
+
+        return $obj;
     }
 
     /**
@@ -317,7 +406,7 @@ class MockDataService
         $locations = self::getLocations();
         $packages  = self::getQuestionPackages();
 
-        return [
+        $baseEvents = [
             (object)[
                 'id'                  => 1,
                 'nama_kegiatan'       => 'Sosialisasi P4GN SMAN 1 Surabaya',
@@ -405,7 +494,7 @@ class MockDataService
                 'status'              => 'dijadwalkan',
                 'tanggal'             => '2026-09-28',
                 'durasi_menit'        => 45,
-                'catatan'             => 'Penyuluhan dan skrining berkala P2M.',
+                'catatan'             => 'Kegiatan evaluasi pengetahuan P4GN untuk warga binaan pemasyarakatan.',
                 'lokasi_id'           => 7,
                 'lokasi'              => $locations[6],
                 'pretest_package_id'  => 1,
@@ -419,6 +508,25 @@ class MockDataService
                 'created_at'          => Carbon::parse('2026-09-16 13:00:00'),
             ],
         ];
+
+        $customEvents = session('custom_mock_events', []);
+        $merged = !empty($customEvents)
+            ? array_merge($customEvents, $baseEvents)
+            : $baseEvents;
+
+        // Terapkan override status/fase dari tombol Meja Kerja (Mock Mode)
+        $overrides = session('mock_event_overrides', []);
+        if (!empty($overrides)) {
+            foreach ($merged as $e) {
+                $ov = $overrides[$e->id] ?? $overrides[(int) $e->id] ?? null;
+                if (is_array($ov)) {
+                    if (isset($ov['status'])) $e->status = $ov['status'];
+                    if (isset($ov['status_fase'])) $e->status_fase = $ov['status_fase'];
+                }
+            }
+        }
+
+        return $merged;
     }
 
     /**
@@ -459,7 +567,7 @@ class MockDataService
             $post = min(100, $pre + 25 + (($idx * 11) % 40));
             $gain = round(($post - $pre) / (100 - $pre), 2);
             $categoryKey = $gain >= 0.70 ? 'paham' : ($gain >= 0.30 ? 'cukup' : 'kurang');
-            $kategoriLabel = $gain >= 0.70 ? 'Paham (Tinggi)' : ($gain >= 0.30 ? 'Cukup (Sedang)' : 'Kurang (Rendah)');
+            $kategoriLabel = $gain >= 0.70 ? 'Paham' : ($gain >= 0.30 ? 'Cukup' : 'Kurang');
 
             $list[] = (object)[
                 'id'             => 100 + $idx + 1,

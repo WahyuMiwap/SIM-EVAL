@@ -13,6 +13,7 @@ class QuestionPackage extends Model
 
     protected $fillable = [
         'nama_paket',
+        'tema',               // Tema sosialisasi, mis. "P4GN Pelajar" (bebas ketik)
         'kategori_audiens', // SD, SMP, SMA, UMUM, LAPAS
         'jumlah_opsi',      // 3, 4
         'tipe',             // pretest, posttest, umum
@@ -43,5 +44,15 @@ class QuestionPackage extends Model
     public function events(): HasMany
     {
         return $this->hasMany(Event::class, 'pretest_package_id');
+    }
+
+    public function eventsPre(): HasMany
+    {
+        return $this->hasMany(Event::class, 'pretest_package_id');
+    }
+
+    public function eventsPost(): HasMany
+    {
+        return $this->hasMany(Event::class, 'posttest_package_id');
     }
 }

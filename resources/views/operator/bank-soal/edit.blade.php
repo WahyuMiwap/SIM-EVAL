@@ -15,6 +15,7 @@
     <span class="bs-bc-current">Edit</span>
 </div>
 
+
 <form id="formEditSoal" method="POST" action="{{ route('operator.bank-soal.update', $paket->id) }}">
     @csrf
     @method('PUT')
@@ -44,34 +45,74 @@
         </div>
     </div>
 
-    {{-- ── SECTION 1: Informasi Paket ─────────────────────────────── --}}
-    <div class="glass" style="border-radius: var(--r-xl); background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: var(--shadow-sm);">
-        <h3 class="font-display font-bold text-base mb-1" style="color: var(--text-primary);">
-            Informasi Umum Paket
-        </h3>
-        <p class="text-xs text-muted mb-4" style="color: var(--text-muted);">
-            Tentukan identitas dan batas waktu pelaksanaan instrumen evaluasi.
-        </p>
+    {{-- Hidden Tipe Paket & Durasi (Mempertahankan nilai sebelumnya atau default untuk kompatibilitas DB) --}}
+    <input type="hidden" name="tipe" value="{{ old('tipe', $paket->tipe ?? 'umum') }}">
+    <input type="hidden" name="durasi" value="{{ old('durasi', $paket->durasi ?? 30) }}">
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="form-group md:col-span-2">
-                <label class="form-label" for="nama_paket">
-                    Nama Paket Soal <span style="color:var(--danger)">*</span>
+    {{-- ── SECTION 1: Informasi Paket ─────────────────────────────── --}}
+    <div class="glass mb-6 rounded-2xl border border-slate-200/70 dark:border-slate-800 shadow-xs p-5 md:p-6">
+        <div class="flex items-center gap-3 pb-3 mb-5 border-b border-slate-100 dark:border-slate-800">
+            <div class="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950/50 text-primary flex items-center justify-center font-bold text-xs border border-blue-100 dark:border-blue-900/50">
+                1
+            </div>
+            <div>
+                <h3 class="font-bold text-sm text-slate-800 dark:text-slate-100">
+                    Informasi Umum Paket
+                </h3>
+                <p class="text-xs text-slate-400">
+                    Tentukan nama paket dan tema materi instrumen evaluasi.
+                </p>
+            </div>
+        </div>
+
+        <div class="space-y-4">
+            {{-- Row 1: Nama Paket Soal (Full Width) --}}
+            <div>
+                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-200 mb-1.5" for="nama_paket">
+                    Nama Paket Soal <span class="text-rose-500">*</span>
                 </label>
-                <input type="text" name="nama_paket" id="nama_paket" class="form-input"
+                <input type="text" name="nama_paket" id="nama_paket"
+                    class="w-full px-3.5 py-2.5 text-xs rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-2xs"
                     value="{{ old('nama_paket', $paket->nama_paket) }}" required
                     placeholder="Contoh: Pre-Test Anti Narkoba Pelajar SMA">
             </div>
 
-            <div class="form-group">
-                <label class="form-label" for="durasi">
-                    Durasi Pengerjaan (Menit) <span style="color:var(--danger)">*</span>
+            {{-- Row 2: Tema Sosialisasi --}}
+            <div>
+                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-200 mb-1.5" for="tema">
+                    Tema Materi Sosialisasi
                 </label>
-                <div class="flex items-center gap-2">
-                    <input type="number" name="durasi" id="durasi" class="form-input"
-                        value="{{ old('durasi', $paket->durasi ?? 30) }}" min="5" max="180" required>
-                    <span class="text-xs" style="color: var(--text-muted);">Menit</span>
+                <div id="temaDropdownWrapper" class="relative w-full">
+                    <input type="text" name="tema" id="tema"
+                        class="w-full px-3.5 py-2.5 text-xs rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all pr-10 shadow-2xs"
+                        value="{{ old('tema', $paket->tema ?? '') }}" maxlength="100" autocomplete="off"
+                        placeholder="cth: P4GN Pelajar, Ketahanan Keluarga, Lingkungan Kerja">
+                    <button type="button" id="btnToggleTemaSuggestions"
+                        class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors p-1"
+                        title="Tampilkan daftar saran tema">
+                        <svg id="temaCaret" class="w-4 h-4 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </button>
+
+                    {{-- Floating Suggestions Card --}}
+                    <div id="temaSuggestionsMenu"
+                         class="hidden absolute left-0 right-0 z-50 mt-1.5 max-h-60 overflow-y-auto rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-xl text-xs py-1 divide-y divide-slate-100/70 dark:divide-slate-800/70">
+                        @forelse(($temas ?? []) as $t)
+                        <button type="button"
+                                data-tema="{{ $t }}"
+                                class="tema-suggestion-item w-full text-left px-3.5 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-800/80 transition-colors cursor-pointer group">
+                            <span class="block font-semibold text-slate-800 dark:text-slate-100 text-xs group-hover:text-primary transition-colors">{{ $t }}</span>
+                            <span class="block text-[11px] text-slate-400 font-normal mt-0.5">Pilih tema materi evaluasi ini</span>
+                        </button>
+                        @empty
+                        <div class="px-3.5 py-2.5 text-center text-slate-400 text-xs">
+                            Belum ada saran tema tersimpan. Bebas ketik tema baru.
+                        </div>
+                        @endforelse
+                    </div>
                 </div>
+                <p class="text-[11px] text-slate-400 mt-1">Bebas ketik baru — atau klik panah untuk memilih tema yang sudah terdaftar.</p>
             </div>
         </div>
     </div>
@@ -105,8 +146,8 @@
                         <span class="bs-q-num-edit">#{{ $qIdx + 1 }}</span>
                         <span class="text-xs font-semibold" style="color: var(--text-secondary);">Pertanyaan Pilihan Ganda</span>
                     </div>
-                    <button type="button" class="btn btn-secondary btn-icon btn-sm bs-btn-del-item" title="Hapus butir pertanyaan ini" onclick="removeQuestionBlock(this)">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <button type="button" class="bs-btn-del-item" title="Hapus butir pertanyaan ini" onclick="removeQuestionBlock(this)">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                         </svg>
                     </button>
@@ -204,8 +245,22 @@
     padding: 0.2rem 0.6rem;
     border-radius: var(--r-xs);
 }
+.bs-btn-del-item {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0.35rem;
+    border-radius: var(--r-sm);
+    color: #ef4444;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+}
 .bs-btn-del-item:hover {
-    background: var(--danger-light);
+    background: rgba(239, 68, 68, 0.12) !important;
+    color: #dc2626 !important;
 }
 
 /* Option Row */
@@ -304,8 +359,8 @@ function addNewQuestionBlock() {
                 <span class="bs-q-num-edit">#${newIdx + 1}</span>
                 <span class="text-xs font-semibold" style="color: var(--text-secondary);">Pertanyaan Pilihan Ganda Baru</span>
             </div>
-            <button type="button" class="btn btn-secondary btn-icon btn-sm bs-btn-del-item" title="Hapus butir pertanyaan ini" onclick="removeQuestionBlock(this)">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <button type="button" class="bs-btn-del-item" title="Hapus butir pertanyaan ini" onclick="removeQuestionBlock(this)">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                 </svg>
             </button>
@@ -354,6 +409,91 @@ function addNewQuestionBlock() {
     container.appendChild(div);
     div.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
+
+// ── Tema Suggestions Dropdown Controller ────────────────────────
+(function () {
+    const input     = document.getElementById('tema');
+    const menu      = document.getElementById('temaSuggestionsMenu');
+    const toggleBtn = document.getElementById('btnToggleTemaSuggestions');
+    const caret     = document.getElementById('temaCaret');
+    const items     = document.querySelectorAll('.tema-suggestion-item');
+    const wrapper   = document.getElementById('temaDropdownWrapper');
+
+    if (!input || !menu) return;
+
+    function filterItems() {
+        const query = (input.value || '').trim().toLowerCase();
+        let visibleCount = 0;
+        items.forEach(item => {
+            const val = (item.getAttribute('data-tema') || '').toLowerCase();
+            if (!query || val.includes(query)) {
+                item.style.display = '';
+                visibleCount++;
+            } else {
+                item.style.display = 'none';
+            }
+        });
+        return visibleCount;
+    }
+
+    function openMenu() {
+        const count = filterItems();
+        if (count > 0 || items.length === 0) {
+            menu.classList.remove('hidden');
+            if (caret) caret.classList.add('rotate-180');
+        }
+    }
+
+    function closeMenu() {
+        menu.classList.add('hidden');
+        if (caret) caret.classList.remove('rotate-180');
+    }
+
+    function toggleMenu() {
+        if (menu.classList.contains('hidden')) {
+            openMenu();
+        } else {
+            closeMenu();
+        }
+    }
+
+    input.addEventListener('input', () => {
+        openMenu();
+    });
+
+    input.addEventListener('focus', () => {
+        openMenu();
+    });
+
+    toggleBtn?.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleMenu();
+    });
+
+    items.forEach(item => {
+        item.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const val = item.getAttribute('data-tema') || '';
+            input.value = val;
+            closeMenu();
+            input.focus();
+        });
+    });
+
+    document.addEventListener('click', (e) => {
+        if (wrapper && !wrapper.contains(e.target)) {
+            closeMenu();
+        }
+    });
+
+    input.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closeMenu();
+        }
+    });
+})();
 </script>
 
 @endsection

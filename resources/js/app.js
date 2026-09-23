@@ -25,17 +25,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Sidebar Mobile Toggle ---
     const sidebarToggle  = document.getElementById('sidebarToggle');
-    const sidebar        = document.getElementById('sidebar');
     const sidebarOverlay = document.getElementById('sidebarOverlay');
 
-    if (sidebarToggle && sidebar) {
-        sidebarToggle.addEventListener('click', () => {
-            sidebar.classList.toggle('open');
-            sidebarOverlay?.classList.toggle('hidden');
+    if (sidebarToggle && !sidebarToggle.hasAttribute('onclick')) {
+        sidebarToggle.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (typeof window.toggleSidebarMobile === 'function') {
+                window.toggleSidebarMobile();
+            }
         });
-        sidebarOverlay?.addEventListener('click', () => {
-            sidebar.classList.remove('open');
-            sidebarOverlay.classList.add('hidden');
+    }
+
+    if (sidebarOverlay) {
+        sidebarOverlay.addEventListener('click', () => {
+            if (typeof window.toggleSidebarMobile === 'function') {
+                window.toggleSidebarMobile(false);
+            }
         });
     }
 
@@ -80,6 +85,19 @@ document.addEventListener('DOMContentLoaded', () => {
     // =============================================
     if (document.getElementById('quizWrapper')) {
         QuizEngine.init();
+    }
+
+    // =============================================
+    //  OPERATOR: OMR Workbench (lazy — hanya di Meja Kerja)
+    // =============================================
+    if (document.getElementById('btnOmrCamera')) {
+        const kontrol = document.getElementById('kontrolSesi');
+        const eventId = kontrol?.dataset.eventId || null;
+        if (eventId) {
+            import('./modules/OmrWorkbench.js')
+                .then(m => m.default.init({ omrSubmitUrl: `/operator/kegiatan/${eventId}/omr-submit` }))
+                .catch(() => {});
+        }
     }
 
     // =============================================
@@ -236,39 +254,228 @@ function initBankSoalModal() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  JOIN PAGE — Kode Join Input Otomatis + QR
+//  JOIN PAGE — Kode Join Input Otomatis + Live QR Scanner
 // ─────────────────────────────────────────────────────────────────────────────
 function initJoinPage() {
-    // Auto focus & move antar input kode join
     const codeInputs = document.querySelectorAll('.join-code-char');
-    const hiddenInput = document.getElementById('kodeJoinHidden');
+    if (!codeInputs.length) return;
 
+    const hiddenInput   = document.getElementById('kodeJoinHidden');
+    const infoBox       = document.getElementById('eventInfoBox');
+    const infoNama      = document.getElementById('eventInfoNama');
+    const infoLok       = document.getElementById('eventInfoLokasi');
+    const kodeError     = document.getElementById('kodeError');
+    const kelompokLabel = document.getElementById('kelompokLabel');
+    const pesertaNama   = document.getElementById('pesertaNama');
+    let infoTimer = null;
+
+    function updateCharState(input) {
+        if (input.value && input.value.trim() !== '') {
+            input.classList.add('has-value');
+        } else {
+            input.classList.remove('has-value');
+        }
+    }
+
+    function syncHiddenInput() {
+        if (hiddenInput) {
+            hiddenInput.value = [...codeInputs].map(ci => ci.value.trim()).join('');
+        }
+    }
+
+    async function lookupEvent() {
+        const kode = [...codeInputs].map(ci => ci.value.trim()).join('');
+        if (kode.length < 6) {
+            infoBox?.classList.add('hidden');
+            kodeError?.classList.add('hidden');
+            return;
+        }
+        try {
+            const res = await fetch(`/join/info?kode=${encodeURIComponent(kode)}`, {
+                headers: { 'Accept': 'application/json' },
+            });
+            const json = await res.json();
+            if (json.found) {
+                if (infoNama) infoNama.textContent = json.nama_kegiatan;
+                if (infoLok)  infoLok.textContent = json.lokasi;
+                infoBox?.classList.remove('hidden');
+                kodeError?.classList.add('hidden');
+                if (kelompokLabel && json.kelompok_label) {
+                    kelompokLabel.textContent = json.kelompok_label;
+                }
+            } else {
+                infoBox?.classList.add('hidden');
+                kodeError?.classList.remove('hidden');
+            }
+        } catch (e) {
+            // offline / network error: fallback to server validation on submit
+        }
+    }
+
+    function scheduleLookup() {
+        clearTimeout(infoTimer);
+        infoTimer = setTimeout(lookupEvent, 300);
+    }
+
+    function setFullCode(code) {
+        const clean = (code || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6);
+        codeInputs.forEach((ci, idx) => {
+            ci.value = clean[idx] || '';
+            updateCharState(ci);
+        });
+        syncHiddenInput();
+        scheduleLookup();
+        if (clean.length >= 6) {
+            pesertaNama?.focus();
+        } else if (clean.length > 0) {
+            codeInputs[Math.min(clean.length, codeInputs.length - 1)].focus();
+        }
+    }
+
+    // Input keyboard navigation & auto-jump
     codeInputs.forEach((input, i) => {
+        updateCharState(input);
+
+        input.addEventListener('focus', () => {
+            input.select();
+        });
+
         input.addEventListener('input', () => {
             input.value = input.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
-            if (input.value && i < codeInputs.length - 1) codeInputs[i + 1].focus();
-            // Gabungkan ke hidden input
-            if (hiddenInput) hiddenInput.value = [...codeInputs].map(ci => ci.value).join('');
+            updateCharState(input);
+            syncHiddenInput();
+            scheduleLookup();
+
+            if (input.value && i < codeInputs.length - 1) {
+                codeInputs[i + 1].focus();
+            } else if (input.value && i === codeInputs.length - 1) {
+                // If last box is filled and all 6 are filled, focus nama
+                const fullCode = [...codeInputs].map(ci => ci.value).join('');
+                if (fullCode.length === 6 && pesertaNama && !pesertaNama.value) {
+                    setTimeout(() => pesertaNama?.focus(), 350);
+                }
+            }
         });
+
         input.addEventListener('keydown', (e) => {
-            if (e.key === 'Backspace' && !input.value && i > 0) codeInputs[i - 1].focus();
+            if (e.key === 'Backspace') {
+                if (!input.value && i > 0) {
+                    e.preventDefault();
+                    codeInputs[i - 1].value = '';
+                    updateCharState(codeInputs[i - 1]);
+                    codeInputs[i - 1].focus();
+                    syncHiddenInput();
+                    scheduleLookup();
+                } else if (input.value) {
+                    input.value = '';
+                    updateCharState(input);
+                    syncHiddenInput();
+                    scheduleLookup();
+                    e.preventDefault();
+                }
+            } else if (e.key === 'ArrowLeft' && i > 0) {
+                e.preventDefault();
+                codeInputs[i - 1].focus();
+            } else if (e.key === 'ArrowRight' && i < codeInputs.length - 1) {
+                e.preventDefault();
+                codeInputs[i + 1].focus();
+            }
         });
+
         input.addEventListener('paste', (e) => {
             e.preventDefault();
-            const paste = (e.clipboardData.getData('text') ?? '').toUpperCase().replace(/[^A-Z0-9]/g, '');
-            [...codeInputs].forEach((ci, idx) => { ci.value = paste[idx] ?? ''; });
-            if (hiddenInput) hiddenInput.value = paste.slice(0, 6);
-            codeInputs[Math.min(paste.length, codeInputs.length - 1)].focus();
+            const paste = (e.clipboardData.getData('text') ?? '');
+            setFullCode(paste);
         });
     });
 
-    // QR Scanner toggle
-    document.getElementById('btnScanQR')?.addEventListener('click', () => {
-        document.getElementById('qrScannerContainer')?.classList.remove('hidden');
-    });
-    document.getElementById('btnStopQR')?.addEventListener('click', () => {
-        document.getElementById('qrScannerContainer')?.classList.add('hidden');
-    });
+    // Check query params (?kode=...) on load or pre-filled hiddenInput
+    const urlParams = new URLSearchParams(window.location.search);
+    const paramKode = urlParams.get('kode') || hiddenInput?.value || '';
+    if (paramKode && paramKode.trim().length > 0) {
+        setFullCode(paramKode);
+    } else {
+        // Auto focus first input on desktop / non-touch if empty
+        if (window.innerWidth >= 768 && codeInputs[0]) {
+            codeInputs[0].focus();
+        }
+    }
+
+    // Live Camera QR Scanner
+    let qrStream = null;
+    let qrTimer = null;
+    const qrContainer = document.getElementById('qrScannerContainer');
+    const qrVideo     = document.getElementById('qrVideo');
+    const btnScanQR   = document.getElementById('btnScanQR');
+    const btnStopQR   = document.getElementById('btnStopQR');
+
+    async function startQRScanner() {
+        if (!navigator.mediaDevices?.getUserMedia) {
+            alert('Fitur pemindai kamera tidak didukung pada peramban ini.');
+            return;
+        }
+
+        try {
+            qrContainer?.classList.remove('hidden');
+            qrStream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
+            });
+
+            if (qrVideo) {
+                qrVideo.srcObject = qrStream;
+                await qrVideo.play();
+            }
+
+            // Real-time detection via native BarcodeDetector if available
+            if ('BarcodeDetector' in window) {
+                const detector = new BarcodeDetector({ formats: ['qr_code'] });
+                qrTimer = setInterval(async () => {
+                    if (!qrVideo || qrVideo.readyState < 2) return;
+                    try {
+                        const barcodes = await detector.detect(qrVideo);
+                        if (barcodes.length > 0) {
+                            const raw = barcodes[0].rawValue || '';
+                            let parsed = '';
+                            try {
+                                const u = new URL(raw);
+                                parsed = u.searchParams.get('kode') || '';
+                            } catch (_) {
+                                parsed = raw.trim();
+                            }
+                            parsed = parsed.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6);
+                            if (parsed.length === 6) {
+                                stopQRScanner();
+                                setFullCode(parsed);
+                            }
+                        }
+                    } catch (_) {}
+                }, 300);
+            }
+        } catch (err) {
+            console.warn('QR Scanner Error:', err);
+            stopQRScanner();
+            alert('Tidak dapat mengaktifkan kamera. Pastikan izin kamera telah disetujui.');
+        }
+    }
+
+    function stopQRScanner() {
+        if (qrTimer) {
+            clearInterval(qrTimer);
+            qrTimer = null;
+        }
+        if (qrStream) {
+            qrStream.getTracks().forEach(track => track.stop());
+            qrStream = null;
+        }
+        if (qrVideo) {
+            qrVideo.srcObject = null;
+        }
+        qrContainer?.classList.add('hidden');
+    }
+
+    btnScanQR?.addEventListener('click', startQRScanner);
+    btnStopQR?.addEventListener('click', stopQRScanner);
+    window.addEventListener('beforeunload', stopQRScanner);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -279,10 +486,12 @@ function initWaitingRoom() {
     if (!trigger) return;
 
     const pollUrl     = document.getElementById('waitingRoom')?.dataset.pollUrl;
+    const pollRoom    = document.getElementById('waitingRoom')?.dataset.room;
     const redirectUrl = trigger.dataset.redirectUrl;
 
     const poll = async () => {
-        const result = await ApiHelper.get(pollUrl);
+        const url = pollRoom ? `${pollUrl}?room=${encodeURIComponent(pollRoom)}` : pollUrl;
+        const result = await ApiHelper.get(url);
         if (!result?.error && result?.status_changed) {
             window.location.href = redirectUrl;
             return;

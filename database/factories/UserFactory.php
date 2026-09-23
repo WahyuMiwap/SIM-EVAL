@@ -30,7 +30,44 @@ class UserFactory extends Factory
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
+            'role' => 'operator',
+            'nip' => null,
+            'jabatan' => null,
+            'bidang_wilayah' => null,
+            'avatar' => null,
+            'is_active' => true,
         ];
+    }
+
+    public function superadmin(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'superadmin',
+            'is_active' => true,
+        ]);
+    }
+
+    public function operator(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'operator',
+            'is_active' => true,
+        ]);
+    }
+
+    public function magang(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'magang',
+            'is_active' => true,
+        ]);
+    }
+
+    public function inactive(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'is_active' => false,
+        ]);
     }
 
     /**

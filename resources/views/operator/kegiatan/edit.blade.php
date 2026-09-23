@@ -32,41 +32,120 @@
             @csrf
             @method('PUT')
 
-            {{-- Nama Kegiatan --}}
+            {{-- Banner kunci (bila tidak pristine) --}}
+            @if(!($policy['pristine'] ?? true))
+            <div class="kf-field kf-field--full">
+                <div class="rounded-xl border border-amber-200 bg-amber-50 px-3.5 py-2.5 text-xs text-amber-800 flex items-start gap-2">
+                    <svg class="w-4 h-4 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                    <span><strong>Sebagian field terkunci.</strong> {{ $policy['alasan'] ?? '' }} Nama &amp; catatan tetap bisa diubah.</span>
+                </div>
+            </div>
+            @endif
+
+            {{-- Nama Kegiatan (selalu editable) --}}
             <div class="kf-field kf-field--full">
                 <label class="kf-label" for="f_nama">Nama Kegiatan <span class="kf-required">*</span></label>
-                <input type="text" name="nama_kegiatan" id="f_nama" class="kf-input" value="{{ $kegiatan->nama_kegiatan }}" required>
+                <input type="text" name="nama_kegiatan" id="f_nama" class="kf-input" value="{{ old('nama_kegiatan', $kegiatan->nama_kegiatan) }}" required>
             </div>
 
-            {{-- Lokasi --}}
+            {{-- Lokasi: combobox bila jadwal terbuka, statis bila terkunci --}}
             <div class="kf-field">
-                <label class="kf-label" for="f_lokasi">Lokasi Kegiatan</label>
-                <select name="lokasi_id" id="f_lokasi" class="kf-input">
-                    <option value="">— Pilih lokasi —</option>
-                    @foreach($lokasiList ?? [] as $lok)
-                        <option value="{{ $lok->id }}" {{ ($kegiatan->lokasi_id ?? null) == $lok->id ? 'selected' : '' }}>{{ $lok->nama_lokasi }}</option>
-                    @endforeach
-                </select>
+                <label class="kf-label" for="lokasi_search_edit">Lokasi Kegiatan</label>
+                @php
+                    $selId = old('lokasi_id', $kegiatan->lokasi_id ?? null);
+                    $selLabel = '';
+                    foreach (($lokasiList ?? []) as $lok) {
+                        if ((string) $lok->id === (string) $selId) {
+                            $selLabel = $lok->nama_lokasi . ' (' . ucfirst($lok->jenis_sasaran ?? 'sekolah') . ')';
+                            break;
+                        }
+                    }
+                    if (!$selLabel && !empty($kegiatan->lokasi->nama_lokasi)) {
+                        $selLabel = $kegiatan->lokasi->nama_lokasi . ' (' . ucfirst($kegiatan->lokasi->jenis_sasaran ?? 'sekolah') . ')';
+                    }
+                    $lokasiInitialEdit = collect($lokasiList ?? [])->take(100)->map(fn($l) => [
+                        'id' => $l->id,
+                        'nama_lokasi' => $l->nama_lokasi,
+                        'jenis_sasaran' => $l->jenis_sasaran ?? 'sekolah',
+                        'kecamatan' => $l->kecamatan ?? null,
+                    ])->values()->all();
+                @endphp
+                @if(($policy['jadwal_terkunci'] ?? false))
+                    <div class="kf-input" style="background:var(--bg-alt);color:var(--text-muted);display:flex;align-items:center;gap:.5rem;">
+                        <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                        <span class="truncate">{{ $selLabel ?: '—' }}</span>
+                    </div>
+                @else
+                    <x-lokasi-combobox name="lokasi_id" inputId="lokasi_search_edit"
+                        :selectedId="$selId" :selectedLabel="$selLabel"
+                        :initial="$lokasiInitialEdit" :required="false" />
+                @endif
             </div>
 
             {{-- Tanggal --}}
             <div class="kf-field">
                 <label class="kf-label" for="f_tanggal">Tanggal Pelaksanaan</label>
-                <input type="date" name="tanggal" id="f_tanggal" class="kf-input" value="{{ $kegiatan->tanggal ?? '' }}">
+                <input type="date" name="tanggal" id="f_tanggal" class="kf-input"
+                       value="{{ old('tanggal', $kegiatan->tanggal ?? '') }}"
+                       @if(($policy['jadwal_terkunci'] ?? false)) disabled style="background:var(--bg-alt);color:var(--text-muted);" @endif>
             </div>
-
-
 
             {{-- Durasi --}}
             <div class="kf-field">
-                <label class="kf-label" for="f_durasi">Durasi Sesi (menit)</label>
-                <input type="number" name="durasi_menit" id="f_durasi" class="kf-input" value="{{ $kegiatan->durasi_menit ?? 30 }}" min="5" max="180">
+                <label class="kf-label" for="f_durasi">Durasi Sesi</label>
+                <div class="flex items-center gap-2.5">
+                    <div style="width: 140px;">
+                        <input type="number" name="durasi_menit" id="f_durasi" class="kf-input"
+                               value="{{ old('durasi_menit', $kegiatan->durasi_menit ?? 30) }}" min="5" max="180"
+                               @if(($policy['jadwal_terkunci'] ?? false)) disabled style="background:var(--bg-alt);color:var(--text-muted);" @endif>
+                    </div>
+                    <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 select-none">Menit</span>
+                </div>
             </div>
 
-            {{-- Catatan --}}
+            {{-- Paket soal: full editor bila pristine, info read-only bila terkunci --}}
+            @if(($policy['boleh_ubah_paket'] ?? false))
+            <div class="kf-field kf-field--full">
+                @php
+                    $psInput = old('paket_sama', (($kegiatan->pretest_package_id ?? null) == ($kegiatan->posttest_package_id ?? null)) ? '1' : '0');
+                    $psBool = $psInput === '1' || $psInput === 1 || $psInput === true;
+                @endphp
+                @include('operator.kegiatan._paket-field', [
+                    'paketList'    => $paketList ?? [],
+                    'paketSama'    => $psBool,
+                    'paketUtamaId' => old('paket_utama', old('pretest_package_id', $kegiatan->pretest_package_id ?? 1)),
+                    'pretestId'    => old('pretest_package_id', $kegiatan->pretest_package_id ?? 1),
+                    'posttestId'   => old('posttest_package_id', $kegiatan->posttest_package_id ?? 2),
+                ])
+            </div>
+            @else
+            <div class="kf-field kf-field--full">
+                <span class="kf-label">Paket Soal (terkunci)</span>
+                @php
+                    $preInfo = null; $postInfo = null;
+                    foreach (($paketList ?? []) as $p) {
+                        if ((string) ($p->id ?? '') === (string) ($kegiatan->pretest_package_id ?? '')) $preInfo = $p;
+                        if ((string) ($p->id ?? '') === (string) ($kegiatan->posttest_package_id ?? '')) $postInfo = $p;
+                    }
+                    $samaPaket = ($kegiatan->pretest_package_id ?? null) == ($kegiatan->posttest_package_id ?? null);
+                @endphp
+                <div class="kf-input" style="background:var(--bg-alt);display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;">
+                    <svg class="w-3.5 h-3.5 flex-shrink-0" style="color:var(--text-muted)" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                    <span style="font-size:.8rem;color:var(--text-secondary);">
+                        Pre: <strong>{{ $preInfo->nama_paket ?? '—' }}</strong> ({{ $preInfo->soal_count ?? '?' }} soal)
+                        &nbsp;•&nbsp; Post: <strong>{{ $postInfo->nama_paket ?? '—' }}</strong> ({{ $postInfo->soal_count ?? '?' }} soal)
+                    </span>
+                    @if($samaPaket) <span class="badge badge-blue">Sama</span>
+                    @else <span class="badge badge-yellow">Beda</span>
+                    @endif
+                </div>
+            </div>
+            @endif
+
+            {{-- Catatan (selalu editable) --}}
             <div class="kf-field kf-field--full">
                 <label class="kf-label" for="f_catatan">Catatan (opsional)</label>
-                <textarea name="catatan" id="f_catatan" class="kf-input kf-textarea" rows="3">{{ $kegiatan->catatan ?? '' }}</textarea>
+                <textarea name="catatan" id="f_catatan" class="kf-input kf-textarea" rows="3">{{ old('catatan', $kegiatan->catatan ?? '') }}</textarea>
             </div>
 
             {{-- Actions --}}
@@ -100,6 +179,10 @@
                 <span class="kf-info-key">Total Peserta</span>
                 <span class="kf-info-val">{{ $kegiatan->peserta_count ?? 0 }} orang</span>
             </div>
+            <a href="{{ route('operator.kegiatan.detail', $kegiatan->id) }}" class="btn btn-primary btn-sm w-full mt-3" style="display:flex;align-items:center;justify-content:center;gap:.4rem;">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                Buka Detail Kegiatan
+            </a>
         </div>
         <div class="glass kf-info-card mt-4" style="border:1.5px solid rgba(239,68,68,.15);">
             <p class="kf-info-title" style="color:var(--danger)">Perhatian</p>
@@ -137,5 +220,8 @@
 .kf-info-val{font-size:.8125rem;font-weight:600;color:var(--text-primary)}
 .kf-info-code{font-family:var(--font-display);font-size:1rem;font-weight:800;color:var(--primary);letter-spacing:.1em}
 </style>
+
+{{-- Modal Quick-Add Lokasi (dipicu dari combobox) --}}
+@include('components.lokasi-quickadd-modal')
 
 @endsection

@@ -1,12 +1,14 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\KegiatanController;
 use App\Http\Controllers\LokasiController;
 use App\Http\Controllers\BankSoalController;
 use App\Http\Controllers\StafController;
 use App\Http\Controllers\ParticipantController;
+use App\Http\Controllers\SettingController;
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  ROOT — redirect ke halaman dashboard operator
@@ -14,12 +16,20 @@ use App\Http\Controllers\ParticipantController;
 Route::get('/', fn() => redirect()->route('operator.dashboard'));
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  OPERATOR / ADMIN PANEL
+//  AUTH — login staf (email + password), daftar akun internal
 // ─────────────────────────────────────────────────────────────────────────────
-Route::prefix('operator')->name('operator.')->group(function () {
+Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1');
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  OPERATOR / ADMIN PANEL (wajib login; peran dibatasi per rute)
+// ─────────────────────────────────────────────────────────────────────────────
+Route::prefix('operator')->name('operator.')->middleware('auth')->group(function () {
 
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/data', [DashboardController::class, 'data'])->name('dashboard.data');
 
     // Profil Saya
     Route::get('/profil', fn() => view('operator.profil.index'))->name('profile');
@@ -32,23 +42,27 @@ Route::prefix('operator')->name('operator.')->group(function () {
         Route::get('/{id}', [KegiatanController::class, 'detail'])->name('detail');
         Route::get('/{id}/edit', [KegiatanController::class, 'edit'])->name('edit');
         Route::put('/{id}', [KegiatanController::class, 'update'])->name('update');
-        Route::patch('/{id}/status', [KegiatanController::class, 'updateStatus'])->name('status');
-        Route::delete('/{id}', [KegiatanController::class, 'destroy'])->name('destroy');
-        Route::get('/{id}/export', [KegiatanController::class, 'exportDiktari'])->name('export');
+        Route::patch('/{id}/status', [KegiatanController::class, 'updateStatus'])->name('status')->middleware('role:superadmin,operator');
+        Route::patch('/{id}/fase', [KegiatanController::class, 'updateFase'])->name('fase')->middleware('role:superadmin,operator');
+        Route::delete('/{id}', [KegiatanController::class, 'destroy'])->name('destroy')->middleware('role:superadmin,operator');
+        Route::get('/{id}/export', [KegiatanController::class, 'exportLaporan'])->name('export');
 
         // Meja Kerja Rekap & OMR
         Route::post('/{id}/peserta', [KegiatanController::class, 'saveParticipantRow'])->name('peserta.save');
+        Route::get('/{id}/peserta-digital', [KegiatanController::class, 'pesertaDigital'])->name('peserta.digital');
         Route::delete('/{id}/peserta/{pesertaId}', [KegiatanController::class, 'deleteParticipantRow'])->name('peserta.destroy');
         Route::post('/{id}/omr-scan', [KegiatanController::class, 'omrScanRecord'])->name('omr');
+        Route::post('/{id}/omr-submit', [KegiatanController::class, 'omrSubmit'])->name('omr.submit');
     });
 
     // ── Master Lokasi Binaan ──────────────────────────────
     Route::prefix('lokasi')->name('lokasi.')->group(function () {
         Route::get('/', [LokasiController::class, 'index'])->name('index');
+        Route::get('/search', [LokasiController::class, 'search'])->name('search');
         Route::post('/', [LokasiController::class, 'store'])->name('store');
         Route::get('/{id}/edit', [LokasiController::class, 'edit'])->name('edit');
         Route::put('/{id}', [LokasiController::class, 'update'])->name('update');
-        Route::delete('/{id}', [LokasiController::class, 'destroy'])->name('destroy');
+        Route::delete('/{id}', [LokasiController::class, 'destroy'])->name('destroy')->middleware('role:superadmin,operator');
     });
 
     // ── Master Bank Soal & Paket ─────────────────────────
@@ -59,22 +73,30 @@ Route::prefix('operator')->name('operator.')->group(function () {
         Route::get('/{id}', [BankSoalController::class, 'detail'])->name('detail');
         Route::get('/{id}/edit', [BankSoalController::class, 'edit'])->name('edit');
         Route::put('/{id}', [BankSoalController::class, 'update'])->name('update');
-        Route::delete('/{id}', [BankSoalController::class, 'destroy'])->name('destroy');
+        Route::delete('/{id}', [BankSoalController::class, 'destroy'])->name('destroy')->middleware('role:superadmin,operator');
 
         // Butir Soal AJAX & Form
         Route::get('/{id}/soal', [BankSoalController::class, 'soal'])->name('soal');
         Route::post('/{id}/soal', [BankSoalController::class, 'storeQuestion'])->name('soal.store');
-        Route::delete('/{id}/soal/{soalId}', [BankSoalController::class, 'destroyQuestion'])->name('soal.destroy');
+        Route::delete('/{id}/soal/{soalId}', [BankSoalController::class, 'destroyQuestion'])->name('soal.destroy')->middleware('role:superadmin,operator');
     });
 
-    // ── Tata Kelola Akun Staf & Magang (Superadmin / Staf) ──
-    Route::prefix('staf')->name('staf.')->group(function () {
+    // ── Tata Kelola Akun (Superadmin saja — disembunyikan dari staf/magang) ──
+    Route::prefix('staf')->name('staf.')->middleware('role:superadmin')->group(function () {
         Route::get('/', [StafController::class, 'index'])->name('index');
         Route::post('/', [StafController::class, 'store'])->name('store');
+        Route::get('/{id}/edit', [StafController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [StafController::class, 'update'])->name('update');
         Route::post('/{id}/reset-password', [StafController::class, 'resetPassword'])->name('reset-password');
         Route::patch('/{id}/toggle-active', [StafController::class, 'toggleActive'])->name('toggle-active');
         Route::delete('/{id}', [StafController::class, 'destroy'])->name('destroy');
-        Route::post('/switch-role/{role}', [StafController::class, 'switchRole'])->name('switch-role');
+        Route::get('/aktivitas', [StafController::class, 'activity'])->name('activity');
+    });
+
+    // ── Kustomisasi Tampilan (Superadmin saja) ──
+    Route::prefix('pengaturan')->name('setting.')->middleware('role:superadmin')->group(function () {
+        Route::get('/tampilan', [SettingController::class, 'edit'])->name('edit');
+        Route::put('/tampilan', [SettingController::class, 'update'])->name('update');
     });
 });
 
@@ -83,17 +105,11 @@ Route::prefix('operator')->name('operator.')->group(function () {
 // ─────────────────────────────────────────────────────────────────────────────
 Route::prefix('')->name('participant.')->group(function () {
     Route::get('/join', [ParticipantController::class, 'welcome'])->name('welcome');
+    Route::get('/join/info', [ParticipantController::class, 'joinInfo'])->name('join-info');
     Route::post('/join', [ParticipantController::class, 'join'])->name('join');
-    Route::get('/waiting/{room}/{id}', [ParticipantController::class, 'waiting'])->name('waiting');
-    Route::get('/waiting/status/{id}', [ParticipantController::class, 'status'])->name('status');
-    Route::get('/quiz/{type}/{session}', [ParticipantController::class, 'quiz'])->name('quiz');
+    Route::get('/waiting/status/{id?}', [ParticipantController::class, 'status'])->name('status');
+    Route::get('/waiting/{room}/{id?}', [ParticipantController::class, 'waiting'])
+        ->where('room', 'pretest|posttest')->name('waiting');
+    Route::get('/quiz/{type}/{session?}', [ParticipantController::class, 'quiz'])->name('quiz');
     Route::post('/quiz/submit', [ParticipantController::class, 'submit'])->name('submit');
 });
-
-// ─────────────────────────────────────────────────────────────────────────────
-//  LOGOUT
-// ─────────────────────────────────────────────────────────────────────────────
-Route::post('/logout', function () {
-    session()->forget('current_role');
-    return redirect()->route('participant.welcome');
-})->name('logout');

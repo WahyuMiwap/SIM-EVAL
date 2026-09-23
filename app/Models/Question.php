@@ -26,7 +26,11 @@ class Question extends Model
         return $this->belongsTo(QuestionPackage::class, 'question_package_id');
     }
 
-    public function getOptionsAttribute(): array
+    /**
+     * Akses $question->opsi => ['A'..'D'].
+     * (Nama diawali getOpsi agar dikenali Eloquent sebagai mutator atribut `opsi`.)
+     */
+    public function getOpsiAttribute(): array
     {
         return [
             'A' => $this->opsi_a,
@@ -34,5 +38,11 @@ class Question extends Model
             'C' => $this->opsi_c,
             'D' => $this->opsi_d,
         ];
+    }
+
+    /** Alias kompatibilitas lama. */
+    public function getOptionsAttribute(): array
+    {
+        return $this->getOpsiAttribute();
     }
 }

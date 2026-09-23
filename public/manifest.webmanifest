@@ -1,0 +1,18 @@
+{
+  "name": "SIM-EVAL P2M — Kuis Peserta",
+  "short_name": "SIM-EVAL",
+  "description": "Portal kuis Pre-Test & Post-Test Seksi P2M BNN Kota Surabaya",
+  "start_url": "/join",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f172a",
+  "theme_color": "#4361EE",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "48x48",
+      "type": "image/x-icon"
+    }
+  ]
+}

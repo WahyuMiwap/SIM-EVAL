@@ -3,10 +3,17 @@
     Mencari seluruh fitur, navigasi, data kegiatan, paket bank soal, lokasi binaan, dan aksi cepat.
 --}}
 
+{{-- Mobile: Icon-only search trigger (visible ≤1024px) --}}
+<button type="button" class="btn btn-secondary btn-icon mobile-search-trigger" id="mobileSearchTrigger" onclick="openMobileSearch()" title="Cari" aria-label="Buka pencarian">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+    </svg>
+</button>
+
 <div class="global-search-wrapper" id="globalSearchWrapper">
     {{-- Search Input Box --}}
     <div class="global-search-input-box" id="globalSearchInputBox">
-        <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg class="search-icon" width="16" height="16" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
         </svg>
 
@@ -20,7 +27,12 @@
             aria-label="Cari fitur atau data"
         />
 
-
+        {{-- Close button for mobile overlay mode --}}
+        <button type="button" class="mobile-search-close" id="mobileSearchClose" onclick="closeMobileSearch()" title="Tutup pencarian" aria-label="Tutup pencarian">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+        </button>
     </div>
 
     {{-- Dropdown Results Panel --}}
@@ -352,24 +364,112 @@ mark.search-highlight {
     color: var(--text-secondary);
 }
 
+.global-search-dropdown.hidden {
+    display: none !important;
+}
+
+/* ── Mobile Search Trigger (icon-only button) ──────────────────── */
+.mobile-search-trigger {
+    display: none; /* Hidden on desktop */
+}
+
+/* ── Mobile Search Close Button ────────────────────────────────── */
+.mobile-search-close {
+    display: none; /* Hidden on desktop */
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: var(--r-full);
+    background: var(--bg-alt);
+    color: var(--text-muted);
+    border: none;
+    cursor: pointer;
+    flex-shrink: 0;
+    margin-left: 0.375rem;
+    transition: background 0.15s, color 0.15s;
+}
+.mobile-search-close:hover {
+    background: var(--border);
+    color: var(--text-primary);
+}
+
 /* Responsive adjustment */
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
+    /* On mobile/tablet, topbar-search-col acts as compact action button container */
+    .topbar-search-col {
+        display: flex !important;
+        flex: 0 0 auto !important;
+        justify-content: flex-end !important;
+        align-items: center !important;
+        padding: 0 !important;
+        margin-left: auto !important;
+    }
+
+    /* Show icon-only search trigger (magnifying glass) */
+    .mobile-search-trigger {
+        display: inline-flex !important;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Hide the full search bar by default on mobile */
     .global-search-wrapper {
-        max-width: 100%;
+        display: none !important;
     }
-    .global-search-dropdown {
-        position: fixed;
-        top: 65px;
-        left: 12px;
-        right: 12px;
-        width: auto;
-        min-width: 0;
-        max-width: none;
-        transform: none;
+
+    /* When mobile search is active, show full-width overlay bar */
+    .topbar-search-col.mobile-search-active {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        height: 60px !important;
+        z-index: 105 !important;
+        background: var(--surface) !important;
+        border-bottom: 1px solid var(--border) !important;
+        padding: 0 0.875rem !important;
+        display: flex !important;
+        align-items: center !important;
+        margin: 0 !important;
+        box-shadow: var(--shadow-md) !important;
+        animation: mobileSearchSlideIn 0.2s ease-out !important;
     }
+
+    .topbar-search-col.mobile-search-active .mobile-search-trigger {
+        display: none !important;
+    }
+
+    .topbar-search-col.mobile-search-active .global-search-wrapper {
+        display: block !important;
+        max-width: 100% !important;
+        width: 100% !important;
+    }
+
+    .topbar-search-col.mobile-search-active .mobile-search-close {
+        display: inline-flex !important;
+    }
+
+    .topbar-search-col.mobile-search-active .global-search-dropdown {
+        position: fixed !important;
+        top: 61px !important;
+        left: 8px !important;
+        right: 8px !important;
+        width: auto !important;
+        min-width: 0 !important;
+        max-width: none !important;
+        transform: none !important;
+        max-height: calc(100vh - 72px) !important;
+    }
+
     .search-shortcut-badge {
-        display: none;
+        display: none !important;
     }
+}
+
+@keyframes mobileSearchSlideIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
 </style>
 
@@ -679,9 +779,46 @@ document.addEventListener('DOMContentLoaded', function () {
     const dropdown  = document.getElementById('globalSearchDropdown');
     const list      = document.getElementById('searchResultsList');
     const countEl   = document.getElementById('searchResultCount');
+    const searchCol = document.querySelector('.topbar-search-col');
+    const mobileSearchTrigger = document.getElementById('mobileSearchTrigger');
+    const mobileSearchClose   = document.getElementById('mobileSearchClose');
 
     let currentMatches = [];
     let activeIndex    = -1;
+
+    // ── Mobile Search Overlay Toggle ────────────────────────────────
+    // ── Mobile Search Overlay Toggle ────────────────────────────────
+    window.openMobileSearch = function () {
+        if (searchCol) {
+            searchCol.classList.add('mobile-search-active');
+        }
+        openSearch();
+        setTimeout(() => {
+            if (input) input.focus();
+        }, 50);
+    };
+
+    window.closeMobileSearch = function () {
+        closeSearch();
+        if (searchCol) {
+            searchCol.classList.remove('mobile-search-active');
+        }
+        if (input) input.value = '';
+    };
+
+    if (mobileSearchTrigger) {
+        mobileSearchTrigger.addEventListener('click', function (e) {
+            e.stopPropagation();
+            window.openMobileSearch();
+        });
+    }
+
+    if (mobileSearchClose) {
+        mobileSearchClose.addEventListener('click', function (e) {
+            e.stopPropagation();
+            window.closeMobileSearch();
+        });
+    }
 
     // ── Helper: Escape regex string ──────────────────────────────────
     function escapeRegex(str) {
@@ -847,6 +984,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function closeSearch() {
         dropdown.classList.add('hidden');
+        // Also close mobile overlay if active
+        if (searchCol) {
+            searchCol.classList.remove('mobile-search-active');
+        }
     }
 
     // ── Event Listeners ──────────────────────────────────────────────
@@ -860,6 +1001,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     document.addEventListener('click', (e) => {
+        if (mobileSearchTrigger && mobileSearchTrigger.contains(e.target)) return;
         if (!wrapper.contains(e.target) && !dropdown.classList.contains('hidden')) {
             closeSearch();
         }

@@ -1,0 +1,587 @@
+/* =============================================
+   COMPONENTS.CSS - Centralized Component Styles
+   ============================================= */
+
+/* =============================================
+   BUTTON COMPONENTS
+   ============================================= */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    border-radius: var(--r-md);
+    border: 1.5px solid transparent;
+    outline: none;
+    transition: all 0.18s ease;
+    white-space: nowrap;
+    font-family: var(--font-sans);
+}
+.btn:active { transform: scale(0.97); }
+.btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+.btn-primary {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+    box-shadow: 0 1px 2px rgba(67,97,238,0.25);
+}
+.btn-primary:hover {
+    background: var(--primary-dark);
+    border-color: var(--primary-dark);
+    box-shadow: 0 4px 12px rgba(67,97,238,0.30);
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background: var(--surface);
+    color: var(--text-secondary);
+    border-color: var(--border);
+    box-shadow: var(--shadow-xs);
+}
+.btn-secondary:hover {
+    background: var(--bg-alt);
+    border-color: var(--border-strong);
+    color: var(--text-primary);
+}
+
+.btn-danger {
+    background: var(--danger);
+    color: #fff;
+    border-color: var(--danger);
+}
+.btn-danger:hover {
+    background: #DC2626;
+    border-color: #DC2626;
+    box-shadow: 0 4px 12px rgba(239,68,68,0.25);
+    transform: translateY(-1px);
+}
+
+.btn-success {
+    background: var(--success);
+    color: #fff;
+    border-color: var(--success);
+}
+.btn-success:hover {
+    background: #16A34A;
+    border-color: #16A34A;
+    box-shadow: 0 4px 12px rgba(34,197,94,0.25);
+    transform: translateY(-1px);
+}
+
+.btn-ghost {
+    background: transparent;
+    color: var(--primary);
+    border-color: transparent;
+}
+.btn-ghost:hover {
+    background: var(--primary-light);
+    border-color: transparent;
+}
+
+.btn-sm  { padding: 0.375rem 0.75rem; font-size: 0.8125rem; border-radius: var(--r-sm); }
+.btn-md  { padding: 0.5625rem 1.125rem; font-size: 0.875rem; border-radius: var(--r-md); }
+.btn-lg  { padding: 0.75rem 1.75rem; font-size: 1rem; border-radius: var(--r-md); }
+.btn-icon { padding: 0.5rem; width: 2.125rem; height: 2.125rem; border-radius: var(--r-sm); flex-shrink: 0; }
+
+/* =============================================
+   BADGE COMPONENTS
+   ============================================= */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0 !important;
+    background: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+}
+
+.badge-blue   { background: transparent !important; color: var(--primary) !important; border: none !important; }
+.badge-green  { background: transparent !important; color: #16a34a !important; border: none !important; }
+.badge-yellow { background: transparent !important; color: #d97706 !important; border: none !important; }
+.badge-red    { background: transparent !important; color: #dc2626 !important; border: none !important; }
+.badge-gray   { background: transparent !important; color: var(--text-muted) !important; border: none !important; }
+.badge-cyan   { background: transparent !important; color: #0891b2 !important; border: none !important; }
+.badge-purple { background: transparent !important; color: #7c3aed !important; border: none !important; }
+
+/* =============================================
+   CARD COMPONENTS
+   ============================================= */
+.glass,
+.glass-solid {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+.card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-xl);
+    box-shadow: var(--shadow-sm);
+}
+
+/* =============================================
+   FORM INPUT COMPONENTS
+   ============================================= */
+.form-input {
+    width: 100%;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--r-md);
+    padding: 0.625rem 0.875rem;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    font-family: var(--font-sans);
+    transition: border-color 0.18s ease, box-shadow 0.18s ease;
+    outline: none;
+    appearance: none;
+}
+.form-input::placeholder { color: var(--text-xmuted); }
+.form-input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(67,97,238,0.10);
+}
+.form-input:disabled {
+    background: var(--bg-alt);
+    color: var(--text-muted);
+    cursor: not-allowed;
+}
+
+.form-label {
+    display: block;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 0.375rem;
+    letter-spacing: -0.01em;
+}
+
+.form-group { margin-bottom: 1.125rem; }
+
+/* Select */
+select.form-input {
+    cursor: pointer;
+    padding-right: 2rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' viewBox='0 0 24 24'%3E%3Cpath stroke='%236B7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.625rem center;
+}
+
+/* =============================================
+   TABLE COMPONENTS
+   ============================================= */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.data-table th {
+    padding: 0.75rem 1.125rem;
+    text-align: left;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    background: var(--bg-alt);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+}
+.data-table th:first-child { border-radius: var(--r-sm) 0 0 0; }
+.data-table th:last-child  { border-radius: 0 var(--r-sm) 0 0; }
+
+.data-table td {
+    padding: 0.875rem 1.125rem;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+}
+.data-table tbody tr { transition: background 0.12s ease; }
+.data-table tbody tr:hover { background: var(--bg); }
+.data-table tbody tr:last-child td { border-bottom: none; }
+
+/* =============================================
+   MODAL COMPONENTS
+   ============================================= */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(17,24,39,0.45);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+    backdrop-filter: blur(2px);
+}
+.modal-overlay.active { opacity: 1; visibility: visible; }
+
+.modal-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-xl);
+    padding: 1.75rem;
+    width: 100%;
+    max-width: 520px;
+    box-shadow: var(--shadow-modal);
+    transform: translateY(12px) scale(0.98);
+    transition: transform 0.25s cubic-bezier(0.34,1.2,0.64,1);
+    max-height: 90vh;
+    overflow-y: auto;
+}
+.modal-overlay.active .modal-box { transform: translateY(0) scale(1); }
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.25rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+}
+.modal-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    font-family: var(--font-display);
+}
+
+/* =============================================
+   DROPDOWN / POPOVER COMPONENTS
+   ============================================= */
+.dropdown-menu {
+    position: absolute;
+    z-index: 50;
+    min-width: 160px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    box-shadow: var(--shadow-lg);
+    padding: 0.5rem 0;
+}
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    transition: background 0.1s ease;
+}
+.dropdown-item:hover { background: var(--bg); color: var(--text-primary); }
+
+/* Popover (Month/Year Picker) */
+.popover-dropdown {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 8px);
+    z-index: 100;
+    width: 280px;
+}
+.popover-dropdown.hidden { display: none !important; }
+.popover-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-xl);
+    padding: 1rem;
+    box-shadow: 0 12px 36px -4px rgba(17,24,39,0.14), 0 4px 12px -2px rgba(17,24,39,0.06);
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+}
+.popover-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 0.65rem;
+    border-bottom: 1px solid var(--border);
+}
+.popover-title {
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+.popover-year-nav { display: flex; align-items: center; gap: 4px; }
+.popover-nav-btn {
+    width: 26px; height: 26px;
+    border-radius: var(--r-sm);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-muted);
+    background: transparent;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+.popover-nav-btn:hover { color: var(--text-primary); background: var(--surface-2); border-color: var(--border-strong); }
+.popover-year-input {
+    width: 58px; height: 26px;
+    font-family: var(--font-display);
+    font-size: 0.8125rem; font-weight: 700;
+    color: var(--primary);
+    background: var(--primary-light);
+    border: 1.5px solid transparent;
+    border-radius: var(--r-sm);
+    text-align: center; padding: 0 4px;
+    outline: none; -moz-appearance: textfield;
+}
+.popover-year-input::-webkit-outer-spin-button,
+.popover-year-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.popover-year-input:hover { border-color: var(--primary); }
+.popover-year-input:focus { border-color: var(--primary); background: #ffffff; box-shadow: 0 0 0 2.5px rgba(67,97,238,0.2); }
+
+.popover-month-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 6px !important;
+}
+.pop-month-btn {
+    font-family: var(--font-sans);
+    padding: 0.45rem 0.25rem;
+    border-radius: var(--r-md);
+    font-size: 0.75rem; font-weight: 500;
+    color: var(--text-secondary);
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    cursor: pointer; text-align: center;
+    transition: all 0.15s cubic-bezier(0.4,0,0.2,1);
+    box-sizing: border-box;
+}
+.pop-month-btn:hover { background: var(--primary-light); color: var(--primary); border-color: var(--primary-light); }
+.pop-month-btn.active { background: var(--primary) !important; color: #fff !important; font-weight: 700 !important; border-color: var(--primary) !important; box-shadow: 0 2px 6px rgba(67,97,238,0.35); }
+.popover-footer {
+    display: flex; align-items: center; justify-content: space-between;
+    padding-top: 0.65rem; border-top: 1px solid var(--border);
+    font-size: 0.6875rem; font-family: var(--font-sans);
+}
+.popover-foot-action { color: var(--text-muted); font-weight: 600; background: none; border: none; cursor: pointer; transition: color 0.15s ease; }
+.popover-foot-action:hover { color: var(--primary); }
+.popover-foot-close { color: var(--text-muted); font-weight: 500; background: none; border: none; cursor: pointer; transition: color 0.15s ease; }
+.popover-foot-close:hover { color: var(--text-primary); }
+
+/* =============================================
+   PAGINATION COMPONENTS
+   ============================================= */
+.pagination { display: flex; align-items: center; gap: 0.25rem; }
+.page-btn {
+    display: flex; align-items: center; justify-content: center;
+    width: 34px; height: 34px;
+    border-radius: var(--r-sm);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    font-size: 0.8125rem; font-weight: 600;
+    cursor: pointer; transition: all 0.15s ease; text-decoration: none;
+}
+.page-btn:hover { background: var(--primary-light); border-color: var(--primary); color: var(--primary); }
+.page-btn.active { background: var(--primary); border-color: var(--primary); color: #fff; box-shadow: 0 2px 8px rgba(67,97,238,0.3); }
+
+/* =============================================
+   EMPTY STATE COMPONENTS
+   ============================================= */
+.empty-state {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 0.75rem; padding: 3rem 1rem; text-align: center;
+}
+.empty-icon {
+    width: 52px; height: 52px;
+    border-radius: var(--r-lg);
+    background: var(--bg-alt);
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+}
+
+/* =============================================
+   TOAST / NOTIFICATION COMPONENTS
+   ============================================= */
+@keyframes slide-in-right {
+    from { opacity: 0; transform: translateX(16px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+.animate-slide-in-right { animation: slide-in-right 0.3s ease both; }
+
+/* =============================================
+   STAT CHIP COMPONENTS
+   ============================================= */
+.stat-chip {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-xl);
+    padding: 1rem 1.25rem;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.stat-chip:hover { box-shadow: var(--shadow-md); border-color: var(--border-strong); }
+
+/* =============================================
+   TABS & FILTER PRESETS COMPONENTS (Soft Modern Pill Tabs)
+   ============================================= */
+.dash-filter-presets {
+    display: inline-flex;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.6rem;
+    padding: 4px;
+    gap: 4px;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+.dash-preset-btn {
+    font-family: var(--font-sans);
+    padding: 0.4rem 0.9rem;
+    border-radius: calc(0.6rem - 3px);
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+.dash-preset-btn:hover {
+    color: var(--text-primary);
+    background: rgba(0, 0, 0, 0.03);
+}
+.dash-preset-btn.active {
+    background: #ffffff;
+    color: var(--primary);
+    font-weight: 600;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.03);
+    border: none;
+}
+
+:is(.dark) .dash-filter-presets {
+    background: #1e293b;
+    border-color: #334155;
+}
+:is(.dark) .dash-preset-btn:hover {
+    color: #f8fafc;
+    background: rgba(255, 255, 255, 0.04);
+}
+:is(.dark) .dash-preset-btn.active {
+    background: #0f172a;
+    color: #38bdf8;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.method-tab {
+    border-bottom-width: 2px;
+}
+.method-tab.active { border-color: var(--primary); }
+
+/* =============================================
+   SCANNER VIEWPORT COMPONENTS
+   ============================================= */
+.scanner-viewport { position: relative; }
+.scanner-overlay {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    pointer-events: none;
+}
+.scanner-frame {
+    width: 80%; aspect-ratio: 3/4;
+    border: 2px solid rgba(67,97,238,0.8);
+    border-radius: var(--r-md);
+    box-shadow: 0 0 0 9999px rgba(0,0,0,0.4);
+    position: relative;
+}
+.scanner-frame::before,
+.scanner-frame::after {
+    content: ''; position: absolute; width: 20px; height: 20px;
+    border-color: var(--primary); border-style: solid;
+}
+.scanner-frame::before { top: -2px; left: -2px; border-width: 3px 0 0 3px; border-radius: 4px 0 0 0; }
+.scanner-frame::after  { bottom: -2px; right: -2px; border-width: 0 3px 3px 0; border-radius: 0 0 4px 0; }
+.scan-line {
+    position: absolute; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--primary), transparent);
+    animation: scan-move 2.5s ease-in-out infinite;
+}
+@keyframes scan-move {
+    0%  { top: 0; opacity: 1; }
+    90% { top: 100%; opacity: 1; }
+    100%{ top: 100%; opacity: 0; }
+}
+
+/* Reticle flash animation */
+#reticleFrame.flash-green {
+    border-color: #22c55e !important;
+    box-shadow: 0 0 20px rgba(34, 197, 94, 0.8);
+}
+
+/* =============================================
+   TABULAR NUMS UTILITY
+   ============================================= */
+.tabular-nums { font-variant-numeric: tabular-nums; }
+
+/* =============================================
+   FOCUS RING UTILITY
+   ============================================= */
+.focus-ring:focus {
+    outline: none;
+    ring: 2px;
+    ring-color: var(--primary);
+    ring-offset: 2px;
+}
+
+/* =============================================
+   DARK MODE OVERRIDES FOR COMPONENTS
+   ============================================= */
+:is(.dark) .btn-secondary { background: var(--surface); border-color: var(--border); color: var(--text-secondary); }
+:is(.dark) .btn-secondary:hover { background: var(--bg-alt); border-color: var(--border-strong); color: var(--text-primary); }
+:is(.dark) .form-input { background: var(--surface); border-color: var(--border); color: var(--text-primary); }
+:is(.dark) .form-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(67,97,238,0.15); }
+:is(.dark) .data-table th { background: var(--bg-alt); border-color: var(--border); }
+:is(.dark) .data-table td { border-color: var(--border); }
+:is(.dark) .data-table tbody tr:hover { background: var(--bg-alt); }
+:is(.dark) .modal-box { background: var(--surface); border-color: var(--border); }
+:is(.dark) .dropdown-menu { background: var(--surface); border-color: var(--border); }
+:is(.dark) .popover-card { background: var(--surface); border-color: var(--border); box-shadow: 0 12px 36px -4px rgba(0,0,0,0.5); }
+:is(.dark) .popover-year-input { background: rgba(67,97,238,0.15); color: #93c5fd; }
+:is(.dark) .popover-year-input:focus { background: #0f172a; border-color: #60a5fa; }
+:is(.dark) .pop-month-btn { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.08); color: var(--text-secondary); }
+:is(.dark) .pop-month-btn:hover { background: var(--primary-light); color: #fff; }
+:is(.dark) .stat-chip { background: var(--surface); border-color: var(--border); }
+:is(.dark) .stat-chip:hover { border-color: var(--border-strong); }
+/* =============================================
+   FOCUS RING UTILITY
+   ============================================= */
+.focus-ring:focus {
+    outline: none;
+    ring: 2px;
+    ring-color: var(--primary);
+    ring-offset: 2px;
+}
+
+/* =============================================
+   DARK MODE OVERRIDES FOR COMPONENTS
+   ============================================= */
+:is(.dark) .btn-secondary { background: var(--surface); border-color: var(--border); color: var(--text-secondary); }
+:is(.dark) .btn-secondary:hover { background: var(--bg-alt); border-color: var(--border-strong); color: var(--text-primary); }
+:is(.dark) .form-input { background: var(--surface); border-color: var(--border); color: var(--text-primary); }
+:is(.dark) .form-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(67,97,238,0.15); }
+:is(.dark) .data-table th { background: var(--bg-alt); border-color: var(--border); }
+:is(.dark) .data-table td { border-color: var(--border); }
+:is(.dark) .data-table tbody tr:hover { background: var(--bg-alt); }
+:is(.dark) .modal-box { background: var(--surface); border-color: var(--border); }
+:is(.dark) .dropdown-menu { background: var(--surface); border-color: var(--border); }
+:is(.dark) .popover-card { background: var(--surface); border-color: var(--border); box-shadow: 0 12px 36px -4px rgba(0,0,0,0.5); }
+:is(.dark) .popover-year-input { background: rgba(67,97,238,0.15); color: #93c5fd; }
+:is(.dark) .popover-year-input:focus { background: #0f172a; border-color: #60a5fa; }
+:is(.dark) .pop-month-btn { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.08); color: var(--text-secondary); }
+:is(.dark) .pop-month-btn:hover { background: var(--primary-light); color: #fff; }
+:is(.dark) .stat-chip { background: var(--surface); border-color: var(--border); }
+:is(.dark) .stat-chip:hover { border-color: var(--border-strong); }
