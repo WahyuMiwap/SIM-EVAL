@@ -34,8 +34,8 @@ class Event extends Model
     protected function casts(): array
     {
         return [
-            'tanggal'                 => 'date',
-            'durasi_menit'            => 'integer',
+            'tanggal' => 'date',
+            'durasi_menit' => 'integer',
             'enable_custody_tracking' => 'boolean',
         ];
     }

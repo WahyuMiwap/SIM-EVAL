@@ -15,9 +15,8 @@
     <link rel="icon" href="/favicon.ico">
     <link rel="apple-touch-icon" href="/favicon.ico">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    {{-- CDN for Chart.js & FullCalendar --}}
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+    {{-- FullCalendar via CDN (Chart.js sudah dari npm via app.js — jangan duplikat) --}}
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js" defer></script>
     {{-- Warna primer dinamis (Kustomisasi Tampilan) --}}
     <style>:root { --primary: {{ setting('app.warna_primer') }}; }</style>
 </head>

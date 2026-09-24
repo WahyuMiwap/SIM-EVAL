@@ -12,16 +12,16 @@ window.Chart = Chart;
 import ReauthModal   from './modules/ReauthModal.js';
 import QuizEngine    from './modules/QuizEngine.js';
 import ApiHelper     from './api/ApiHelper.js';
-import * as DashboardMock from './data/dashboardMock.js';
-import SIMEVAL_MOCK from './mock.js';
-window.DashboardMock = DashboardMock;
-window.SIMEVAL_MOCK = SIMEVAL_MOCK;
-window.MockData = SIMEVAL_MOCK;
+import { guardAllForms } from './modules/submitGuard.js';
+window.ApiHelper = ApiHelper;
+
+
 
 // =============================================
 //  INIT: HALAMAN UMUM (Sidebar, Topbar, etc.)
 // =============================================
 document.addEventListener('DOMContentLoaded', () => {
+    guardAllForms();
 
     // --- Sidebar Mobile Toggle ---
     const sidebarToggle  = document.getElementById('sidebarToggle');
@@ -411,7 +411,7 @@ function initJoinPage() {
 
     async function startQRScanner() {
         if (!navigator.mediaDevices?.getUserMedia) {
-            alert('Fitur pemindai kamera tidak didukung pada peramban ini.');
+            window.toast?.('Fitur pemindai kamera tidak didukung pada peramban ini.', 'error');
             return;
         }
 
@@ -452,9 +452,9 @@ function initJoinPage() {
                 }, 300);
             }
         } catch (err) {
-            console.warn('QR Scanner Error:', err);
+            if (import.meta.env?.DEV) console.warn('QR Scanner Error:', err);
             stopQRScanner();
-            alert('Tidak dapat mengaktifkan kamera. Pastikan izin kamera telah disetujui.');
+            window.toast?.('Tidak dapat mengaktifkan kamera. Pastikan izin kamera telah disetujui.', 'error');
         }
     }
 
@@ -508,17 +508,22 @@ function initWaitingRoom() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  QR CODE GENERATOR (Detail Kegiatan)
+//  QR CODE GENERATOR (Detail Kegiatan) — lokal offline-first, fallback CDN
 // ─────────────────────────────────────────────────────────────────────────────
-function initQRCode() {
+async function initQRCode() {
     const kodeJoin = document.querySelector('[data-kode]')?.dataset?.kode;
     if (!kodeJoin) return;
-
-    // Generate QR via Google Charts API (no external lib needed)
-    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(window.location.origin + '/join?kode=' + kodeJoin)}&bgcolor=f1f5f9&color=0a1628&format=svg`;
     const display = document.getElementById('qrCodeDisplay');
-    if (display) {
-        display.innerHTML = `<img src="${qrUrl}" alt="QR Code" style="width:160px;height:160px;border-radius:8px;" />`;
+    const targetUrl = `${window.location.origin}/join?kode=${kodeJoin}`;
+    try {
+        const { default: QRCode } = await import('qrcode');
+        const canvas = document.createElement('canvas');
+        await QRCode.toCanvas(canvas, targetUrl, { width: 160, margin: 1, color: { dark: '#0a1628', light: '#f1f5f9' } });
+        canvas.style.cssText = 'width:160px;height:160px;border-radius:8px;';
+        if (display) { display.innerHTML = ''; display.appendChild(canvas); }
+    } catch (e) {
+        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(targetUrl)}&bgcolor=f1f5f9&color=0a1628&format=svg`;
+        if (display) display.innerHTML = `<img src="${qrUrl}" alt="QR Code" style="width:160px;height:160px;border-radius:8px;" loading="lazy" onerror="this.outerHTML='<p class=&quot;text-xs&quot;>${kodeJoin}</p>'" />`;
     }
 
     // Copy kode join

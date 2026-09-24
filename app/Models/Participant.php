@@ -35,11 +35,11 @@ class Participant extends Model
     protected function casts(): array
     {
         return [
-            'pretest_score'  => 'decimal:2',
+            'pretest_score' => 'decimal:2',
             'posttest_score' => 'decimal:2',
-            'delta'          => 'decimal:2',
-            'n_gain'         => 'decimal:2',
-            'nomor_absen'    => 'integer',
+            'delta' => 'decimal:2',
+            'n_gain' => 'decimal:2',
+            'nomor_absen' => 'integer',
         ];
     }
 
@@ -47,13 +47,13 @@ class Participant extends Model
     {
         static::saving(function (Participant $participant) {
             // Normalisasi nama (lower + trim + collapse spasi berganda)
-            if (!empty($participant->name)) {
+            if (! empty($participant->name)) {
                 $participant->nama_normalized = strtolower(trim(preg_replace('/\s+/', ' ', $participant->name)));
             }
 
             // Hitung delta dan N-Gain bila nilai PRE dan POST tersedia
             if ($participant->pretest_score !== null && $participant->posttest_score !== null) {
-                $pre  = (float) $participant->pretest_score;
+                $pre = (float) $participant->pretest_score;
                 $post = (float) $participant->posttest_score;
 
                 // 1. Rumus Utama: Delta (Post - Pre)

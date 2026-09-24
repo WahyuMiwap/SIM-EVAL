@@ -18,24 +18,26 @@ class RoleMiddleware
     {
         $user = Auth::user();
 
-        if (!$user) {
+        if (! $user) {
             if ($request->wantsJson() || $request->ajax()) {
                 return response()->json(['success' => false, 'message' => 'Sesi berakhir. Silakan login ulang.'], 401);
             }
+
             return redirect()->route('login');
         }
 
-        if (!$user->is_active) {
+        if (! $user->is_active) {
             Auth::logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
             if ($request->wantsJson() || $request->ajax()) {
                 return response()->json(['success' => false, 'message' => 'Akun dinonaktifkan. Hubungi superadmin.'], 403);
             }
+
             return redirect()->route('login')->withErrors(['email' => 'Akun dinonaktifkan. Hubungi superadmin.']);
         }
 
-        if (!empty($roles) && !in_array($user->role, $roles, true)) {
+        if (! empty($roles) && ! in_array($user->role, $roles, true)) {
             if ($request->wantsJson() || $request->ajax()) {
                 return response()->json(['success' => false, 'message' => 'Akses ditolak untuk peran Anda.'], 403);
             }

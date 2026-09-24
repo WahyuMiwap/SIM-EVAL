@@ -1,19 +1,19 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BankSoalController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\KegiatanController;
 use App\Http\Controllers\LokasiController;
-use App\Http\Controllers\BankSoalController;
-use App\Http\Controllers\StafController;
 use App\Http\Controllers\ParticipantController;
 use App\Http\Controllers\SettingController;
+use App\Http\Controllers\StafController;
+use Illuminate\Support\Facades\Route;
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  ROOT — redirect ke halaman dashboard operator
 // ─────────────────────────────────────────────────────────────────────────────
-Route::get('/', fn() => redirect()->route('operator.dashboard'));
+Route::get('/', fn () => redirect()->route('operator.dashboard'));
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  AUTH — login staf (email + password), daftar akun internal
@@ -32,7 +32,7 @@ Route::prefix('operator')->name('operator.')->middleware('auth')->group(function
     Route::get('/dashboard/data', [DashboardController::class, 'data'])->name('dashboard.data');
 
     // Profil Saya
-    Route::get('/profil', fn() => view('operator.profil.index'))->name('profile');
+    Route::get('/profil', fn () => view('operator.profil.index'))->name('profile');
 
     // ── Kegiatan & Rekap Evaluasi ─────────────────────────
     Route::prefix('kegiatan')->name('kegiatan.')->group(function () {

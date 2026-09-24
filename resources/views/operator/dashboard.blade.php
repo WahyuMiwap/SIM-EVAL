@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('page-title', 'Dashboard Evaluasi')
-@section('page-subtitle', 'Monitoring efektivitas sosialisasi Pre-Test & Post-Test BNN Kota Surabaya')
+@section('page-subtitle', 'Monitoring efektivitas sosialisasi BNN Kota Surabaya')
 
 @section('content')
 
@@ -899,67 +899,23 @@
 {{-- ─── Script Kalender & Filter Presets Terhubung Mock Data ─────── --}}
 <script>
 (function() {
-    // ── Akses Mock Data (dari modul window.DashboardMock atau internal fallback)
+    // ── Konstanta label kalender (bukan data) + sumber data jujur dari server ──
+    // DB-first: tidak ada angka hiasan. Kosong = empty-state.
     const MockData = window.DashboardMock || {
         MONTH_NAMES: ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'],
         MONTH_NAMES_SHORT: ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'],
         DAY_NAMES: ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'],
         DAY_FULL_NAMES: ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'],
-        CALENDAR_EVENTS: [
-            { id: 1, date: '2026-09-05', color: '#22c55e', status: 'Selesai', badgeClass: 'badge-green', title: 'Sosialisasi P4GN SMAN 1 Surabaya', category: 'Pendidikan / Remaja', time: '08:30 - 11:30 WIB', location: 'Aula SMAN 1 Surabaya', participants: '65 Siswa', nGain: 0.78, kategoriGain: 'Tinggi' },
-            { id: 2, date: '2026-09-10', color: '#22c55e', status: 'Selesai', badgeClass: 'badge-green', title: 'Workshop Ketahanan Keluarga Anti Narkoba', category: 'Keluarga / Masyarakat', time: '09:00 - 12:00 WIB', location: 'Kec. Tegalsari Surabaya', participants: '40 Warga', nGain: 0.71, kategoriGain: 'Tinggi' },
-            { id: 3, date: '2026-09-14', color: '#06b6d4', status: 'Berlangsung', badgeClass: 'badge-cyan', title: 'Pembinaan & Edukasi Komunitas Pemuda Bersinar', category: 'Komunitas Pemuda', time: '13:00 - 15:30 WIB', location: 'Kel. Jambangan Surabaya', participants: '80 Pemuda', nGain: 0.68, kategoriGain: 'Sedang' },
-            { id: 4, date: '2026-09-17', color: '#f59e0b', status: 'Aktif', badgeClass: 'badge-yellow', title: 'Monitoring & Evaluasi Pelaksanaan P4GN Triwulan III', category: 'Internal BNN & Mitra', time: '09:30 - 12:00 WIB', location: 'Ruang Rapat BNN Kota Surabaya', participants: '25 Peserta', nGain: null, kategoriGain: '—' },
-            { id: 5, date: '2026-09-22', color: '#4361ee', status: 'Dijadwalkan', badgeClass: 'badge-blue', title: 'Sosialisasi Bahaya Narkoba Lingkungan Kerja PDAM Surya Sembada', category: 'Instansi BUMD', time: '08:00 - 12:00 WIB', location: 'Kantor Pusat PDAM Surabaya', participants: '50 Karyawan', nGain: null, kategoriGain: '—' },
-            { id: 6, date: '2026-09-28', color: '#4361ee', status: 'Dijadwalkan', badgeClass: 'badge-blue', title: 'Pemeriksaan & Deteksi Dini Tes Urin Berkala', category: 'Dunia Usaha / Swasta', time: '08:30 - 13:30 WIB', location: 'Kawasan Industri Rungkut Surabaya', participants: '120 Pekerja', nGain: null, kategoriGain: '—' },
-            { id: 10, date: '2026-12-05', color: '#22c55e', status: 'Selesai', badgeClass: 'badge-green', title: 'Sosialisasi Bahaya Narkoba Akhir Semester — SMK N 2 Surabaya', category: 'Pendidikan / Remaja', time: '08:30 - 11:00 WIB', location: 'Auditorium SMK N 2 Surabaya', participants: '95 Siswa', nGain: 0.75, kategoriGain: 'Tinggi' },
-            { id: 11, date: '2026-12-12', color: '#f59e0b', status: 'Aktif', badgeClass: 'badge-yellow', title: 'Rapat Koordinasi Evaluasi Tahunan Relawan P4GN Surabaya', category: 'Masyarakat & Penggiat', time: '09:00 - 12:30 WIB', location: 'Gedung Graha Sawunggaling Surabaya', participants: '110 Peserta', nGain: 0.69, kategoriGain: 'Sedang' },
-            { id: 12, date: '2026-12-22', color: '#4361ee', status: 'Mendatang', badgeClass: 'badge-blue', title: 'Kampanye Terpadu Libur Nataru Bersinar (Bersih Narkoba)', category: 'Masyarakat Umum / Transportasi', time: '08:00 - 14:00 WIB', location: 'Terminal Purabaya & Stasiun Gubeng', participants: '350 Sasaran', nGain: null, kategoriGain: '—' }
-        ],
-        RECENT_ACTIVITIES: [
-            { id: 1, nama: 'SMAN 1 Surabaya', tanggal_short: '05 Sep', peserta: 65, status: 'Selesai', status_badge: 'badge-green', n_gain: 0.78, n_gain_kategori: 'Tinggi' },
-            { id: 2, nama: 'Kec. Tegalsari', tanggal_short: '10 Sep', peserta: 40, status: 'Selesai', status_badge: 'badge-green', n_gain: 0.71, n_gain_kategori: 'Tinggi' },
-            { id: 3, nama: 'Kel. Jambangan', tanggal_short: '14 Sep', peserta: 80, status: 'Berlangsung', status_badge: 'badge-cyan', n_gain: 0.68, n_gain_kategori: 'Sedang' },
-            { id: 4, nama: 'Aula PDAM Sby', tanggal_short: '22 Sep', peserta: 50, status: 'Dijadwalkan', status_badge: 'badge-gray', n_gain: null, n_gain_kategori: '—' },
-            { id: 5, nama: 'Lapas Kelas I Surabaya', tanggal_short: '28 Sep', peserta: 120, status: 'Dijadwalkan', status_badge: 'badge-gray', n_gain: null, n_gain_kategori: '—' }
-        ],
-        DASHBOARD_METRICS_DATA: {
-            bulan_ini: {
-                periodLabel: 'September 2026',
-                kegiatan: { value: 14, growth: '+16.7%', sub: 'kegiatan terlaksana', growthLabel: 'vs bulan lalu' },
-                peserta: { value: '1.248', growth: '+23.4%', sub: 'peserta terdaftar', growthLabel: 'vs bulan lalu' },
-                nGain: { value: '0.72', growth: '+0.06', badge: 'Efektif', badgeColor: 'badge-green', sub: 'kategori efektivitas tinggi' },
-                efektivitas: { value: '84.6%', growth: '+5.2%', sub: 'kategori paham/cukup' },
-                distribusi: [
-                    { label: 'Paham / Tinggi (g ≥ 0.70)', count: 874, percent: 70.0, color: 'var(--success, #22c55e)' },
-                    { label: 'Cukup / Sedang (0.30 ≤ g < 0.70)', count: 288, percent: 23.1, color: 'var(--warning, #f59e0b)' },
-                    { label: 'Kurang / Rendah (g < 0.30)', count: 86, percent: 6.9, color: 'var(--danger, #ef4444)' }
-                ]
-            },
-            tahun_ini: {
-                periodLabel: 'Tahun 2026',
-                kegiatan: { value: 48, growth: '+32.4%', sub: 'kegiatan terlaksana tahun ini', growthLabel: 'vs tahun 2025' },
-                peserta: { value: '4.850', growth: '+28.1%', sub: 'total penerima sosialisasi', growthLabel: 'vs tahun 2025' },
-                nGain: { value: '0.74', growth: '+0.09', badge: 'Efektif Tinggi', badgeColor: 'badge-green', sub: 'rata-rata N-Gain tahunan' },
-                efektivitas: { value: '86.2%', growth: '+6.4%', sub: 'tingkat efektivitas rata-rata' },
-                distribusi: [
-                    { label: 'Paham / Tinggi (g ≥ 0.70)', count: 3492, percent: 72.0, color: 'var(--success, #22c55e)' },
-                    { label: 'Cukup / Sedang (0.30 ≤ g < 0.70)', count: 1067, percent: 22.0, color: 'var(--warning, #f59e0b)' },
-                    { label: 'Kurang / Rendah (g < 0.30)', count: 291, percent: 6.0, color: 'var(--danger, #ef4444)' }
-                ]
-            },
-            getCustomData(m, y) {
-                return this.bulan_ini;
-            }
-        }
+        CALENDAR_EVENTS: [],
+        RECENT_ACTIVITIES: [],
+        DASHBOARD_METRICS_DATA: null
     };
 
-    // ── Sumber metrik: server bila tersedia, mock bila tidak ──
-    // Server menghitung dari data riil (DB bila ada, mock service bila kosong).
+    // ── Sumber metrik: server (DB simeval_db). Null bila belum ada data ──
     const SERVER_METRICS = @json(['bulan_ini' => $stats['bulan_ini'] ?? null, 'tahun_ini' => $stats['tahun_ini'] ?? null]);
     function metricsSrc() {
         if (SERVER_METRICS && SERVER_METRICS.bulan_ini && SERVER_METRICS.tahun_ini) return SERVER_METRICS;
-        return MockData.DASHBOARD_METRICS_DATA;
+        return null;
     }
 
     const _today = new Date();
@@ -976,6 +932,14 @@
     let serverCalendar = null;
     let serverRecent = null;
     function calEventSrc() { return serverCalendar || MockData.CALENDAR_EVENTS || []; }
+    function emptyMetrics() {
+        const zero = (label) => ({ value: 0, sub: label });
+        return {
+            kegiatan: zero('belum ada kegiatan'), peserta: zero('belum ada peserta'),
+            nGain: { value: '—', badge: 'Belum ada data', badgeColor: 'badge-gray', sub: 'butuh peserta COMPLETE' },
+            efektivitas: { value: '—', sub: 'belum ada data' }, distribusi: []
+        };
+    }
 
     function getEventsForDate(y, m, d) {
         const key = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
@@ -988,6 +952,10 @@
         if (!listEl) return;
 
         const activities = serverRecent || MockData.RECENT_ACTIVITIES || [];
+        if (!activities.length) {
+            listEl.innerHTML = '<div class="empty-state py-8 text-center"><p class="text-sm text-slate-500">Belum ada kegiatan terbaru.</p></div>';
+            return;
+        }
         let html = '';
 
         activities.forEach(act => {
@@ -1028,7 +996,11 @@
         const container = document.getElementById('distributionContainer');
         if (!container) return;
 
-        const items = distData || MockData.DASHBOARD_METRICS_DATA.bulan_ini.distribusi;
+        const items = distData || [];
+        if (!items.length) {
+            container.innerHTML = '<div class="empty-state py-6 text-center"><p class="text-sm text-slate-500">Belum ada data distribusi N-Gain.</p></div>';
+            return;
+        }
         let html = '';
 
         items.forEach(item => {
@@ -1289,9 +1261,10 @@
             const res = await fetch(`${DASHBOARD_DATA_URL}?${params.toString()}`, { headers: { 'Accept': 'application/json' } });
             if (!res.ok) throw new Error('fetch gagal');
             const json = await res.json();
-            if (json.metrics) updateMetricsUI(json.metrics);
-            if (Array.isArray(json.calendar) && json.calendar.length) serverCalendar = json.calendar;
-            if (Array.isArray(json.recent)) { serverRecent = json.recent; renderRecentActivities(); }
+            const payload = json.data ?? json;
+            if (payload.metrics) updateMetricsUI(payload.metrics);
+            if (Array.isArray(payload.calendar) && payload.calendar.length) serverCalendar = payload.calendar;
+            if (Array.isArray(payload.recent)) { serverRecent = payload.recent; renderRecentActivities(); }
             renderCalendar();
             return true;
         } catch (e) {
@@ -1313,12 +1286,7 @@
                 snapCalendarToFirstEvent();
                 return;
             }
-            const metricsFn = MockData.DASHBOARD_METRICS_DATA.getCustomData;
-            const metricsData = typeof metricsFn === 'function'
-                ? metricsFn(month, year)
-                : MockData.DASHBOARD_METRICS_DATA.bulan_ini;
-
-            updateMetricsUI(metricsData);
+            updateMetricsUI((metricsSrc() || emptyMetrics()).bulan_ini || emptyMetrics());
             snapCalendarToFirstEvent();
         });
     }
@@ -1350,7 +1318,7 @@
             setActivePeriodItem(optBulanIni, `Bulan Ini (${MockData.MONTH_NAMES[calMonth]} ${calYear})`);
 
             fetchServerData('bulan_ini').then(ok => {
-                if (!ok) { updateMetricsUI(metricsSrc().bulan_ini); renderCalendar(); }
+                if (!ok) { updateMetricsUI((metricsSrc() || emptyMetrics()).bulan_ini || emptyMetrics()); renderCalendar(); }
             });
         } else if (mode === 'tahun_ini') {
             calYear  = today.getFullYear();
@@ -1358,15 +1326,15 @@
             setActivePeriodItem(optTahunIni, `Tahun Ini (${calYear})`);
 
             fetchServerData('tahun_ini').then(ok => {
-                if (!ok) { updateMetricsUI(metricsSrc().tahun_ini); renderCalendar(); }
+                if (!ok) { updateMetricsUI((metricsSrc() || emptyMetrics()).tahun_ini || emptyMetrics()); renderCalendar(); }
             });
         }
     }
 
     // ── Bootstrapping Saat DOM Siap ──────────────────────────────
     document.addEventListener('DOMContentLoaded', function() {
-        // Sinkronisasi data awal (server bila ada)
-        updateMetricsUI(metricsSrc().bulan_ini);
+        // Sinkronisasi data awal (server; kosong jujur bila belum ada)
+        updateMetricsUI((metricsSrc() || emptyMetrics()).bulan_ini || emptyMetrics());
         renderRecentActivities();
         renderCalendar();
         fetchServerData('bulan_ini');

@@ -2,7 +2,9 @@
 
 namespace Tests\Feature;
 
+use App\Models\Event;
 use App\Models\Location;
+use App\Models\Participant;
 use App\Models\QuestionPackage;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -75,7 +77,7 @@ class KegiatanTest extends TestCase
     {
         ['operator' => $operator, 'lokasi' => $lokasi, 'paket' => $paket] = $this->seedDasar();
 
-        $event = \App\Models\Event::create([
+        $event = Event::create([
             'nama_kegiatan' => 'Sosialisasi P4GN',
             'kode_join' => 'AB1C2D',
             'status' => 'selesai',
@@ -88,7 +90,7 @@ class KegiatanTest extends TestCase
             'created_by' => $operator->id,
         ]);
 
-        \App\Models\Participant::create([
+        Participant::create([
             'event_id' => $event->id,
             'name' => 'Ahmad Fauzi',
             'class_grade' => 'XI-MIPA 1',

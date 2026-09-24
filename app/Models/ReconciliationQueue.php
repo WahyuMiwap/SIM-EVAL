@@ -24,8 +24,8 @@ class ReconciliationQueue extends Model
     protected function casts(): array
     {
         return [
-            'detail'      => 'array',
-            'resolved'    => 'boolean',
+            'detail' => 'array',
+            'resolved' => 'boolean',
             'resolved_at' => 'datetime',
         ];
     }

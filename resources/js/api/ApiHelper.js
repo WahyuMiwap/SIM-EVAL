@@ -59,7 +59,7 @@ const ApiHelper = {
             return this._handleResponse(res);
         } catch (err) {
             if (offlineFallback && !navigator.onLine) {
-                console.warn('[ApiHelper] Offline — menyimpan ke IndexedDB:', url, data);
+                if (import.meta.env?.DEV) console.warn('[ApiHelper] Offline — menyimpan ke IndexedDB:', url, data);
                 await OfflineStore.savePendingRequest({ url, method: 'POST', data, timestamp: Date.now() });
                 return { offline: true, queued: true, message: 'Jawaban disimpan offline, akan disinkronkan saat online.' };
             }
@@ -129,28 +129,28 @@ const ApiHelper = {
         const queue = await OfflineStore.getPendingRequests();
         if (!queue.length) return;
 
-        console.log(`[ApiHelper] Menyinkronkan ${queue.length} request offline...`);
+        if (import.meta.env?.DEV) console.log(`[ApiHelper] Menyinkronkan ${queue.length} request offline...`);
 
         for (const req of queue) {
             try {
                 const result = await this.post(req.url, req.data);
                 if (result && !result.error) {
                     await OfflineStore.removePendingRequest(req.id);
-                    console.log('[ApiHelper] Synced:', req.url);
+                    if (import.meta.env?.DEV) console.log('[ApiHelper] Synced:', req.url);
                 }
             } catch (e) {
-                console.error('[ApiHelper] Gagal sync:', req.url, e);
+                if (import.meta.env?.DEV) console.error('[ApiHelper] Gagal sync:', req.url, e);
             }
         }
     },
 
-    /** Parse response JSON atau text */
+    /** Parse response JSON envelope {success,message,data,errors} */
     async _handleResponse(res) {
         const contentType = res.headers.get('Content-Type') ?? '';
         if (contentType.includes('application/json')) {
-            const json = await res.json();
-            if (!res.ok) {
-                return { error: true, status: res.status, message: json.message ?? 'Terjadi kesalahan.', data: json };
+            const json = await res.json().catch(() => null);
+            if (!res.ok || (json && json.success === false)) {
+                return { error: true, status: res.status, message: json?.message ?? 'Terjadi kesalahan.', errors: json?.errors ?? null, data: json?.data ?? json };
             }
             return json;
         }
@@ -163,7 +163,7 @@ const ApiHelper = {
 
     /** Error jaringan (no internet / CORS / timeout) */
     _handleNetworkError(err, context) {
-        console.error('[ApiHelper] Network Error:', context, err);
+        if (import.meta.env?.DEV) console.error('[ApiHelper] Network Error:', context, err);
         return {
             error: true,
             network: true,
@@ -176,8 +176,16 @@ const ApiHelper = {
 
 // Auto sync saat koneksi pulih (NFR-04)
 window.addEventListener('online', () => {
-    console.log('[ApiHelper] Koneksi pulih — memulai sync...');
+    if (import.meta.env?.DEV) console.log('[ApiHelper] Koneksi pulih — memulai sync...');
     ApiHelper.syncOfflineQueue();
 });
+
+/** Toast global fallback (dipakai menggantikan alert) */
+if (typeof window !== 'undefined' && !window.toast) {
+    window.toast = (msg, type = 'error') => {
+        if (typeof window.showToastPopup === 'function') return window.showToastPopup(msg, type);
+        if (type === 'error') alert(msg);
+    };
+}
 
 export default ApiHelper;

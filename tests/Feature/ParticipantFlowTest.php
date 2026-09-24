@@ -137,7 +137,10 @@ class ParticipantFlowTest extends TestCase
             ]);
 
         $response->assertOk()
-            ->assertJson(['success' => true, 'score' => 50.0, 'correct' => 1, 'total' => 2]);
+            ->assertJson(['success' => true])
+            ->assertJsonPath('data.score', 50)
+            ->assertJsonPath('data.correct', 1)
+            ->assertJsonPath('data.total', 2);
 
         $this->assertDatabaseHas('participants', [
             'id' => $peserta->id,

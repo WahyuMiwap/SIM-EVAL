@@ -36,4 +36,9 @@ class CustodyLog extends Model
     {
         return $this->belongsTo(User::class, 'handed_by');
     }
+
+    public function handedToOfficer(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'handed_to');
+    }
 }

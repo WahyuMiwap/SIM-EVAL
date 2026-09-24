@@ -3,10 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Services\AuditService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
@@ -19,26 +20,11 @@ class AuthController extends Controller
             return redirect()->route('operator.dashboard');
         }
 
-        $accounts = [];
-        try {
-            if (Schema::hasTable('users')) {
-                $accounts = User::where('is_active', true)
-                    ->orderByRaw("CASE role WHEN 'superadmin' THEN 0 WHEN 'operator' THEN 1 ELSE 2 END")
-                    ->orderBy('name')
-                    ->get(['id', 'name', 'email', 'role', 'jabatan'])
-                    ->all();
-            }
-        } catch (\Throwable $e) {
-        }
-        if (empty($accounts)) {
-            foreach (\App\Services\MockDataService::getUsers() as $u) {
-                if (!($u->is_active ?? true)) continue;
-                $accounts[] = (object)[
-                    'id' => $u->id, 'name' => $u->name, 'email' => $u->email,
-                    'role' => $u->role, 'jabatan' => $u->jabatan ?? null,
-                ];
-            }
-        }
+        $accounts = User::where('is_active', true)
+            ->orderByRaw("CASE role WHEN 'superadmin' THEN 0 WHEN 'operator' THEN 1 ELSE 2 END")
+            ->orderBy('name')
+            ->get(['id', 'name', 'email', 'role', 'jabatan'])
+            ->all();
 
         return view('auth.login', compact('accounts'));
     }
@@ -49,50 +35,38 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $request->validate([
-            'email'    => 'required|email|max:255',
+            'email' => 'required|email|max:255',
             'password' => 'required|string',
         ], [
-            'email.required'    => 'Masukkan email akun.',
-            'email.email'       => 'Format email tidak valid.',
+            'email.required' => 'Masukkan email akun.',
+            'email.email' => 'Format email tidak valid.',
             'password.required' => 'Masukkan password.',
         ]);
 
         $email = strtolower(trim($request->input('email')));
 
-        try {
-            $user = Schema::hasTable('users')
-                ? User::where('email', $email)->first()
-                : null;
-        } catch (\Throwable $e) {
-            $user = null;
-        }
+        $user = User::where('email', $email)->first();
 
-        if (!$user || !Hash::check($request->input('password'), $user->password)) {
+        if (! $user || ! Hash::check($request->input('password'), $user->password)) {
+            Log::warning('Login gagal', ['email' => $email, 'ip' => $request->ip()]);
+
             return back()->withInput($request->only('email'))
                 ->withErrors(['email' => 'Email atau password salah.']);
         }
 
-        if (!$user->is_active) {
+        if (! $user->is_active) {
             return back()->withInput($request->only('email'))
                 ->withErrors(['email' => 'Akun dinonaktifkan. Hubungi superadmin.']);
         }
 
         Auth::login($user, (bool) $request->boolean('remember'));
         $request->session()->regenerate();
-        try {
-            if (Schema::hasColumn('users', 'last_login_at')) {
-                $user->forceFill(['last_login_at' => now()])->save();
-            }
-        } catch (\Throwable $e) {
-        }
 
-        try {
-            \App\Services\AuditService::record('login', 'user', $user->id, "Login: {$user->name}");
-        } catch (\Throwable $e) {
-        }
+        AuditService::record('login', 'user', $user->id, "Login: {$user->name}");
+        Log::info('Login berhasil', ['user_id' => $user->id, 'ip' => $request->ip()]);
 
         return redirect()->intended(route('operator.dashboard'))
-            ->with('success', 'Selamat datang kembali, ' . strtok($user->name, ' ') . '!');
+            ->with('success', 'Selamat datang kembali, '.strtok($user->name, ' ').'!');
     }
 
     /**
@@ -100,12 +74,10 @@ class AuthController extends Controller
      */
     public function logout(Request $request)
     {
-        try {
-            $user = Auth::user();
-            if ($user) {
-                \App\Services\AuditService::record('logout', 'user', $user->id, "Logout: {$user->name}");
-            }
-        } catch (\Throwable $e) {
+        $user = Auth::user();
+        if ($user) {
+            AuditService::record('logout', 'user', $user->id, "Logout: {$user->name}");
+            Log::info('Logout', ['user_id' => $user->id]);
         }
 
         Auth::logout();

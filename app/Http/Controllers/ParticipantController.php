@@ -2,13 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\SubmitQuizAction;
+use App\Http\Requests\JoinParticipantRequest;
+use App\Models\Event;
 use App\Models\Participant;
 use App\Models\ParticipantAnswer;
 use App\Models\Question;
-use App\Models\QuestionPackage;
-use App\Services\MockDataService;
+use App\Services\QuizService;
+use App\Support\ApiResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class ParticipantController extends Controller
@@ -19,6 +23,7 @@ class ParticipantController extends Controller
     public function welcome(Request $request)
     {
         $prefilledKode = strtoupper(trim((string) $request->query('kode', '')));
+
         return view('participant.welcome', compact('prefilledKode'));
     }
 
@@ -32,16 +37,20 @@ class ParticipantController extends Controller
         $jenis = null;
         try {
             $lok = $event->lokasi ?? null;
-            if ($lok && isset($lok->jenis_sasaran)) $jenis = strtolower($lok->jenis_sasaran);
-            elseif ($lok && method_exists($lok, 'getAttribute')) $jenis = strtolower($lok->getAttribute('jenis_sasaran') ?? '');
+            if ($lok && isset($lok->jenis_sasaran)) {
+                $jenis = strtolower($lok->jenis_sasaran);
+            } elseif ($lok && method_exists($lok, 'getAttribute')) {
+                $jenis = strtolower($lok->getAttribute('jenis_sasaran') ?? '');
+            }
         } catch (\Throwable $e) {
         }
+
         return match ($jenis) {
-            'kampus'                  => 'Kelas / Angkatan',
+            'kampus' => 'Kelas / Angkatan',
             'masyarakat', 'komunitas' => 'RW / Kelompok',
-            'lapas'                   => 'Blok / Kamar',
-            'instansi'                => 'Unit / Divisi',
-            default                   => 'Kelas',
+            'lapas' => 'Blok / Kamar',
+            'instansi' => 'Unit / Divisi',
+            default => 'Kelas',
         };
     }
 
@@ -52,20 +61,15 @@ class ParticipantController extends Controller
     public static function findEventByKode(string $kode): ?object
     {
         $kode = strtoupper(trim($kode));
-        if ($kode === '') return null;
-        try {
-            if (Schema::hasTable('events')) {
-                $ev = \App\Models\Event::where('kode_join', $kode)->first();
-                if ($ev) return $ev;
-            }
-        } catch (\Throwable $e) {
+        if ($kode === '') {
+            return null;
         }
         try {
-            foreach (MockDataService::getEvents() as $e) {
-                if (strtoupper($e->kode_join ?? '') === $kode) return $e;
-            }
+            return Event::with('lokasi')->where('kode_join', $kode)->first();
         } catch (\Throwable $e) {
+            Log::warning('findEventByKode gagal', ['kode' => $kode]);
         }
+
         return null;
     }
 
@@ -77,7 +81,7 @@ class ParticipantController extends Controller
     public function joinInfo(Request $request)
     {
         $event = self::findEventByKode($request->get('kode', ''));
-        if (!$event) {
+        if (! $event) {
             return response()->json(['found' => false]);
         }
         $lokasiNama = null;
@@ -85,12 +89,13 @@ class ParticipantController extends Controller
             $lokasiNama = $event->lokasi->nama_lokasi ?? null;
         } catch (\Throwable $e) {
         }
+
         return response()->json([
-            'found'          => true,
-            'nama_kegiatan'  => $event->nama_kegiatan ?? 'Sesi Evaluasi',
-            'lokasi'         => $lokasiNama ?? 'Lokasi kegiatan',
+            'found' => true,
+            'nama_kegiatan' => $event->nama_kegiatan ?? 'Sesi Evaluasi',
+            'lokasi' => $lokasiNama ?? 'Lokasi kegiatan',
             'kelompok_label' => self::kelompokLabel($event),
-            'status'         => strtolower($event->status ?? 'dijadwalkan'),
+            'status' => strtolower($event->status ?? 'dijadwalkan'),
         ]);
     }
 
@@ -98,25 +103,19 @@ class ParticipantController extends Controller
      * Bergabung ke Sesi Ujian — PIN divalidasi ke event, identitas
      * disimpan sebagai peserta (DB) atau session (mock).
      */
-    public function join(Request $request)
+    public function join(JoinParticipantRequest $request, QuizService $quiz)
     {
-        $validated = $request->validate([
-            'kode_join' => 'required|string|max:10',
-            'nama'      => 'required|string|max:100',
-            'kelas'     => 'required|string|max:50',
-        ], [
-            'kode_join.required' => 'Masukkan 6 karakter kode join.',
-            'nama.required'      => 'Masukkan nama lengkap.',
-            'kelas.required'     => 'Masukkan kelas / kelompok.',
-        ]);
+        $validated = $request->validated();
 
-        $event = self::findEventByKode($validated['kode_join']);
-        if (!$event) {
+        $event = $quiz->findEventByKode($validated['kode_join']);
+        if (! $event) {
+            Log::warning('Join gagal: kode tidak dikenal', ['kode' => $validated['kode_join']]);
+
             return back()->withInput()
                 ->withErrors(['kode_join' => 'Kode join tidak dikenal. Tanyakan kode yang benar kepada petugas.']);
         }
 
-        $nama  = trim(preg_replace('/\s+/', ' ', $validated['nama']));
+        $nama = trim(preg_replace('/\s+/', ' ', $validated['nama']));
         $kelas = trim($validated['kelas']);
         $lokasiNama = null;
         try {
@@ -124,37 +123,38 @@ class ParticipantController extends Controller
         } catch (\Throwable $e) {
         }
 
-        $participantId = rand(100, 999);
+        $participantId = null;
         $token = Str::random(32);
 
         try {
-            if (Schema::hasTable('participants')) {
-                $row = Participant::create([
-                    'event_id'      => $event->id,
-                    'name'          => $nama,
-                    'class_grade'   => $kelas,
-                    'school_origin' => $lokasiNama, // OTOMATIS dari lokasi event
-                    'input_method'  => 'online',
-                    'status'        => 'menunggu',
-                    'session_token' => $token,
-                ]);
-                $participantId = $row->id;
-            }
+            $row = DB::transaction(fn () => Participant::create([
+                'event_id' => $event->id,
+                'name' => $nama,
+                'class_grade' => $kelas,
+                'school_origin' => $lokasiNama,
+                'input_method' => 'online',
+                'status' => 'menunggu',
+                'session_token' => $token,
+            ]));
+            $participantId = $row->id;
+            Log::info('Peserta join', ['event_id' => $event->id, 'participant_id' => $participantId]);
         } catch (\Throwable $e) {
-            // Mock mode: identitas cukup di session
+            Log::error('Join gagal persist', ['event_id' => $event->id ?? null, 'err' => $e->getMessage()]);
+
+            return back()->withInput()->withErrors(['nama' => 'Gagal bergabung. Coba lagi.']);
         }
 
         session([
-            'participant_id'    => $participantId,
-            'participant_name'  => $nama,
+            'participant_id' => $participantId,
+            'participant_name' => $nama,
             'participant_kelas' => $kelas,
-            'event_id'          => $event->id,
-            'session_token'     => $token,
+            'event_id' => $event->id,
+            'session_token' => $token,
         ]);
 
         return redirect()->route('participant.waiting', [
             'room' => 'pretest',
-            'id'   => $participantId,
+            'id' => $participantId,
         ]);
     }
 
@@ -166,19 +166,27 @@ class ParticipantController extends Controller
      */
     public static function roomOpen(?object $event, string $room, ?object $participant): bool
     {
-        if (!$event) return false;
+        if (! $event) {
+            return false;
+        }
         $fase = null;
         try {
             $fase = $event->status_fase ?? null;
-            if ($fase) $fase = strtoupper($fase);
+            if ($fase) {
+                $fase = strtoupper($fase);
+            }
         } catch (\Throwable $e) {
         }
         if (in_array($fase, ['PRE_ACTIVE', 'MATERIAL_PAUSED', 'POST_ACTIVE', 'COMPLETED'], true)) {
             return $room === 'pretest' ? $fase === 'PRE_ACTIVE' : $fase === 'POST_ACTIVE';
         }
         $status = strtolower($event->status ?? 'dijadwalkan');
-        if ($status !== 'berlangsung') return false;
-        if ($room === 'pretest') return true;
+        if ($status !== 'berlangsung') {
+            return false;
+        }
+        if ($room === 'pretest') {
+            return true;
+        }
         try {
             return $participant && $participant->pretest_score !== null;
         } catch (\Throwable $e) {
@@ -187,40 +195,24 @@ class ParticipantController extends Controller
     }
 
     /**
-     * Cari peserta — DB dulu, fallback objek session (mock).
+     * Cari peserta (DB simeval_db).
      */
     protected function resolveParticipant($id): ?object
     {
-        try {
-            if (Schema::hasTable('participants') && is_numeric($id)) {
-                $p = Participant::find((int) $id);
-                if ($p) return $p;
-            }
-        } catch (\Throwable $e) {
+        if (! is_numeric($id)) {
+            return null;
         }
-        if ((string) session('participant_id') === (string) $id) {
-            return (object)[
-                'id'             => $id,
-                'event_id'       => session('event_id'),
-                'name'           => session('participant_name', 'Peserta Ujian'),
-                'class_grade'    => session('participant_kelas', '-'),
-                'school_origin'  => null,
-                'pretest_score'  => null,
-                'posttest_score' => null,
-            ];
-        }
-        return null;
+
+        return Participant::find((int) $id);
     }
 
     protected function countEventParticipants($eventId): int
     {
-        try {
-            if ($eventId && Schema::hasTable('participants')) {
-                return Participant::where('event_id', $eventId)->count();
-            }
-        } catch (\Throwable $e) {
+        if (! $eventId) {
+            return 0;
         }
-        return rand(35, 60);
+
+        return Participant::where('event_id', $eventId)->count();
     }
 
     /**
@@ -233,12 +225,13 @@ class ParticipantController extends Controller
         $participant = $this->resolveParticipant($id);
 
         $eventId = $participant->event_id ?? session('event_id');
-        $event = $this->resolveEvent($eventId) ?? MockDataService::getEvents()[0];
+        $event = $this->resolveEvent($eventId);
+        abort_if(! $event, 404, 'Kegiatan tidak ditemukan.');
 
         $nama = $participant->name ?? session('participant_name', 'Peserta Ujian');
         $kelas = $participant->class_grade ?? session('participant_kelas', '-');
         $sekolah = $participant->school_origin ?? null;
-        if (!$sekolah) {
+        if (! $sekolah) {
             try {
                 $sekolah = $event->lokasi->nama_lokasi ?? 'SMAN 1 Surabaya';
             } catch (\Throwable $e) {
@@ -246,18 +239,18 @@ class ParticipantController extends Controller
             }
         }
 
-        $session = (object)[
-            'id'           => $participant->id ?? $id,
-            'kegiatan_id'  => $event->id,
-            'kegiatan'     => $event,
-            'kode_join'    => $event->kode_join,
-            'nama'         => $nama,
-            'name'         => $nama,
+        $session = (object) [
+            'id' => $participant->id ?? $id,
+            'kegiatan_id' => $event->id,
+            'kegiatan' => $event,
+            'kode_join' => $event->kode_join,
+            'nama' => $nama,
+            'name' => $nama,
             'nama_peserta' => $nama,
-            'sekolah'      => $sekolah . ($kelas && $kelas !== '-' ? " • {$kelas}" : ''),
-            'kelas'        => $kelas,
+            'sekolah' => $sekolah.($kelas && $kelas !== '-' ? " • {$kelas}" : ''),
+            'kelas' => $kelas,
             'skor_pretest' => $participant->pretest_score ?? null,
-            'status'       => 'menunggu',
+            'status' => 'menunggu',
         ];
 
         $kegiatan = $event;
@@ -283,9 +276,9 @@ class ParticipantController extends Controller
 
         return response()->json([
             'status_changed' => self::roomOpen($event, $room, $participant),
-            'waiting_count'  => $this->countEventParticipants($event->id ?? null),
-            'status'         => strtolower($event->status ?? 'menunggu'),
-            'room'           => $room,
+            'waiting_count' => $this->countEventParticipants($event->id ?? null),
+            'status' => strtolower($event->status ?? 'menunggu'),
+            'room' => $room,
         ]);
     }
 
@@ -296,67 +289,30 @@ class ParticipantController extends Controller
      */
     public static function resolvePackageQuestions(int $packageId): array
     {
-        try {
-            if (Schema::hasTable('questions') && Schema::hasTable('question_packages')) {
-                $rows = Question::where('question_package_id', $packageId)->orderBy('urutan')->get();
-                if ($rows->isNotEmpty()) {
-                    return $rows->map(fn($q) => [
-                        'id'         => $q->id,
-                        'nomor'      => $q->urutan,
-                        'pertanyaan' => $q->pertanyaan,
-                        'opsi_a'     => $q->opsi_a,
-                        'opsi_b'     => $q->opsi_b,
-                        'opsi_c'     => $q->opsi_c,
-                        'opsi_d'     => $q->opsi_d,
-                        'kunci'      => strtoupper($q->kunci ?? 'A'),
-                    ])->all();
-                }
-            }
-        } catch (\Throwable $e) {
-        }
+        $rows = Question::where('question_package_id', $packageId)->orderBy('urutan')->get();
 
-        // Mock: dukung ragam bentuk field (pilihan_x / opsi_x / opsi array).
-        $pick = function ($s, ...$keys) {
-            foreach ($keys as $k) {
-                if (is_object($s) && isset($s->$k) && $s->$k !== null && $s->$k !== '') return $s->$k;
-                if (is_array($s) && isset($s[$k]) && $s[$k] !== null && $s[$k] !== '') return $s[$k];
-            }
-            return '';
-        };
-        return array_map(function ($s) use ($pick) {
-            $opsi = $pick($s, 'opsi');
-            return [
-                'id'         => $pick($s, 'id'),
-                'nomor'      => $pick($s, 'nomor', 'urutan'),
-                'pertanyaan' => $pick($s, 'pertanyaan'),
-                'opsi_a'     => $pick($s, 'opsi_a', 'pilihan_a') ?: (is_array($opsi) ? ($opsi['A'] ?? '') : (is_object($opsi) ? ($opsi->A ?? '') : '')),
-                'opsi_b'     => $pick($s, 'opsi_b', 'pilihan_b') ?: (is_array($opsi) ? ($opsi['B'] ?? '') : (is_object($opsi) ? ($opsi->B ?? '') : '')),
-                'opsi_c'     => $pick($s, 'opsi_c', 'pilihan_c') ?: (is_array($opsi) ? ($opsi['C'] ?? '') : (is_object($opsi) ? ($opsi->C ?? '') : '')),
-                'opsi_d'     => $pick($s, 'opsi_d', 'pilihan_d') ?: (is_array($opsi) ? ($opsi['D'] ?? '') : (is_object($opsi) ? ($opsi->D ?? '') : '')),
-                'kunci'      => strtoupper($pick($s, 'kunci', 'kunci_jawaban') ?: 'A'),
-            ];
-        }, MockDataService::getQuestionsForPackage($packageId));
+        return $rows->map(fn ($q) => [
+            'id' => $q->id,
+            'nomor' => $q->urutan,
+            'pertanyaan' => $q->pertanyaan,
+            'opsi_a' => $q->opsi_a,
+            'opsi_b' => $q->opsi_b,
+            'opsi_c' => $q->opsi_c,
+            'opsi_d' => $q->opsi_d,
+            'kunci' => strtoupper($q->kunci ?? 'A'),
+        ])->all();
     }
 
     /**
-     * Cari event peserta — DB bila tersedia, fallback mock.
-     * Return object dengan pretest_package_id / posttest_package_id.
+     * Cari event peserta — DB-first (MySQL simeval_db).
      */
     protected function resolveEvent($eventId): ?object
     {
-        if (empty($eventId)) return null;
-        try {
-            if (Schema::hasTable('events')) {
-                $ev = \App\Models\Event::find($eventId);
-                if ($ev) return $ev;
-            }
-        } catch (\Throwable $e) {
-        }
-        try {
-            return MockDataService::getEventById($eventId);
-        } catch (\Throwable $e) {
+        if (empty($eventId) || ! is_numeric($eventId)) {
             return null;
         }
+
+        return Event::with('lokasi')->find((int) $eventId);
     }
 
     /**
@@ -378,7 +334,9 @@ class ParticipantController extends Controller
                     $pid = $type === 'posttest'
                         ? ($event->posttest_package_id ?? null)
                         : ($event->pretest_package_id ?? null);
-                    if ($pid) $packageId = (int) $pid;
+                    if ($pid) {
+                        $packageId = (int) $pid;
+                    }
                 }
             }
             foreach (BankSoalController::allPackages() as $p) {
@@ -393,25 +351,25 @@ class ParticipantController extends Controller
 
         $full = self::resolvePackageQuestions((int) $packageId);
         // STRIP kunci & bobot sebelum ke browser
-        $soal = array_map(fn($s) => [
-            'id'         => $s['id'],
-            'nomor'      => $s['nomor'],
+        $soal = array_map(fn ($s) => [
+            'id' => $s['id'],
+            'nomor' => $s['nomor'],
             'pertanyaan' => $s['pertanyaan'],
-            'opsi_a'     => $s['opsi_a'],
-            'opsi_b'     => $s['opsi_b'],
-            'opsi_c'     => $s['opsi_c'],
-            'opsi_d'     => $s['opsi_d'],
+            'opsi_a' => $s['opsi_a'],
+            'opsi_b' => $s['opsi_b'],
+            'opsi_c' => $s['opsi_c'],
+            'opsi_d' => $s['opsi_d'],
         ], $full);
 
-        $sessionObj = (object)[
+        $sessionObj = (object) [
             'id' => $session,
         ];
 
         return view('participant.quiz', [
             'quizType' => $type,
-            'session'  => $sessionObj,
-            'soal'     => $soal,
-            'durasi'   => $durasi,
+            'session' => $sessionObj,
+            'soal' => $soal,
+            'durasi' => $durasi,
         ]);
     }
 
@@ -422,10 +380,10 @@ class ParticipantController extends Controller
      *
      * Kontrak respons: {success, score, n_gain, category, next_url}.
      */
-    public function submit(Request $request)
+    public function submit(Request $request, SubmitQuizAction $submitter)
     {
         // Kompatibilitas: POST form biasa (non-JSON) → alur redirect lama.
-        if (!$request->wantsJson() && !$request->ajax() && !$request->isJson()) {
+        if (! $request->wantsJson() && ! $request->ajax() && ! $request->isJson()) {
             $type = $request->get('type', 'pretest');
             $nextRoom = $type === 'pretest' ? 'posttest' : 'finish';
 
@@ -434,10 +392,14 @@ class ParticipantController extends Controller
                     ->with('success', 'Evaluasi telah selesai. Terima kasih telah berpartisipasi!');
             }
 
-            $id = $request->get('session_id', rand(100, 999));
+            $id = $request->get('session_id', session('participant_id'));
+            if (! $id) {
+                return redirect()->route('participant.welcome')->withErrors(['kode_join' => 'Sesi tidak valid. Masukkan kode join ulang.']);
+            }
+
             return redirect()->route('participant.waiting', [
                 'room' => $nextRoom,
-                'id'   => $id,
+                'id' => $id,
             ])->with('success', 'Pre-Test berhasil dikirim! Menunggu sesi Post-Test.');
         }
 
@@ -445,7 +407,9 @@ class ParticipantController extends Controller
         $type = $type === 'posttest' ? 'posttest' : 'pretest';
         $sessionId = $request->input('session_id');
         $answers = $request->input('answers', []);
-        if (!is_array($answers)) $answers = [];
+        if (! is_array($answers)) {
+            $answers = [];
+        }
 
         // Event + paket (agar kunci yang dipakai = paket event saat ini)
         $event = $this->resolveEvent(session('event_id'));
@@ -460,11 +424,13 @@ class ParticipantController extends Controller
         foreach ($questions as $q) {
             $given = strtoupper(trim($answers[$q['id']] ?? $answers[(string) $q['id']] ?? ''));
             $ok = $given !== '' && $given === strtoupper($q['kunci']);
-            if ($ok) $correct++;
+            if ($ok) {
+                $correct++;
+            }
             $graded[] = [
                 'question_id' => $q['id'],
-                'jawaban'     => $given !== '' ? $given : null,
-                'is_correct'  => $ok,
+                'jawaban' => $given !== '' ? $given : null,
+                'is_correct' => $ok,
             ];
         }
         $score = $total > 0 ? round($correct / $total * 100, 2) : 0;
@@ -472,73 +438,54 @@ class ParticipantController extends Controller
         $nGain = null;
         $category = null;
 
-        // Persist (DB): peserta + jawaban per butir. Skor & N-Gain dihitung
-        // observer Participant (delta, n_gain Hake, kategori, status).
+        // Persist transaksional: peserta + jawaban per butir.
         try {
-            if (Schema::hasTable('participants') && $sessionId) {
-                $participant = Participant::find($sessionId);
-                // Fallback: cocokkan via session_token bila id bukan PK numerik
-                if (!$participant && is_string($sessionId)) {
-                    $participant = Participant::where('session_token', $sessionId)->first();
-                }
-                if ($participant) {
-                    if ($type === 'pretest') {
-                        $participant->pretest_score = $score;
-                        $participant->status = 'jeda';
-                    } else {
-                        $participant->posttest_score = $score;
-                        // observer set status='selesai' saat kedua skor ada
-                    }
-                    $participant->save();
+            $participant = is_numeric($sessionId) ? Participant::find((int) $sessionId) : Participant::where('session_token', (string) $sessionId)->first();
+            if (! $participant) {
+                Log::warning('Submit quiz: peserta tidak ditemukan', ['session' => $sessionId]);
 
-                    if (Schema::hasTable('participant_answers')) {
-                        ParticipantAnswer::where('participant_id', $participant->id)
-                            ->where('stage', $type)->delete();
-                        foreach ($graded as $g) {
-                            ParticipantAnswer::create([
-                                'participant_id' => $participant->id,
-                                'question_id'    => $g['question_id'],
-                                'stage'          => $type,
-                                'jawaban'        => $g['jawaban'],
-                                'is_correct'     => $g['is_correct'],
-                            ]);
-                        }
-                    }
-
-                    $participant->refresh();
-                    $nGain = $participant->n_gain !== null ? (float) $participant->n_gain : null;
-                    $category = $participant->category;
-                }
+                return ApiResponse::notFound('Sesi peserta tidak ditemukan.');
             }
+            DB::transaction(function () use ($participant, $type, $score, $graded) {
+                if ($type === 'pretest') {
+                    $participant->pretest_score = $score;
+                    $participant->status = 'jeda';
+                } else {
+                    $participant->posttest_score = $score;
+                }
+                $participant->save();
+                ParticipantAnswer::where('participant_id', $participant->id)->where('stage', $type)->delete();
+                foreach ($graded as $g) {
+                    ParticipantAnswer::create([
+                        'participant_id' => $participant->id,
+                        'question_id' => $g['question_id'],
+                        'stage' => $type,
+                        'jawaban' => $g['jawaban'],
+                        'is_correct' => $g['is_correct'],
+                    ]);
+                }
+            });
+            $participant->refresh();
+            $nGain = $participant->n_gain !== null ? (float) $participant->n_gain : null;
+            $category = $participant->category;
+            Log::info('Quiz submit persist', ['participant_id' => $participant->id, 'type' => $type, 'score' => $score]);
         } catch (\Throwable $e) {
-            // Mock mode / DB belum siap: skor tetap dikembalikan tanpa simpan
-        }
+            Log::error('Submit quiz gagal', ['session' => $sessionId, 'err' => $e->getMessage()]);
 
-        // N-Gain kilat untuk respons posttest bila DB tidak menghitung
-        if ($type === 'posttest' && $nGain === null && $sessionId) {
-            try {
-                $p = Schema::hasTable('participants') ? Participant::find($sessionId) : null;
-                if ($p && $p->pretest_score !== null) {
-                    $pre = (float) $p->pretest_score;
-                    $nGain = $pre >= 100 ? null : round(($score - $pre) / (100 - $pre), 2);
-                }
-            } catch (\Throwable $e) {
-            }
+            return ApiResponse::fail('Gagal menyimpan jawaban. Coba lagi.', null, 500);
         }
 
         $nextUrl = $type === 'pretest'
             ? route('participant.waiting', ['room' => 'posttest', 'id' => $sessionId])
             : route('participant.welcome');
 
-        return response()->json([
-            'success'  => true,
-            'message'  => $type === 'pretest' ? 'Pre-Test berhasil dinilai.' : 'Post-Test berhasil dinilai.',
-            'score'    => $score,
-            'correct'  => $correct,
-            'total'    => $total,
-            'n_gain'   => $nGain,
+        return ApiResponse::ok([
+            'score' => $score,
+            'correct' => $correct,
+            'total' => $total,
+            'n_gain' => $nGain,
             'category' => $category,
             'next_url' => $nextUrl,
-        ]);
+        ], $type === 'pretest' ? 'Pre-Test berhasil dinilai.' : 'Post-Test berhasil dinilai.');
     }
 }

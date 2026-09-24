@@ -2,7 +2,7 @@
 
 @section('title', 'Kustomisasi Tampilan')
 @section('page-title', 'Kustomisasi Tampilan')
-@section('page-subtitle', 'Ubah logo, background login, nama aplikasi, dan warna primer tanpa coding — khusus superadmin')
+@section('page-subtitle', 'Ubah logo, background login, nama aplikasi, tanpa coding')
 
 @section('content')
 

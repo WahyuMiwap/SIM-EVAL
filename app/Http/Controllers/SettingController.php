@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\UpdateTampilanRequest;
 use App\Models\Setting;
 use App\Services\AuditService;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class SettingController extends Controller
@@ -18,39 +19,25 @@ class SettingController extends Controller
     public function edit()
     {
         $current = [
-            'nama'     => setting('app.nama'),
-            'subnama'  => setting('app.subnama'),
-            'warna'    => setting('app.warna_primer'),
-            'logo'     => setting('app.logo'),
+            'nama' => setting('app.nama'),
+            'subnama' => setting('app.subnama'),
+            'warna' => setting('app.warna_primer'),
+            'logo' => setting('app.logo'),
             'bg_login' => setting('app.bg_login'),
         ];
+
         return view('operator.pengaturan.tampilan', [
             'current' => $current,
-            'preset'  => self::WARNA_PRESET,
+            'preset' => self::WARNA_PRESET,
         ]);
     }
 
     /**
      * Simpan Kustomisasi Tampilan.
      */
-    public function update(Request $request)
+    public function update(UpdateTampilanRequest $request)
     {
-        $validated = $request->validate([
-            'nama'           => 'required|string|max:50',
-            'subnama'        => 'nullable|string|max:100',
-            'warna_primer'   => ['required', 'regex:/^#[0-9A-Fa-f]{6}$/'],
-            'logo'           => 'nullable|image|mimes:png,jpg,jpeg,webp|max:2048',
-            'hapus_logo'     => 'nullable|boolean',
-            'bg_login'       => 'nullable|image|mimes:png,jpg,jpeg,webp|max:5120',
-            'hapus_bg_login' => 'nullable|boolean',
-        ], [
-            'nama.required' => 'Nama aplikasi wajib diisi.',
-            'warna_primer.regex' => 'Warna primer tidak valid.',
-            'logo.image' => 'Logo harus berupa file gambar.',
-            'logo.max' => 'Ukuran logo maksimal 2 MB.',
-            'bg_login.image' => 'Background login harus berupa file gambar.',
-            'bg_login.max' => 'Ukuran background login maksimal 5 MB.',
-        ]);
+        $validated = $request->validated();
 
         $this->save('app.nama', trim($validated['nama']));
         $this->save('app.subnama', trim($validated['subnama'] ?? ''));
@@ -61,7 +48,7 @@ class SettingController extends Controller
         } elseif ($request->hasFile('logo')) {
             $this->deleteLogo();
             $path = $request->file('logo')->store('logo', 'public');
-            $this->save('app.logo', '/storage/' . $path);
+            $this->save('app.logo', '/storage/'.$path);
         }
 
         if ($request->boolean('hapus_bg_login')) {
@@ -69,10 +56,11 @@ class SettingController extends Controller
         } elseif ($request->hasFile('bg_login')) {
             $this->deleteBgLogin();
             $path = $request->file('bg_login')->store('bg_login', 'public');
-            $this->save('app.bg_login', '/storage/' . $path);
+            $this->save('app.bg_login', '/storage/'.$path);
         }
 
         AuditService::record('ubah_tampilan', 'setting', null, 'Kustomisasi tampilan diperbarui.');
+        Log::info('Tampilan diubah', ['by' => auth()->id()]);
 
         return redirect()->route('operator.setting.edit')
             ->with('success', 'Kustomisasi tampilan berhasil disimpan dan langsung berlaku.');

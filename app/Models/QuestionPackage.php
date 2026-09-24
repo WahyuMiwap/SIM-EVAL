@@ -25,9 +25,9 @@ class QuestionPackage extends Model
     protected function casts(): array
     {
         return [
-            'durasi'       => 'integer',
-            'jumlah_opsi'  => 'integer',
-            'acak_urutan'  => 'boolean',
+            'durasi' => 'integer',
+            'jumlah_opsi' => 'integer',
+            'acak_urutan' => 'boolean',
         ];
     }
 
@@ -39,11 +39,6 @@ class QuestionPackage extends Model
     public function questions(): HasMany
     {
         return $this->hasMany(Question::class, 'question_package_id')->orderBy('urutan');
-    }
-
-    public function events(): HasMany
-    {
-        return $this->hasMany(Event::class, 'pretest_package_id');
     }
 
     public function eventsPre(): HasMany

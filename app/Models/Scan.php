@@ -28,9 +28,9 @@ class Scan extends Model
     protected function casts(): array
     {
         return [
-            'raw_answers'   => 'array',
+            'raw_answers' => 'array',
             'score_percent' => 'decimal:2',
-            'captured_at'   => 'datetime',
+            'captured_at' => 'datetime',
         ];
     }
 

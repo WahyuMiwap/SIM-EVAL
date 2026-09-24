@@ -54,23 +54,29 @@
 <style>
 /* ── Topbar Layout Integration ──────────────────────────────────── */
 .topbar-title-wrap {
-    flex-shrink: 0;
-    min-width: 140px;
+    flex: 0 1 auto;
+    min-width: 0;
+    max-width: 420px;
 }
 .topbar-search-col {
-    flex: 1;
+    flex: 0 0 auto;
     display: flex;
-    justify-content: center;
-    padding: 0 1rem;
+    justify-content: flex-end;
+    margin-left: auto;
+    padding: 0 0 0 1rem;
     min-width: 0;
 }
 
 /* ── Global Search Styles ────────────────────────────────────────── */
 .global-search-wrapper {
     position: relative;
-    width: 100%;
-    max-width: 460px;
+    width: 400px;
+    max-width: 400px;
+    flex-shrink: 0;
     z-index: 50;
+}
+@media (max-width: 1280px) {
+    .global-search-wrapper { width: 320px; max-width: 320px; }
 }
 
 .global-search-input-box {
@@ -166,11 +172,12 @@
 .global-search-dropdown {
     position: absolute;
     top: calc(100% + 8px);
-    left: 50%;
-    transform: translateX(-50%);
-    width: 100%;
-    min-width: 480px;
-    max-width: 580px;
+    left: auto;
+    right: 0;
+    transform: none;
+    width: 400px;
+    min-width: 0;
+    max-width: min(480px, calc(100vw - 2rem));
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--r-lg);
@@ -181,8 +188,21 @@
 }
 
 @keyframes searchDropdownFadeIn {
-    from { opacity: 0; transform: translate(-50%, -6px); }
-    to   { opacity: 1; transform: translate(-50%, 0); }
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+@media (max-width: 1280px) {
+    .global-search-dropdown { width: 320px; max-width: min(420px, calc(100vw - 2rem)); }
+}
+@media (max-width: 1024px) {
+    .global-search-dropdown {
+        position: fixed;
+        top: 60px;
+        left: 0.75rem;
+        right: 0.75rem;
+        width: auto;
+        max-width: none;
+    }
 }
 
 .search-results-list {

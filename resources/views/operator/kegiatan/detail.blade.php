@@ -635,7 +635,7 @@
 
             {{-- QR Code Canvas --}}
             <div class="p-3.5 bg-white rounded-2xl border border-slate-200/70 inline-block mb-4 shadow-xs">
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data={{ urlencode(route('participant.welcome') . '?pin=' . $kegiatan->kode_join) }}"
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data={{ urlencode(url('/join?kode=' . $kegiatan->kode_join)) }}"
                      alt="QR Code Sesi" width="160" height="160" loading="lazy" class="w-40 h-40 object-contain rounded-xl"
                      onerror="this.closest('div').insertAdjacentHTML('beforeend','<p class=\'text-[11px] text-slate-400\'>QR butuh internet — gunakan PIN manual di bawah.</p>');this.remove();">
             </div>
